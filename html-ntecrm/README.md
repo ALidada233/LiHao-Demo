@@ -1,4 +1,4 @@
-# huachuang by zhuangjiajjian  2018-09-04
+# Transfrom by LiHao  2020-02-24
 
 > A Vue.js project（CRM）
 
@@ -31,5 +31,3 @@ npm test
 
 版本："webpack": "^3.6.0"
 
-
-#项目结构：
