@@ -1,0 +1,19 @@
+import Vue from 'vue'
+//去掉输入框前后端空格
+Vue.prototype.Vtrim=(v)=>{
+  return v.replace(/(^\s*)|(\s*$)/g,"");
+}
+//去掉输入框特殊字符
+Vue.prototype.VrChars=(v)=>{
+  
+}
+//去掉空格特殊字符
+Vue.prototype.VrSpciChars=(v)=>{
+  
+}
+
+
+//过滤器
+Vue.filter('trims',function(v){
+  v.replace(/(^\s*)|(\s*$)/g,"");
+});

@@ -1,0 +1,691 @@
+<template>
+  <div>
+    <div class="accessory">
+      <div class="edit-content">
+        <div class="edit-header clearPa">
+          <h2 class="left"></h2>
+          <h2 class="left">编辑辅件</h2>
+          <i @click="closeDialog" class="el-icon-close right"></i>
+        </div>
+
+        <div style="position: relative;" class="accessory-content">
+          <span>选择辅件</span>
+          <el-select
+            v-model="goodsName"
+            :popper-append-to-body="false"
+            multiple
+            placeholder="请选择辅件"
+          >
+            <el-option
+              v-for="item in goodsList"
+              :key="item.modelId"
+              :label="item.title+' '+item.brandName+' '+item.range+' '+item.accuracy+' '+item.outputSignal"
+              :value="item.modelId"
+            ></el-option>
+          </el-select>
+          <el-button
+            type="primary"
+            size="small"
+            style="margin-left: 10px;"
+            @click="confirmHandle"
+          >确定</el-button>
+        </div>
+
+        <!-- 编写报价内容 -->
+        <div style="min-height:430px;">
+          <div
+            v-for="(item,index) in offerList"
+            :key="index"
+            style="border-bottom: 1px solid #eee;margin-top: 10px;"
+          >
+            <div style="width:100%">
+              <el-form
+                :model="offerList[0]"
+                ref="detailOfferPriceList"
+                label-width="150px"
+                :rules="offerRules"
+              >
+                <el-form-item label="商品编码">
+                  <span>{{item.goodsNo}}</span>
+                </el-form-item>
+                <el-form-item label="商品型号" prop="goodsInfo">
+                  <!-- <span v-if="item.title">{{item.title}}-{{item.range}}-{{item.accuracy}}-{{item.outputSignal}}</span>
+                  <span v-else>{{item.goodsInfo}}</span>-->
+                  <el-autocomplete
+                    class="inline-input"
+                    v-model="item.goodsInfo"
+                    :fetch-suggestions="querySearch"
+                    @focus="selectModelList(item.modelList)"
+                    style="width:300px;"
+                    placeholder="请输入商品型号"
+                  ></el-autocomplete>
+                  <br />参考型号：
+                  <span
+                    v-if="item.title"
+                  >{{item.title}}-{{item.range}}-{{item.accuracy}}-{{item.outputSignal}}</span>
+                  <span v-else>{{item.goodsInfo}}</span>
+                </el-form-item>
+                <el-form-item label="型号编码">
+                  <span>{{item.modelNo}}</span>
+                </el-form-item>
+                <el-form-item label="商品报价">
+                  <span>
+                    ￥
+                    <el-input
+                      placeholder="请输入商品报价"
+                      style="width:20%"
+                      v-model="item.offer"
+                      clearable
+                      @blur="validateOffer(index)"
+                    ></el-input>
+                    <span style="color:#e4393c;">(必填：大于或等于0)</span>
+                  </span>
+                </el-form-item>
+                <el-form-item label="标准价格">
+                  <span>￥ {{item.standardPrice||'0.00'}}</span>
+                </el-form-item>
+                <el-form-item label="数量">
+                  <el-input placeholder="请输入数量" style="width:20%" v-model="item.quantity" clearable></el-input>
+                  <span style="color:#e4393c;">(必填：值大于0)</span>
+                </el-form-item>
+                <el-form-item label="商品折扣率">
+                  <span>{{item.discount||0}}%</span>
+                </el-form-item>
+                <el-form-item label="最终折扣率">
+                  <span>{{item.finalDiscount||0}}%</span>
+                </el-form-item>
+                <el-form-item label="总报价">
+                  <span>￥{{item.offer*item.quantity||'0.00'}}</span>
+                </el-form-item>
+                <el-form-item label="货期">
+                  <el-input placeholder style="width:20%" v-model="item.deliveryStart" clearable></el-input>--
+                  <el-input placeholder style="width:20%" v-model="item.deliveryEnd" clearable></el-input>周
+                  <span style="color:#e4393c;">(必填)</span>
+                </el-form-item>
+                <el-form-item label="备注">
+                  <el-input
+                    type="textarea"
+                    :rows="2"
+                    placeholder="请输入内容"
+                    style="width:50%;"
+                    v-model="item.remark"
+                  ></el-input>
+                  <el-button
+                    type="danger"
+                    style="margin-left:20px;"
+                    icon="el-icon-delete"
+                    size="mini"
+                    round
+                    @click="delOfferOption(item.modelId)"
+                  ></el-button>
+                  <el-radio v-model="checked" :label="item" style="margin-left:10px;">选中为申请折扣项</el-radio>
+                </el-form-item>
+              </el-form>
+            </div>
+            <p style="color:#e4393c;font-size:12px;text-align:center;padding:10px;">{{echoMsg}}</p>
+          </div>
+        </div>
+
+        <span class="edit-footer clearPa">
+          <el-button
+            class="right"
+            style="margin-right: 15px;margin-top:10px;"
+            @click="closeDialog"
+          >取 消</el-button>
+          <el-button
+            class="right"
+            style="margin-right: 10px;margin-top:10px;"
+            type="primary"
+            @click="submitFrom"
+          >确 定</el-button>
+          <el-button
+            class="right"
+            style="margin-right: 10px;margin-top:10px;"
+            type="primary"
+            @click="applicationHandle"
+          >申请折扣</el-button>
+        </span>
+      </div>
+    </div>
+    <!-- 申请低折扣 -->
+    <el-dialog title="折扣申请" :visible.sync="lowVisible" v-if="lowVisible" :append-to-body="true">
+      <div style="width:100%">
+        <el-form
+          ref="discountsApplication"
+          :model="discountsApplication"
+          label-width="150px"
+          :rules="disApplication"
+        >
+          <div>
+            <el-form-item label="商品信息">
+              <span v-html="discountsApplication.goodsName"></span>
+            </el-form-item>
+            <el-form-item label="原折扣率">
+              <span>{{discountsApplication.orgDiscount}} %</span>
+            </el-form-item>
+            <el-form-item label="申请折扣" prop="applyDiscount">
+              <span>{{discountsApplication.applyDiscount}}</span> %
+            </el-form-item>
+            <el-form-item label="原价">
+              <span>￥ {{discountsApplication.orgMoney}}</span>
+            </el-form-item>
+            <el-form-item label="申请价格">
+              <span>￥ {{discountsApplication.applyMoney}}</span>
+            </el-form-item>
+            <el-form-item label="备注（申请原因）" prop="reason">
+              <el-input
+                type="textarea"
+                :rows="2"
+                style="width:80%;"
+                placeholder="请输入内容"
+                v-model="discountsApplication.reason"
+              ></el-input>
+            </el-form-item>
+          </div>
+        </el-form>
+
+        <div style="border-bottom:1px solid #E4E7ED;"></div>
+      </div>
+      <div style="text-align: right;margin-top: 20px;">
+        <el-button size="small" @click="lowVisible=false">取消</el-button>
+        <el-button type="primary" size="small" @click="disApplicationHandle">确定</el-button>
+      </div>
+    </el-dialog>
+  </div>
+</template>
+<script type="text/javascript">
+import { saveDiscountApply } from "util/req/customer/demand";
+import { getGoodsList } from "util/req/offerList/index";
+import { formatDateTime } from "util/fn/transTime";
+
+import { getGoodsCompleteModel } from "util/req/offerList/index";
+export default {
+  name: "accessory",
+  data() {
+    return {
+      echoMsg: null,
+      goodsName: [], //选择的辅件
+      goodsList: [],
+      offerList: [],
+      modelList: [],
+      offerRules: {
+        goodsInfo: {
+          required: true,
+          trigger: "blur",
+          message: "商品型号不能为空"
+        },
+        quantity: [
+          {
+            required: true,
+            trigger: "blur",
+            message: "数量不能为空且为数字"
+          },
+          {
+            pattern: /^[1-9]\d*(\.\d+)?$/,
+            message: "只能输入大于0的数字"
+          }
+        ],
+        offer: [
+          {
+            required: true,
+            trigger: "blur",
+            message: "报价不能为空且为数字"
+          },
+          {
+            pattern: /^[1-9]\d*(\.\d+)?$/,
+            message: "只能输入大于0的数字"
+          }
+        ]
+      },
+      completedEditList: [],
+      checked: {},
+      lowVisible: false,
+      discountsApplication: {
+        goodsName: ""
+      },
+      disApplication: {
+        applyDiscount: [
+          {
+            required: true,
+            trigger: "blur",
+            message: "数量不能为空且为数字"
+          },
+          {
+            pattern: /^[1-9]\d*(\.\d+)?$/,
+            message: "只能输入大于0的数字"
+          }
+        ],
+        reason: {
+          required: true,
+          trigger: "blur",
+          message: "备注原因不能为空"
+        }
+      },
+      optLoading: false
+    };
+  },
+  props: {
+    modelId: {
+      type: Number
+    },
+    demandId: {
+      type: Number
+    },
+    offerEditId: {
+      type: Number
+    },
+    accessoryEditList: {
+      type: Array
+    },
+    accPartsList: {
+      type: Array
+    }
+  },
+  watch: {
+    modelId(val) {
+      if (this.accessoryEditList.length > 0) {
+        this.offerList = JSON.parse(JSON.stringify(this.accessoryEditList));
+      }
+      this.goodsList = JSON.parse(JSON.stringify(this.accPartsList));
+    },
+    accessoryEditList: {
+      handler(newVal) {
+        if (newVal.length == 0) {
+          this.offerList = [];
+        } else {
+          this.offerList = JSON.parse(JSON.stringify(newVal));
+          console.log(this.offerList);
+          this.offerList.forEach(item => {
+            getGoodsCompleteModel({ modelNo: item.modelNo }, res => {
+              item.modelList = res.data.map(item => {
+                item = {
+                  value: item
+                };
+                return item;
+              });
+            });
+          });
+        }
+      },
+      deep: true
+    },
+    checked(val) {
+      console.log(val);
+    },
+    lowVisible(status) {
+      //关闭申请低折扣弹框
+      if (status == false) {
+        this.discountsApplication = {};
+        this.checked = {};
+      }
+    }
+  },
+  methods: {
+    //从商品型号里选出匹配的信号
+    querySearch(queryString, cb) {
+      var restaurants = this.modelList;
+      var results = queryString
+        ? restaurants.filter(this.createFilter(queryString))
+        : restaurants;
+      // 调用 callback 返回建议列表的数据
+      cb(results);
+    },
+    createFilter(queryString) {
+      return restaurant => {
+        return (
+          restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) == 0
+        );
+      };
+    },
+    //获取商品型号
+    async getGoodsCompleteModel(modelNo) {
+      var modelList = [];
+      await getGoodsCompleteModel({ modelNo: modelNo }, res => {
+        modelList = res.data.map(item => {
+          item = {
+            value: item
+          };
+          return item;
+        });
+      });
+      return modelList;
+    },
+    //选中辅件型号列表
+    selectModelList(modelList) {
+      this.modelList = JSON.parse(JSON.stringify(modelList));
+    },
+    closeDialog() {
+      this.$emit("closeDialog");
+      this.offerList = [];
+      this.echoMsg = null;
+    },
+    confirmHandle() {
+      //确认选中品牌
+      if (this.goodsName.length == 0) {
+        return;
+      }
+      var selectGoodsList = [];
+      this.goodsName.forEach(item => {
+        this.goodsList.forEach(res => {
+          if (res.modelId == item) {
+            getGoodsCompleteModel({ modelNo: res.modelNo }, rows => {
+              res.modelList = rows.data.map(items => {
+                items = {
+                  value: items
+                };
+                return items;
+              });
+              console.log(res);
+              selectGoodsList.push(res);
+              //选中的列表添加到表格数据中
+              selectGoodsList = JSON.parse(JSON.stringify(selectGoodsList));
+              var oldInx = [],
+                newInx = [];
+              for (let k = 0; k < this.offerList.length; k++) {
+                oldInx.push(this.offerList[k].modelId);
+              }
+              for (let i = 0; i < selectGoodsList.length; i++) {
+                newInx.push(selectGoodsList[i].modelId);
+              }
+              var newSave = oldInx.concat(newInx);
+              var newSave = new Set(newSave);
+              newSave = Array.from(newSave);
+              for (var i = 0; i < oldInx.length; i++) {
+                for (var j = 0; j < newSave.length; j++) {
+                  if (oldInx[i] == newSave[j]) {
+                    newSave.splice(j, 1);
+                  }
+                }
+              }
+              if (newSave.length > 0) {
+                for (let i = 0; i < selectGoodsList.length; i++) {
+                  for (let k = 0; k < newSave.length; k++) {
+                    if (newSave[k] == selectGoodsList[i].modelId) {
+                      this.offerList.push(selectGoodsList[i]);
+                    }
+                  }
+                }
+              }
+              this.goodsName = [];
+              console.log("offerList", this.offerList);
+            });
+          }
+        });
+      });
+    },
+    submitFrom() {
+      if (this.offerList.length == 0) {
+        this.$emit("transmitAssistList", {
+          linkModelId: this.modelId
+        });
+        this.closeDialog();
+      }
+      //判断报价数据是否为空
+      for (var s = 0; s < this.offerList.length; s++) {
+        //验证报价
+        if (!/^(0|[1-9][0-9]*)$/.test(this.offerList[s].offer)) {
+          this.$message({
+            type: "info",
+            message: "请输入正确的报价"
+          });
+          return;
+        }
+        //验证数量
+        if (!/^([1-9][0-9]*)$/.test(this.offerList[s].quantity)) {
+          this.$message({
+            type: "info",
+            message: "请输入正确的数量"
+          });
+          return;
+        }
+        //验证日期
+        if (
+          !(
+            /^(0|[1-9][0-9]*)$/.test(this.offerList[s].deliveryStart) &&
+            /^(0|[1-9][0-9]*)$/.test(this.offerList[s].deliveryEnd)
+          )
+        ) {
+          this.$message({
+            type: "info",
+            message: "请输入正确的货期"
+          });
+          return;
+        }
+        //验证不留空
+        if (
+          !(
+            this.offerList[s].offer &&
+            this.offerList[s].quantity &&
+            this.offerList[s].deliveryStart &&
+            this.offerList[s].deliveryEnd
+          )
+        ) {
+          this.$message({
+            type: "info",
+            message: "报价数据没有填写完整"
+          });
+          return;
+        }
+      }
+      for (var e = 0; e < this.offerList.length; e++) {
+        var priceDiscount =
+          (Number(this.offerList[e].offer) /
+            Number(this.offerList[e].standardPrice)) *
+          100;
+        this.$set(this.offerList[e], "finalDiscount", priceDiscount);
+        if (priceDiscount < Number(this.offerList[e].discount)) {
+          this.echoMsg = "* 最终折扣率低于你的权限,请您申请折扣或者修改价格";
+          return;
+        } else {
+          this.echoMsg = null;
+        }
+      }
+
+      var totalOffer = 0,
+        discount = 0,
+        standardPrice = 0,
+        quantity = 0,
+        finalDiscount = 0,
+        paramsList = [];
+      var goodsInfo = "";
+      for (let i = 0; i < this.offerList.length; i++) {
+        totalOffer +=
+          Number(this.offerList[i].offer) * Number(this.offerList[i].quantity); //总报价
+        standardPrice +=
+          Number(this.offerList[i].standardPrice) *
+          Number(this.offerList[i].quantity); //总标准价
+        discount = Number(this.offerList[i].discount); //折扣率
+        quantity += Number(this.offerList[i].quantity); //总数量
+        paramsList.push({
+          goodsModelId: this.offerList[i].modelId,
+          modelId: this.offerList[i].modelId,
+          goodsNo: this.offerList[i].goodsNo, // 商品编号
+          // goodsInfo: this.offerList[i].title
+          //   ? this.offerList[i].title +
+          //     "—" +
+          //     this.offerList[i].range +
+          //     "—" +
+          //     this.offerList[i].accuracy +
+          //     "—" +
+          //     this.offerList[i].outputSignal
+          //   : this.offerList[i].goodsInfo, // 商品信息（名称，品牌，类别，型号）
+          goodsInfo: this.offerList[i].goodsInfo,
+          title: this.offerList[i].title,
+          range: this.offerList[i].range,
+          type: 0,
+          accuracy: this.offerList[i].accuracy,
+          outputSignal: this.offerList[i].outputSignal,
+          standardPrice: this.offerList[i].standardPrice,
+          modelNo: this.offerList[i].modelNo, // 产品编号
+          offer: Number(this.offerList[i].offer), // 商品报价
+          goodsOffer: Number(this.offerList[i].standardPrice), // 商品标准价
+          quantity: Number(this.offerList[i].quantity), // 数量
+          discount: Number(this.offerList[i].discount), // 业务员折扣率
+          finalDiscount:
+            Math.round(Number(this.offerList[i].finalDiscount) * 100) / 100, // 最终折扣
+          deliveryStart: this.offerList[i].deliveryStart,
+          deliveryEnd: this.offerList[i].deliveryEnd,
+          remark: this.offerList[i].remark,
+          goodsModel: {
+            goodsNo: this.offerList[i].goodsNo,
+            range: this.offerList[i].range,
+            accuracy: this.offerList[i].accuracy,
+            outputSignal: this.offerList[i].outputSignal,
+            price: this.offerList[i].price
+          }
+        });
+      }
+      var params = {
+        linkModelId: this.modelId,
+        id: this.offerEditId || {},
+        demandId: Number(this.demandId),
+        totalOffer: totalOffer, //总报价
+        goodsOffer: standardPrice, //总标准价
+        quantity: quantity, //总数量
+        discount: discount, //业务员折扣率
+        finalDiscount:
+          Math.round((totalOffer / standardPrice) * 100 * 100) / 100, //最终折扣率
+        offerGoodsList: paramsList
+      };
+      this.$emit("transmitAssistList", JSON.parse(JSON.stringify(params)));
+      this.closeDialog();
+
+      //})
+    },
+    validateOffer(index) {
+      if (!this.offerList[index].offer) {
+        return;
+      }
+      var priceDiscount =
+        (Number(this.offerList[index].offer) /
+          Number(this.offerList[index].standardPrice)) *
+        100;
+      this.$set(
+        this.offerList[index],
+        "finalDiscount",
+        priceDiscount.toFixed(2)
+      );
+    },
+    delOfferOption(modelId) {
+      //根据id删除选中的内容
+      if (this.checked) {
+        //如果删除项是申请折扣的保存项就清空checked内容
+        if (this.checked.modelId == modelId) {
+          this.checked = {};
+        }
+      }
+      var s = 0;
+      var f = 0;
+      for (var i = 0; i < this.offerList.length; i++) {
+        if (this.offerList[i].modelId == modelId) {
+          s = i;
+        }
+      }
+      for (var j = 0; i < this.completedEditList.length; j++) {
+        if (this.completedEditList[j].modelId == modelId) {
+          f = j;
+        }
+      }
+      this.offerList.splice(s, 1);
+      if (f != "" || f != null) {
+        this.completedEditList.splice(f, 1);
+      }
+    },
+    applicationHandle() {
+      //申请低折扣
+      if (Object.keys(this.checked).length > 0) {
+        //选中内容情况下
+        this.lowVisible = true;
+        this.discountsApplication.goodsName =
+          this.checked.goodsInfo ||
+          this.checked.title +
+            "-" +
+            this.checked.range +
+            "-" +
+            this.checked.accuracy +
+            "-" +
+            this.checked.outputSignal;
+        this.discountsApplication.modelNo = this.checked.modelNo;
+        this.discountsApplication.goodsNo = this.checked.goodsNo;
+        this.discountsApplication.applyDiscount = this.checked.finalDiscount;
+        this.discountsApplication.orgDiscount = this.checked.discount;
+        this.discountsApplication.modelId = this.checked.modelId;
+        this.discountsApplication.applyMoney = this.checked.offer;
+        this.discountsApplication.orgMoney = this.checked.standardPrice;
+      } else {
+        this.$message({
+          type: "info",
+          message: "请勾选内容再进行申请低折扣"
+        });
+      }
+    },
+    disApplicationHandle() {
+      //确定折扣申请
+      this.discountsApplication.demandId = this.modelId;
+      this.$refs.discountsApplication.validate(valid => {
+        this.discountsApplication.applyDiscount =
+          Math.floor(
+            (this.discountsApplication.applyMoney /
+              this.discountsApplication.orgMoney) *
+              10000
+          ) / 100;
+        if (valid) {
+          saveDiscountApply(this.discountsApplication, res => {
+            if (res.msgCode == 200) {
+              this.$message({
+                type: "success",
+                message: res.msg
+              });
+              this.lowVisible = false;
+              this.checked = null;
+              this.delOfferOption(this.discountsApplication.modelId);
+            } else {
+              this.$message({
+                type: "info",
+                message: res.msg
+              });
+            }
+          });
+        }
+      });
+    },
+    cptstock(paramsList) {}
+  },
+  mounted() {}
+};
+</script>
+<style lang="scss" scoped>
+.accessory {
+  background: #fff;
+  width: 80%;
+  max-height: 650px;
+  margin: 1% auto 5%;
+  background: #fff;
+  border-radius: 2px;
+  overflow-y: scroll;
+}
+
+.edit-content {
+  background: #fff;
+  border-radius: 4px;
+  margin: 3% auto 0px;
+  width: 90%;
+  padding: 20px 25px;
+}
+
+.edit-header {
+  width: 100%;
+  height: 35px;
+  line-height: 35px;
+  margin-bottom: 20px;
+}
+
+h2 {
+  font-size: 18px;
+}
+
+i {
+  font-size: 18px;
+  line-height: 35px;
+}
+</style>

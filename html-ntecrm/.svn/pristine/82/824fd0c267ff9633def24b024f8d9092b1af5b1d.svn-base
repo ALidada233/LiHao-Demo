@@ -1,0 +1,228 @@
+<template>
+	<div class="jurisdiction">
+        
+        <div style="width:60%;">
+            <el-button type="primary" icon="el-icon-plus" size="small" style="margin-bottom:20px;" @click="dialogVisible = true;pid=0;"></el-button>
+            <el-tree
+            :data="dataList"
+            node-key="id"
+            updateResource
+            :default-expand-all="true"
+            :props="prop"
+            :expand-on-click-node="false">
+                <span class="custom-tree-node" slot-scope="{ node, data }">
+                    <span>{{ node.label}}</span>
+                    <span v-if="data.type==1">菜单</span>
+                    <span v-if="data.type==2">功能</span>
+                    <div style="width:200px;display:flex;align-items: center;justify-content: space-between;">
+                        <el-button
+                            type="text"
+                            size="mini"
+                            icon="el-icon-plus"
+                            @click="dialogVisible = true;pid=data.id">
+                            新增
+                        </el-button>
+                        <el-button
+                            type="text"
+                            size="mini"
+                            icon="el-icon-edit"
+                            @click="dialogVisible = true;pid=data.id;form=data;handleType=2;">
+                            修改
+                        </el-button>
+                        <el-button
+                            type="text"
+                            size="mini"
+                            icon="el-icon-delete"
+                            @click="delResource(data)">
+                            删除
+                        </el-button>
+                    </div>
+                    
+                    
+                </span>
+            </el-tree>
+        </div>
+		
+        <!-- 添加树形 -->
+        <el-dialog
+            title="添加树形"
+            :visible.sync="dialogVisible"
+            width="50%"
+            :before-close="handleClose">
+            <el-form ref="form" :model="form" label-width="80px">
+                <el-form-item label="名称">
+                    <el-input v-model="form.name"></el-input>
+                </el-form-item>
+                <el-form-item label="排序">
+                    <el-input v-model="form.sort"></el-input>
+                </el-form-item>
+                <el-form-item label="类型">
+                    <el-radio-group v-model="form.type">
+                    <el-radio :label="1">菜单</el-radio>
+                    <el-radio :label="2">功能</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="地址">
+                    <el-input v-model="form.url"></el-input>
+                </el-form-item>
+                <el-form-item label="ICON">
+                    <el-input v-model="form.icoUrl"></el-input>
+                </el-form-item>
+                <el-form-item label="描述">
+                    <el-input type="textarea" v-model="form.dscribe "></el-input>
+                </el-form-item>
+                
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="addAfter">确 定</el-button>
+            </span>
+        </el-dialog>
+	</div>
+</template>
+<script type="text/javascript">
+    import {getRoleResourceList,addResource,delResource,updateResource} from "util/req/jurisdiction/index"
+	export default{
+		name:'jurisdiction',
+		data() { 
+            return {
+                dataList: [],
+                form:{
+                    type:1
+                },
+                dialogVisible:false,
+                prop:{
+                    label:'name',
+                    id:'pid',
+                    type:'type',
+                    url:'url',
+                    children:'children',
+                    dscribe:'dscribe'
+                },
+                pid:null,      //选中pid
+                handleType:1   //1是新增，2是修改
+            }
+        },
+        watch:{
+            dialogVisible(val){
+                if(!val){
+                    this.form={}
+                    this.pid=null
+                    this.handleType=1
+               }
+            }
+        },
+		methods:{
+            handleClose(){
+                this.dialogVisible=false;
+            },
+            remove(node, data) {
+                const parent = node.parent;
+                const children = parent.data.children || parent.data;
+                const index = children.findIndex(d => d.id === data.id);
+                children.splice(index, 1);
+            },
+            addAfter(pid){              
+                this.dialogVisible = true;
+                this.form.pid=this.pid;
+                if(this.handleType==1){
+                    addResource(this.form,res=>{    //新增
+                        if(res.msgCode==200){
+                            this.$message({
+                                message: res.msg,
+                                type: 'success'
+                            });
+                            this.dialogVisible = false;
+                            this.getRoleResourceList();
+                        }else{
+                            this.$message.error(res.msg);
+                        }  
+                    })
+                }else{
+                    updateResource(this.form,res=>{    //新增
+                        if(res.msgCode==200){
+                            this.$message({
+                                message: res.msg,
+                                type: 'success'
+                            });
+                            this.dialogVisible = false;
+                            this.getRoleResourceList();
+                        }else{
+                            this.$message.error(res.msg);
+                        }  
+                    })
+                }
+               
+            },
+            delResource(row){
+                if(row.children.length>0){
+                    this.$message({
+                        type: 'info',
+                        message: '该条信息存在子选项，无法直接删除！'
+                    }); 
+                    return
+                }
+                var type=row.type==2?'功能: ':'菜单: ';
+                this.$confirm('您确定删除该'+type+row.name+' , 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    delResource({resId:row.id},res=>{
+                        if(res.msgCode==200){
+                            this.$message({
+                                type: 'success',
+                                message:res.msg
+                            });
+                            this.getRoleResourceList();
+                        }else{
+                            this.$message({
+                                type: 'info',
+                                message: res.msg
+                            }); 
+                        }
+                    })   
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });          
+                });
+                
+            },
+            getRoleResourceList(){      //获取权限列表
+                var params={
+                    roleId:JSON.parse(sessionStorage.getItem("userDto")).roleId
+                }
+                getRoleResourceList(params,res=>{
+                    console.log(res)
+                    this.dataList=res.data.resourceList
+                })
+            }
+		},
+		components:{
+
+
+		},
+		mounted(){
+			this.getRoleResourceList()
+		}
+	}
+</script>
+<style lang=scss scoped>
+.jurisdiction{
+	background-color:#fff;
+	border-radius:4px;
+	width:100%;
+	padding:20px;
+	box-sizing:border-box;
+}
+.custom-tree-node {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    padding-right: 8px;
+}
+</style>

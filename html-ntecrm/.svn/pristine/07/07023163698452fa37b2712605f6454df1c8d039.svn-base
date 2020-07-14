@@ -1,0 +1,685 @@
+<template>
+  <div class="operator">
+    <div>
+      <!-- 姓名: -->
+      <el-input style="width: 30%;" placeholder="请输入姓名" size="medium" v-model="searchContent" clearable>
+      </el-input>
+      <el-button type="primary" size="medium" style="margin-bottom: 10px;" @click.native.prevent='searchHandle' icon="el-icon-search"></el-button>
+      <el-button type="primary" size="medium" style="margin-bottom: 10px;" @click="dialogVisible=true;searchRegion()"
+        icon="el-icon-plus"></el-button>
+    </div>
+    <div class="operatorTable">
+      <el-table :data="dataList" style="width: 100%" height="500" :border="true" v-loading="loading">
+        <!--<el-table-column
+		        prop="selected"
+		        label="选中"
+		        align="center" 
+		        width="120">
+					<template slot-scope="scope">
+					   <div>
+					  	 	<el-checkbox v-model="scope.row.selected" @click.native.prevent="changeSelect(scope.row.id)"></el-checkbox>
+					   </div> 
+					</template>
+		      </el-table-column> -->
+        <el-table-column fixed label="操作" width="180">
+          <template slot-scope="scope">
+            <el-button size="mini" round type="primary" icon="el-icon-edit" @click="editHandle(scope.row.id)"></el-button>
+            <el-button v-tip.top.dark="'转移客户'" type="warning" icon="el-icon-refresh" size="mini" round @click="moveOperator(scope.row.id)"></el-button>
+            <el-tooltip :content="scope.row.status==0?'锁定':'解锁'" placement="top" style="margin-bottom:-35px">
+              <el-switch v-model="scope.row.status" active-color="#ff4949" inactive-color="#13ce66" :active-value="1"
+                @change="switchChange(scope.row.status,scope.row.id)" :inactive-value="0" style="margin-left: 10px;">
+              </el-switch>
+            </el-tooltip>
+            <br>
+            <el-button style="margin-top:5px" v-tip.top.dark="'重置密码'" type="success" icon="el-icon-refresh" size="mini"
+              round @click="returnOperPwdHandle(scope.row.id)"></el-button>
+            <el-button style="margin-top:5px" type="danger" icon="el-icon-delete" size="mini" round @click="switchChange(2,scope.row.id)"></el-button>
+          </template>
+        </el-table-column>
+        <!-- <el-table-column
+		        prop="id"
+		        label="ID"
+		        align="center"
+		        width="80">
+		      </el-table-column> -->
+        <el-table-column prop="code" label="登录名" align="center" width="100">
+        </el-table-column>
+        <el-table-column prop="name" label="姓名" align="center" width="100">
+        </el-table-column>
+        <el-table-column prop="nameabbv" label="姓名缩写" align="center" width="100">
+        </el-table-column>
+        <el-table-column prop="telphone" label="手机号" align="center" width="120">
+        </el-table-column>
+        <el-table-column prop="email" label="邮箱" align="center" width="200">
+        </el-table-column>
+        <el-table-column prop="roleName" label="角色" align="center" width="120">
+        </el-table-column>
+        <el-table-column prop="operatorDiscount" label="折扣率(%)" align="center" width="100">
+        </el-table-column>
+        <el-table-column prop="status" align="center" label="状态">
+          <template slot-scope="scope">
+            <span v-if="scope.row.status==0">有效</span>
+            <span v-if="scope.row.status==1">无效</span>
+            <span v-if="scope.row.status==3">有效</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="regionName" label="区域" width="200">
+        </el-table-column>
+        <el-table-column prop="remark" label="描述">
+        </el-table-column>
+        <!--   <el-table-column
+		        prop="address"
+		        label="锁定状态">
+		        	<template slot-scope="scope">
+		        		<el-switch
+						  v-model="scope.row.address"
+						  active-color="#13ce66"
+						  inactive-color="#ff4949" @change="lockingHandle(scope.row.id)">
+						</el-switch>
+						<span style="font-size: 12px;">已关闭</span>
+		        	</template>
+		      </el-table-column> -->
+      </el-table>
+    </div>
+
+    <!--分页-->
+    <div class="clearPa edit">
+      <!-- <div style="float:left;padding-top: 8px;">
+				<span style="color: #999;font-size: 11px;"><span v-if="editButton">未选中</span><span v-else> 已选</span></span>
+				<el-button size="small" type="primary"  :disabled="editButton" @click="editHandle(true)"><i class="el-icon-edit-outline"></i>编辑</el-button>
+				
+				<el-button size="small" type="primary"  :disabled="editButton" @click="resetShow=true"><i class="el-icon-setting"></i> 重置</el-button>
+			</div> -->
+
+      <div class="block" style="float: right;margin-top:10px;">
+        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="currentPage"
+          :page-sizes="[5, 10, 15, 30]" :page-size="pageSize" layout="sizes, prev, pager, next, total" :total="pageCount">
+        </el-pagination>
+      </div>
+    </div>
+
+    <el-dialog title="新增管理员" :visible.sync="dialogVisible" width="50%" :before-close="handleClose" class="dialog">
+      <el-form :model="form" ref="form" style="height:400px;overflow:scroll;" :rules="rules">
+        <div>
+          <el-form-item label="登录名" prop="code" :label-width="formLabelWidth" style="margin-top:10px;">
+            <el-input v-model="form.code" autocomplete="off" maxlength="200" style="width: 80%;" @blur="checkOperatorCode()"></el-input>
+            <br><span style="color:red">{{checkCodeMsg}}</span>
+          </el-form-item>
+          <el-form-item label="姓名" prop="name" :label-width="formLabelWidth" style="">
+            <el-input v-model="form.name" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+          </el-form-item>
+          <el-form-item label="姓名英文缩写" prop="nameabbv" :label-width="formLabelWidth" style="margin-top:10px;">
+            <el-input v-model="form.nameabbv" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+          </el-form-item>
+          <el-form-item label="密码" prop="password" :label-width="formLabelWidth" style="">
+            <el-input v-model="form.password" type="password" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+          </el-form-item>
+          <el-form-item label="手机号" prop="telphone" :label-width="formLabelWidth" style="">
+            <el-input v-model="form.telphone" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+          </el-form-item>
+          <el-form-item label="邮箱" prop="email" :label-width="formLabelWidth" style="">
+            <el-input v-model="form.email" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+          </el-form-item>
+          <el-form-item label="角色设置" prop="roleId" :label-width="formLabelWidth" style="">
+            <el-select v-model="form.roleId" placeholder="请选择">
+              <el-option v-for="item in roleList" :key="item.id" :label="item.name" :value="item.id">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="区域选择" v-if="toggleDiscount" prop="operatorRegionList" :label-width="formLabelWidth"
+            style="">
+            <el-select v-model="form.operatorRegionList" multiple placeholder="请选择">
+              <el-option v-for="item in regionList" :key="item.id" :label="item.name" :value="item.id">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="折扣率" prop="operatorDiscount" :label-width="formLabelWidth" style="">
+            <el-input v-model="form.operatorDiscount" type="number" min="0" max="100" autocomplete="off" value="0"
+              style="width: 30%;"></el-input> %
+            <span>（如75折则输入75）</span>
+          </el-form-item>
+          <el-form-item label="描述" :label-width="formLabelWidth" style="">
+            <el-input v-model="form.remark" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+          </el-form-item>
+        </div>
+      </el-form>
+
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="handleClose">取 消</el-button>
+        <el-button type="primary" @click="submitHandle">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!--新增&编辑-->
+    <transition name="el-fade-in-linear">
+      <operator-edit @changeEdit="closeEdit" v-show="editShow" :editState="editState" :editList="editList"></operator-edit>
+    </transition>
+
+    <!--重置-->
+    <!-- <transition name="el-fade-in-linear">
+			<operator-reset @changeReset="closeReset" v-show="resetShow"></operator-reset>
+		</transition> -->
+
+    <!-- 转移人选择列表 -->
+    <el-dialog title="提示" :visible.sync="operatorVisible" width="50%" :before-close="handleClose">
+
+      <el-form>
+        <el-form-item label="选择转移人" :label-width="formLabelWidth">
+          <el-select v-model="moveOperatorId" placeholder="请选择转移人">
+            <el-option v-for="item in nameList" :key="item.id" :label="item.name" :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="operatorVisible = false">取 消</el-button>
+        <el-button type="primary" @click="comfirmMove">确 定</el-button>
+      </span>
+    </el-dialog>
+
+  </div>
+</template>
+<script type="text/javascript">
+  import operatorEdit from "@/page/admin/operator/components/operatorEdit"
+  //import operatorReset from "@/page/admin/operator/components/operatorReset"
+  import {
+    getTable,
+    setManage,
+    customerMigrate,
+    checkOperatorCode,
+    returnOperPwd
+  } from "util/req/operator/index";
+  import {
+    queryRolePage
+  } from "util/req/role/index";
+  import {
+    queryRegionPage
+  } from "util/req/region/index";
+  import md5 from 'js-md5';
+  export default {
+    name: 'operator',
+    data() {
+      return {
+        checkCodeMsg: null,
+        formLabelWidth: "120px",
+        dialogVisible: false,
+        isNameTrue: true,
+        searchContent: '',
+        dataList: null,
+        loading: false, //表格数据加载样式
+        currentId: null,
+        editButton: true, //编辑按钮状态
+        editShow: false,
+        resetShow: false,
+        editState: false, //编辑&新增状态
+        currentPage: 1,
+        pageSize: 10,
+        pageCount: null,
+        form: { //表单信息
+          code: null,
+          name: null,
+          nameabbv: null,
+          password: null,
+          roleId: null,
+          operatorRegionList: [],
+          remark: null,
+          status: null
+
+        },
+        rules: {
+          code: [{
+              required: true,
+              trigger: 'blur',
+              message: "编码内容不能为空"
+            },
+            {
+              min: 3,
+              message: "登录名至少3位"
+            }
+          ],
+          name: {
+            required: true,
+            trigger: 'blur',
+            message: "名字不能为空"
+          },
+          nameabbv: [{
+              required: true,
+              trigger: 'blur',
+              message: "名字英文缩写不能为空"
+            },
+            {
+              pattern: /^[A-Z]+$/,
+              message: "只能输入大写英文字母"
+            }
+          ],
+          password: [{
+              required: true,
+              trigger: 'blur',
+              message: "密码不能为空"
+            },
+            {
+              min: 6,
+              max: 16,
+              message: "密码6-16位"
+            }
+          ],
+          roleId: {
+            required: true,
+            trigger: 'select',
+            message: "角色不能为空"
+          },
+          operatorRegionList: {
+            required: true,
+            trigger: 'select',
+            message: "区域不能为空"
+          },
+          operatorDiscount: [{
+              required: true,
+              trigger: 'blur',
+              message: "折扣率不能为空且为数字"
+            },
+            {
+              pattern: /^(?:[1-9]?\d|100)$/,
+              message: "只能输入0-100"
+            }
+          ],
+          email: [{
+            required: false,
+            trigger: 'blur',
+            pattern: /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/,
+            message: "请输入正确的邮箱"
+          }],
+          telphone: [{
+              required: true,
+              trigger: 'blur',
+              message: "客户电话不能为空"
+            },
+            {
+              pattern: /^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/,
+              message: "请输入正确的格式"
+            }
+          ]
+        },
+        roleList: [],
+        editList: {},
+        switchNum: 0,
+        toggleDiscount: false,
+        regionList: [],
+        operatorVisible: false,
+        nameList: [],
+        moveOperatorId: null,
+        selectId: null //点击选中管理员ID	
+      }
+    },
+    watch: {
+      'form.name': function (val) {
+        // this.isNameTrue=false;
+        // if(val==null||val==""){return}
+      },
+      currentId(val) { //表格数据选中处理
+        if (val != null) {
+          this.editButton = false
+        } else {
+          this.editButton = true
+        }
+      },
+      'form.roleId'(id) {
+        if (id == 38) { //38为销售的选项
+          this.toggleDiscount = true;
+        } else {
+          this.toggleDiscount = false;
+          this.form.operatorDiscount = 0;
+        }
+      },
+      operatorVisible(status) {
+        if (status == false) {
+          this.moveOperatorId = null;
+        }
+      }
+    },
+    methods: {
+      changeSelect(id) {
+        if (this.currentId != id) {
+          this.currentId = id;
+          this.dataList.map((item) => {
+            if (this.currentId != item.id) {
+              item.selected = false;
+            } else {
+              item.selected = true;
+            }
+            return item
+          })
+        } else if (this.currentId == id) {
+          this.currentId = null;
+          this.dataList.map((item) => {
+            item.selected = false;
+            return item
+          })
+        }
+      },
+      closeEdit(state) {
+        this.editShow = state;
+        this.obtainTable();
+      },
+      closeReset(state) {
+        this.resetShow = state
+      },
+      returnOperPwdHandle(id) {
+        var params = {};
+        params.id = id;
+        this.$prompt('请输入重置密码', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+        }).then(({
+          value
+        }) => {
+          params.password = md5(value);
+          if (value == null || value == "") {
+            this.$message({
+              type: 'info',
+              message: '请输入重置密码'
+            });
+            return;
+          }
+          returnOperPwd(params, res => {
+            if (res.msgCode == 200) {
+              this.$message({
+                type: 'success',
+                message: res.msg
+              });
+              this.queryDiscountList();
+            } else {
+              this.$message({
+                type: 'info',
+                message: res.msg
+              });
+            }
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '取消输入'
+          });
+        });
+      },
+      lockingHandle(id) {
+        this.$confirm('此操作将锁定操作人, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '操作成功!'
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消锁定'
+          });
+        });
+      },
+      editHandle(id) {
+        this.editShow = true;
+        var newItem = this.dataList.filter(item => {
+          return item.id == id
+        })
+        this.editList = JSON.parse(JSON.stringify(newItem[0]));
+      },
+      obtainTable(val) { //获取表格数据
+        if (val == 1) {
+          this.currentPage = val;
+        }
+        var params = {
+          pageSize: this.pageSize, //每页数量
+          page: this.currentPage, //当前页
+          name: this.searchContent || {}
+        };
+        this.loading = true;
+        getTable(params, res => {
+          res = res.data;
+          this.dataList = res.list;
+          this.pageCount = res.pageCount;
+          console.log(res);
+          setTimeout(() => {
+            this.loading = false;
+          }, 200)
+        })
+      },
+      handleSizeChange(pageSize) { //数据条数改变时
+        this.loading = true;
+        this.pageSize = pageSize;
+        this.currentPage = 1;
+        this.currentId = [];
+        this.editButton = true;
+        this.obtainTable();
+      },
+      handleCurrentChange(currentPage) { //选取分页
+        this.loading = true;
+        this.currentId = [];
+        this.editButton = true;
+        this.currentPage = currentPage;
+        this.obtainTable();
+      },
+      searchHandle() { //按名字查询
+        this.obtainTable(1);
+      },
+      handleClose() { //关闭新增窗口
+        this.dialogVisible = false;
+        this.resetForm();
+      },
+      resetForm() {
+        this.form.code = "";
+        this.form.name = "";
+        this.form.nameabbv = "";
+        this.form.password = "";
+        this.form.telphone = "";
+        this.form.email = "";
+        this.form.remark = "";
+        this.form.operatorDiscount = 0;
+        this.form.roleId = null;
+        this.form.operatorRegionList = [];
+        this.isNameTrue = true;
+        this.queryRolePage()
+      },
+      submitHandle() { //提交新增管理员
+        if (!this.isNameTrue) {
+          return;
+        }
+        var password = this.form.password
+        var params = {
+          code: this.form.code,
+          name: this.form.name,
+          nameabbv: this.form.nameabbv,
+          password: md5(password),
+          remark: this.form.remark || {},
+          roleId: this.form.roleId,
+          telphone: this.form.telphone,
+          email: this.form.email,
+          operatorRegionList: this.handleArray(this.form.operatorRegionList),
+          operatorDiscount: this.form.operatorDiscount || 0
+        }
+
+        this.$refs.form.validate(valid => {
+          if (valid) {
+            setManage(params, res => {
+              if (res.msgCode == 200) {
+                this.obtainTable(1);
+                this.handleClose();
+                this.$message({
+                  message: '管理员添加成功',
+                  type: 'success',
+                  onClose: () => {
+                    this.resetForm();
+                  }
+                });
+              } else {
+                //登录失败
+                this.$alert(res.msg, '添加提示', {
+                  confirmButtonText: '确定',
+                  callback: action => {
+                    this.handleClose();
+                  }
+                })
+              }
+            })
+          }
+        })
+      },
+      filterHandle(value) {
+        setTimeout(() => {
+          this.roleList.filter(item => {
+            if (item.id == value) {
+              return item.name
+            }
+          })
+        }, 200)
+
+      },
+      queryRolePage() {
+        queryRolePage(null, res => {
+          console.log(res);
+          this.roleList = res.data.list;
+        })
+      },
+      switchChange(status, id) {
+        console.log(status, id);
+        var params = {
+          status: status,
+          id: id
+        }
+        setManage(params, res => {
+          if (res.msgCode == "200") {
+            this.$message({
+              type: 'success',
+              message: res.msg
+            });
+            this.obtainTable();
+          } else {
+            this.$message({
+              type: 'info',
+              message: res.msg
+            });
+          }
+        })
+      },
+      searchRegion() { //点击新增查询区域列表
+        queryRegionPage({
+          page: 1,
+          pageSize: 100
+        }, res => {
+          this.regionList = res.data.list;
+        })
+      },
+      handleArray(arr) {
+        var newItem = [];
+        for (var i = 0; i < arr.length; i++) {
+          newItem.push({
+            'regionId': arr[i]
+          })
+        }
+        return newItem
+      },
+      moveOperator(id) {
+        this.operatorVisible = true;
+        this.selectId = id;
+        getTable({
+          pageSize: 1000,
+          page: 1
+        }, res => {
+          res = res.data.list;
+          var newItem = res.filter(item => {
+            return item.id != id
+          })
+          this.nameList = newItem;
+        })
+      },
+      comfirmMove() {
+        //this.operatorVisible = false;
+        if (this.moveOperatorId == null) {
+          this.$message('请先选中转移人！');
+          return
+        }
+        var params = {
+          mId: this.moveOperatorId,
+          id: this.selectId
+        }
+        customerMigrate(params, res => {
+          if (res.msgCode == 200) {
+            this.$message({
+              type: 'success',
+              message: res.msg
+            });
+            this.operatorVisible = false;
+            this.obtainTable(1);
+          } else {
+            this.$message({
+              type: 'info',
+              message: res.msg
+            });
+          }
+        })
+        console.log(parmas);
+      },
+      handleClose() {
+        this.dialogVisible = false;
+        this.operatorVisible = false;
+				this.moveOperatorId = null;
+				this.resetForm();
+      },
+      checkOperatorCode() { //验证管理员登录名
+        if (!this.form.code) {
+          return
+        }
+        checkOperatorCode({
+          code: this.form.code
+        }, res => {
+          if (res.msgCode == 302) {
+            this.checkCodeMsg = res.msg;
+            this.isNameTrue = false;
+          } else {
+            this.checkCodeMsg = ""
+            this.isNameTrue = true;
+          }
+        })
+      }
+    },
+    mounted() {
+      this.obtainTable();
+      this.queryRolePage();
+    },
+    components: {
+      operatorEdit,
+      // operatorReset
+    }
+  }
+
+</script>
+<style lang=scss scoped>
+  .operator {
+    background-color: #fff;
+    border-radius: 4px;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  .operatorTable {
+    margin-top: 20px;
+  }
+
+  .operatorTable /deep/ th {
+    background-color: #EFEDF0 !important;
+  }
+
+  .operatorTable /deep/ ::-webkit-scrollbar {
+    height: 9px;
+    width: 7px;
+    // border-radius: 4px;
+  }
+
+  .dialog /deep/ .el-input__inner {
+    border-color: #dcdfe6 !important;
+  }
+
+</style>

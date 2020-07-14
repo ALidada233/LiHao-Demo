@@ -1,0 +1,369 @@
+<template>
+  <div class="purchase">
+    <div>
+      <el-input style="width: 20%;margin-top: 20px;" placeholder="请输入搜索内容" size="medium" v-model="keys"
+        clearable></el-input>
+      <el-date-picker v-model="createTime" value-format="yyyy-MM-dd HH:mm:ss" type="datetimerange" range-separator="至"
+        start-placeholder="新建开始日期" end-placeholder="新建结束日期" align="right" size="medium" style="width:290px;">
+      </el-date-picker>
+      <el-date-picker v-model="updateTime" value-format="yyyy-MM-dd HH:mm:ss" type="datetimerange" range-separator="至"
+        start-placeholder="更新开始日期" end-placeholder="更新结束日期" align="right" size="medium" style="width:290px;">
+      </el-date-picker>
+      <el-button type="primary" size="medium" @click="queryPurchaseOrderList" icon="el-icon-search" style="margin-top:10px;"></el-button>
+      <el-button  size="medium" @click="keys=null;createTime=null;updateTime=null;queryPurchaseOrderList()" icon="el-icon-refresh" style="margin-top:10px;"></el-button>
+    </div>
+    <div class="purchaseTable">
+      <el-table :data="purchaseList" style="width: 100%" :border="true" :height="tableHeight" v-loading="loading" ref="table" class="screenTable">
+        <el-table-column label="操作" width="80" align="center">
+          <template slot-scope="scope">
+            <el-button size="mini" round type="primary" icon="el-icon-edit" @click="editPurchase(scope.row)"></el-button>
+          </template>
+        </el-table-column>
+       <el-table-column prop="orderNo" label="订单编号" align="center" width="150">
+        </el-table-column>
+        <el-table-column label="业务员" align="center" width="80">
+          <template slot-scope="scope">
+              <span>
+                {{scope.row.saleName}}
+              </span>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="客户公司" align="center" width="150">
+          <template slot-scope="scope">
+            <span>
+              <el-popover placement="top-start" title="" width="150" trigger="hover" :content="scope.row.custCompanyName">
+                <span slot="reference" style="cursor:default;" v-html="$root.OmissionText(scope.row.custCompanyName==null?null:scope.row.custCompanyName,8)"></span>
+              </el-popover>
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="联系人信息" align="center" width="200">
+          <template slot-scope="scope">
+            <span>
+              {{scope.row.conName}}-{{scope.row.telePhone}}<br>{{scope.row.mailBox}}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="payType" label="付款方式" align="center" width="120">
+        </el-table-column>
+        <el-table-column prop="payInfo" label="付款情况" align="center" width="120">
+        </el-table-column>
+        <el-table-column prop="contractNo" label="采购合同号" align="center" width="120">
+        </el-table-column>
+        <el-table-column prop="invoiceNo" label="发票号" align="center" width="120">
+        </el-table-column>
+        <el-table-column prop="status" label="状态" align="center" width="80">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.status==1">询价中</el-tag>
+            <el-tag v-if="scope.row.status==2" type="success">完成</el-tag>
+            <el-tag v-if="scope.row.status==0" type="info">处理中</el-tag>
+            <el-tag v-if="scope.row.status==3" type="danger">作废</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="file" label="文件" align="center" width="60">
+          <template slot-scope="scope">
+            <span v-if="scope.row.file" style="cursor:default;color:#409EFF;" @click="viewFile=scope.row.file;pdfVisible=true;">预览</span>
+            <span v-else>无</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="arrivalTime" label="到货日期" align="center" width="160">
+        </el-table-column>
+        <el-table-column prop="preArrivalTime" label="预到货日期" align="center" width="160">
+        </el-table-column><el-table-column prop="preArrivalTime" label="预到货日期" align="center" width="160">
+        </el-table-column>
+        <el-table-column prop="invoiceTime" label="票到日期" align="center" width="160">
+        </el-table-column>
+        <el-table-column prop="createTime" label="创建时间" align="center" width="160">
+        </el-table-column>
+        <el-table-column prop="updateTime" label="更新时间" align="center" width="160">
+        </el-table-column>
+      </el-table>
+    </div>
+
+    <!--分页-->
+    <div class="clearPa edit">
+      <div class="block" style="float: right;margin-top:10px;">
+        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="currentPage"
+          :page-sizes="[5, 10, 15, 30]" :page-size="pageSize" layout="sizes, prev, pager, next" :total="pageCount">
+        </el-pagination>
+      </div>
+    </div>
+    <!-- 编辑采购信息 -->
+    <el-dialog
+      title="编辑采购信息"
+      :visible.sync="purchaseVisible"
+      width="80%"
+      :before-close="handleClose">
+      <el-form ref="form" :model="selRow" label-width="120px" style="display:flex;">
+        <div style="width:50%;">
+            <el-form-item label="付款方式">
+              <el-input v-model="selRow.payType" style="width:80%;"></el-input>
+            </el-form-item>
+            <el-form-item label="付款情况">
+              <el-input v-model="selRow.payInfo" style="width:80%;"></el-input>
+            </el-form-item>
+            <el-form-item label="采购合同号">
+              <el-input v-model="selRow.contractNo" style="width:80%;"></el-input>
+            </el-form-item>
+            <el-form-item label="发票号">
+              <el-input v-model="selRow.invoiceNo" style="width:80%;"></el-input>
+            </el-form-item>
+            <el-form-item label="到货日期">
+              <el-date-picker v-model="selRow.arrivalTime" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" size="medium" style="">
+              </el-date-picker>
+            </el-form-item>
+        </div>
+        <div style="width:50%;">
+            <el-form-item label="到货日期">
+              <el-date-picker v-model="selRow.arrivalTime" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" size="medium" style="">
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="预到货日期">
+              <el-date-picker v-model="selRow.preArrivalTime" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" size="medium" style="">
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="票到日期">
+              <el-date-picker v-model="selRow.invoiceTime" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" size="medium" style="">
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="状态">
+              <el-radio-group v-model="selRow.status">
+                <el-radio :label="0">处理中</el-radio>
+                <el-radio :label="1">询价中</el-radio>
+                <el-radio :label="2">完成</el-radio>
+                <el-radio :label="3">作废</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="上传文件类型">
+              <el-select v-model="fileStatus" placeholder="请选择">
+                <el-option label="图片" :value="1"></el-option>
+                <el-option label="文件" :value="2"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="上传图片" v-if="fileStatus==1">
+              <el-upload class="upload-demo" action="/nte-crm/uploadImage" :on-preview="handlePreview" :on-remove="handleRemoveImage"
+                :before-remove="beforeRemove" :limit="1" accept=".jpeg,.png,.jpg" :on-success="successUploadImage"
+                :on-exceed="handleExceed" :file-list="fileList">
+                <el-button size="small" type="primary" style="vertical-align: top;">点击上传</el-button>
+                
+                <div slot="tip" style="width:20%;"  class="el-upload__tip"></div>
+              </el-upload>
+              <div>
+                <img v-if="fileList.length>0"  style="width:50%;" :src="fileList[0].url">
+              </div>
+            </el-form-item>
+            <el-form-item label="上传文件"  style="position: relative;" v-else>
+              <el-upload class="upload-demo" action="/nte-crm/uploadFile" :on-preview="handlePreview" :on-remove="handleRemoveFile"
+                :before-remove="beforeRemove" :limit="1" accept=".pdf" :on-success="successUploadFile" :on-exceed="handleExceed"
+                :file-list="fileListPdf">
+                <el-button size="small" type="primary" style="vertical-align: top;">点击上传</el-button>
+                <div slot="tip" class="el-upload__tip"></div>
+              </el-upload>
+            </el-form-item>
+        </div>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="handleClose">取 消</el-button>
+        <el-button type="primary" @click="purchaseSub">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!--文件 展示 -->
+    <el-dialog title="文件预览" :visible.sync="pdfVisible" width="80%" class="pdfVisible">
+      <object v-if="viewFile.indexOf('pdf')>-1" :data="viewFile" width="80%" height="550px" internalinstanceid="233"></object>
+      <img v-else :src="viewFile" style="width:100%;" alt="">
+      <!-- <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="pdfVisible = false">关闭</el-button>
+      </div> -->
+
+    </el-dialog>
+  </div>
+</template>
+<script>
+import {queryPurchaseOrderList,updatePurchaseOrder} from "@/util/req/purchase/index";
+export default {
+  name:"purchase",
+  data(){
+    return{
+      tableHeight:null,
+      currentPage: 1,
+      pageSize: 10,
+      pageCount: null,
+      loading: false,
+      keys:null,
+      createTime:null,
+      updateTime:null,
+      purchaseList:[],
+      purchaseVisible:false,   //采购订单弹框
+      selRow:{                   //选中的行
+        arrivalTime:null,       // 到货日期
+        preArrivalTime:null,    //  预到货日期
+        invoiceTime:null,     //  票到日期
+        payType:null,         //  付款方式
+        payInfo:null,         //  付款情况
+        contractNo:null,    //  采购合同号
+        file:null,          //  文件
+        invoiceNo:null,    //  发票号
+        status:0        //  0处理中1询价中状态2完成3作废
+      },
+      fileList: [], //上传图片
+      fileListPdf: [], //上传pnf    
+      file:null,  //上传成功返回路径
+      goodsImg:null, //显示图片路径
+      fileStatus:1,   //选择文件类型
+      pdfVisible:false,
+      viewFile:''   //阅读的文件
+    }
+  },
+  watch: {
+    pdfVisible(status){
+      if(!status){
+        this.viewFile='';
+      }
+    }
+  },
+  methods:{
+    handleClose(){
+      this.purchaseVisible=false;
+      this.selRow={};
+      this.file=null;
+      this.fileList=[];
+      this.fileListPdf=[];
+    },
+    handleSizeChange(pageSize) { //数据条数改变时
+      this.loading = true;
+      this.pageSize = pageSize;
+      this.currentPage = 1;
+      this.queryRolePage();
+    },
+    handleCurrentChange(currentPage) { //选取分页
+      this.loading = true;
+      this.queryRolePage();
+    },
+    queryPurchaseOrderList() { //查询角色管理列表
+      var parmas = {
+        pageSize: this.pageSize,
+        page: this.currentPage
+      };
+      //搜索内容
+      if(this.keys){
+        parmas.keys=this.keys
+      }
+      //创建时间
+      if(this.createTime){
+        parmas.createTimeStart=this.createTime[0];
+        parmas.createTimeEnd=this.createTime[1];
+      }
+      //修改时间
+      if(this.updateTime){
+        parmas.updateTimeStart=this.updateTime[0];
+        parmas.updateTimeEnd=this.updateTime[1];
+      }
+      queryPurchaseOrderList(parmas, res => {
+        this.loading = true;
+        if (res.msgCode == "200") {
+          res = res.data;
+          this.purchaseList = res.list;
+          this.pageCount = res.pageCount;
+          setTimeout(() => {
+            this.loading = false;
+          }, 200)
+        } else {
+          setTimeout(() => {
+            this.loading = false;
+          }, 200)
+        }
+      })
+    },
+    editPurchase(row){
+      console.log(row)
+      this.selRow=row;
+      this.purchaseVisible=true;
+      if(row.file){
+        if(row.file.indexOf('pdf')>-1){
+          this.fileStatus=2;
+          this.fileListPdf=[{name:row.file,url:row.file}];
+        }else{
+          this.fileStatus=1;
+          this.fileList=[{name:row.file,url:row.file}];
+        }
+      }
+      this.file=row.file;
+    }, //图片上传
+      handleRemoveFile(file, fileList) {
+        this.file = null;
+      },
+      handleRemoveImage(file, fileList) {
+        this.goodsImg = null;
+      },
+      handlePreview(file) {
+        //console.log(file);
+      },
+      handleExceed(files, fileList) {
+        this.$message.warning('当前只允许传输一个文件');
+      },
+      beforeRemove(file, fileList) {
+        return this.$confirm(`确定移除 ${ file.name }？`);
+      },
+      successUploadImage(response, file, fileList) {
+        this.fileList=[{name:response.data.url,url:response.data.url}];
+        this.goodsImg = response.data.url;
+        this.file= response.data.url;
+      },
+      successUploadFile(response, file, fileList) {
+        this.fileListPdf=[{name:response.data.url,url:response.data.url}];
+        this.file = response.data.url;
+      },
+      purchaseSub(){
+        var parmas={
+          id:this.selRow.id,
+          arrivalTime:this.selRow.arrivalTime||{},// 到货日期
+          preArrivalTime:this.selRow.preArrivalTime||{},// 预到货日期
+          invoiceTime:this.selRow.invoiceTime||{},//  票到日期
+          payType:this.selRow.payType||{},//  付款方式
+          payInfo:this.selRow.payInfo||{},//  付款情况
+          contractNo:this.selRow.contractNo||{},//  采购合同号
+          file:this.file||{},//  文件
+          invoiceNo:this.selRow.invoiceNo||{},//  发票号
+          status:this.selRow.status//  状态2完成3作废
+        }
+        updatePurchaseOrder(parmas,res=>{
+          if(res.msgCode==200){
+            this.$message({
+              type: 'success',
+              message: res.msg
+            });
+            this.handleClose();
+            this.queryPurchaseOrderList();
+          }else{
+            this.$message({
+              type: 'info',
+              message: res.msg
+            });
+          }
+        })
+      }
+  },
+  mounted(){
+    this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop-150;
+    this.queryPurchaseOrderList();
+  }
+}
+</script>
+<style lang="scss" scoped>
+  .purchase{
+    background:#fff;
+    padding: 20px;
+    border-radius: 4px;
+  }
+  .purchaseTable{
+    margin-top: 20px;
+  }
+  .screenTable /deep/ ::-webkit-scrollbar {
+    height: 9px;
+    width: 7px;
+  }
+  .purchase /deep/ .el-dialog{
+    margin-top: 10px!important;
+  }
+</style>

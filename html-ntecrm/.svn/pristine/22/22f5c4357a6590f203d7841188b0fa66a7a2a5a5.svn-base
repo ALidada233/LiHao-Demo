@@ -1,0 +1,94 @@
+<template>
+  <div>
+    <div style="text-align:right;margin-bottom:20px;">
+      <i class="iconfont" style="cursor:default;" @click="$emit('closeVisible');">&#xe633;</i>
+    </div>
+    <!-- 商品列表 -->
+    <div>
+      <el-table :data="tableDetailList.desertedGoodsList" border tooltip-effect="dark"
+        style="width: 100%"  align="center">
+        <el-table-column align="center" width="80" label="操作">
+          <template slot-scope="scope">
+            <el-button size="mini" round type="danger" icon="el-icon-delete" @click="delSelect(scope.row)"></el-button>
+          </template>
+        </el-table-column>
+        <el-table-column prop="goodsInfo" label="产品型号">
+        </el-table-column>
+        <el-table-column prop="remark" label="描述备注">
+        </el-table-column>
+        <el-table-column prop="brandName" label="品牌">
+        </el-table-column>
+        <el-table-column prop="quantity" label="数量">
+        </el-table-column>
+        <el-table-column prop="goodsOffer" label="标准价（￥）">
+        </el-table-column>
+        <el-table-column prop="offer" label="报价（￥）">
+        </el-table-column>
+      </el-table>
+    </div>
+    
+  </div>
+</template>
+<script>
+  import {insertOrderInvoiceFile,desertedOrderInvoiceGoods} from "util/req/order/index";
+  import {
+    queryOrderDetail
+  } from "util/req/order/index"
+  export default {
+    name: 'cancel',
+    props: {
+      orderDetailList: { //订单详情
+        type: Object
+      }
+    },
+    data() {
+      return {
+        tableDetailList:this.orderDetailList||{}
+      }
+    },
+    methods: {
+      queryOrderDetail(){   //获取详情列表
+        queryOrderDetail({id:this.tableDetailList.order.id},res=>{
+          this.tableDetailList=res.data;
+        })
+      },
+      delSelect(row){
+        console.log(row);
+        this.$confirm('此操作将作废此条商品关联的发货单, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          var parmas={
+            id:this.tableDetailList.order.id,
+            invoiceGoodsId:row.id
+          }
+          desertedOrderInvoiceGoods(parmas,res=>{
+            if(res.msgCode==200){
+              this.$message({
+                type: 'success',
+                message: res.msg
+              });
+              this.queryOrderDetail();
+            }else{
+              this.$message({
+                type: 'info',
+                message: res.msg
+              });
+            }
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消作废'
+          });          
+        });
+      }
+    }
+  }
+
+</script>
+<style lang="scss" scoped>
+
+
+</style>

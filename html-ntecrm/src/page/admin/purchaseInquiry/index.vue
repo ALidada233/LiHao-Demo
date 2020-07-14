@@ -1,0 +1,644 @@
+<template>
+  <div class="purchaseInquiry">
+    <div style="margin-top:-20px;margin-bottom: 20px;">
+      <el-input
+        style="width: 15%;margin-top: 20px;"
+        placeholder="请输入订单号/供应商/客户公司"
+        size="medium"
+        v-model="orderNo"
+        clearable
+      ></el-input>
+      <el-select
+        v-model="status"
+        placeholder="请选择状态"
+        :clearable="true"
+        style="width:150px;margin-top: 10px;"
+        size="medium"
+      >
+        <el-option value="0" label="作废">待报价</el-option>
+        <el-option value="1" label="开票中">已报价</el-option>
+        <el-option value="2" label="已开票">已采纳</el-option>
+        <el-option value="2" label="已开票">作废</el-option>
+      </el-select>
+      <el-date-picker
+        v-model="createTime"
+        value-format="yyyy-MM-dd HH:mm:ss"
+        type="datetimerange"
+        range-separator="至"
+        start-placeholder="创建开始日期"
+        end-placeholder="创建结束日期"
+        align="right"
+        size="medium"
+        style="margin-top: 10px;width:290px;margin-right: 15px;"
+      ></el-date-picker>
+      <el-date-picker
+        v-model="updateTime"
+        value-format="yyyy-MM-dd HH:mm:ss"
+        type="datetimerange"
+        range-separator="至"
+        start-placeholder="更新开始日期"
+        end-placeholder="更新结束日期"
+        align="right"
+        size="medium"
+        style="margin-top: 10px;width:290px;margin-right: 15px;"
+      ></el-date-picker>
+      <el-button
+        type="primary"
+        size="medium"
+        style="margin-top: 15px;"
+        @click="queryInquiryList"
+        icon="el-icon-search"
+      ></el-button>
+      <el-button
+        v-tip.top.dark="'重置'"
+        style="margin-top:10px;"
+        size="medium"
+        icon="el-icon-refresh"
+        @click="resetSearchCondition()"
+      ></el-button>
+      <!-- <el-button type="primary" size="medium" style="margin-top: 10px;" @click="selpurchaseInquiry(null,false)" icon="el-icon-plus"></el-button> -->
+    </div>
+    <el-table
+      :data="purchaseList"
+      style="width: 100%"
+      :border="true"
+      :header-cell-style="{'background-color':'#EFEDF0'}"
+      :height="tableHeight"
+      v-loading="loading"
+      ref="table"
+      class="screenTable"
+    >
+      <el-table-column label="操作" width="80" align="center">
+        <template slot-scope="scope">
+          <el-button
+            size="mini"
+            round
+            type="primary"
+            icon="el-icon-edit"
+            @click="selpurchaseInquiry(scope.row,true)"
+          ></el-button>
+        </template>
+      </el-table-column>
+      <el-table-column label="业务员" align="center" width="80">
+        <template slot-scope="scope">
+          <span>{{scope.row.saleName}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="brandName" label="品牌" align="center" width="120"></el-table-column>
+      <el-table-column prop="status" label="状态" align="center" width="80">
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.status==0" type="info">待报价</el-tag>
+          <el-tag v-if="scope.row.status==1">已报价</el-tag>
+          <el-tag v-if="scope.row.status==2" type="success">已采纳</el-tag>
+          <el-tag v-if="scope.row.status==3" type="danger">作废</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column width="120" prop="supplierName" label="供应商" align="center"></el-table-column>
+      <el-table-column prop="demandModel" label="需求型号" align="center" width="100"></el-table-column>
+      <el-table-column prop="changeModel" label="供应商型号" align="center" width="100"></el-table-column>
+      <el-table-column width="120" label="币种" align="center">
+        <template slot-scope="scope">
+          <span>
+            <el-tag v-if="scope.row.currency==1" type="success">RMB 人民币</el-tag>
+            <el-tag v-if="scope.row.currency==2" type="success">USD 美元</el-tag>
+            <el-tag v-if="scope.row.currency==3" type="success">GBP 英镑</el-tag>
+            <el-tag v-if="scope.row.currency==4" type="success">EUR 欧元</el-tag>
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column width="120" prop="price" label="含税单价" align="center"></el-table-column>
+      <el-table-column width="120" prop="rate" label="汇率" align="center"></el-table-column>
+      <el-table-column prop="file" label="文件" align="center" width="60">
+        <template slot-scope="scope">
+          <span
+            v-if="scope.row.file"
+            style="cursor:default;color:#409EFF;"
+            @click="viewFile=scope.row.file;pdfVisible=true;"
+          >预览</span>
+          <span v-else>无</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="enquiryTime" label="询价日期" align="center" width="160"></el-table-column>
+      <el-table-column prop="expirationTime" label="报价日期" align="center" width="160"></el-table-column>
+      <el-table-column prop="deliveryTime" label="交期" align="center" width="160"></el-table-column>
+      <el-table-column prop="createTime" label="创建时间" align="center" width="160"></el-table-column>
+      <el-table-column prop="updateTime" label="更新时间" align="center" width="160"></el-table-column>
+    </el-table>
+    <!--分页-->
+    <div class="clearPa edit">
+      <div class="block" style="float: right;margin-top:10px;">
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page.sync="currentPage"
+          :page-sizes="[5, 10, 15, 30]"
+          :page-size="pageSize"
+          layout="sizes, prev, pager, next"
+          :total="pageCount"
+        ></el-pagination>
+      </div>
+    </div>
+
+    <!-- 新增采购单 -->
+    <el-dialog
+      :title="editStatus?'编辑询价': '新增询价'"
+      :visible.sync="purchaseInquiryVisible"
+      width="80%"
+      :before-close="purchaseInquiryClose"
+    >
+      <el-form
+        ref="purchaseInquiry"
+        :model="purchaseInquiry"
+        label-width="120px"
+        style="display:flex;"
+        :rules="rules"
+      >
+        <div style="width:50%;">
+          <el-form-item label="供应商" prop="supplierId">
+            <el-select
+              v-model="purchaseInquiry.supplierId"
+              filterable
+              clearable
+              placeholder="请选择供应商"
+              @change="getSupChange(purchaseInquiry.supplierId,'supplierId')"
+            >
+              <el-option
+                v-for="(item,index) in supplierList"
+                :key="index"
+                :label="item.name"
+                :value="item.id"
+              ></el-option>
+            </el-select>
+            <i
+              class="el-icon-refresh"
+              @click="getSupplierList();purchaseInquiry.brandId=null;purchaseInquiry.supplierId=null;"
+            ></i>
+          </el-form-item>
+          <el-form-item label="品牌" prop="brandId">
+            <el-select
+              v-model="purchaseInquiry.brandId"
+              filterable
+              clearable
+              placeholder="请选择品牌"
+              @change="getSupChange(purchaseInquiry.brandId,'brandId')"
+            >
+              <el-option
+                v-for="(item,index) in brandList"
+                :key="index"
+                :label="item.brandName"
+                :value="item.id"
+              ></el-option>
+            </el-select>
+            <i
+              class="el-icon-refresh"
+              @click="getBrandList();purchaseInquiry.brandId=null;purchaseInquiry.supplierId=null;"
+            ></i>
+          </el-form-item>
+          <el-form-item label="需求型号">
+            <el-input v-model="purchaseInquiry.demandModel" style="width:80%;"></el-input>
+          </el-form-item>
+          <el-form-item label="供应商型号">
+            <el-input v-model="purchaseInquiry.changeModel" style="width:80%;"></el-input>
+          </el-form-item>
+          <el-form-item label="单价" prop="price">
+            <el-input v-model="purchaseInquiry.price" style="width:80%;"></el-input>
+          </el-form-item>
+          <el-form-item label="汇率" prop="rate">
+            <el-input v-model="purchaseInquiry.rate" style="width:80%;"></el-input>
+          </el-form-item>
+          <el-form-item label="币种" prop="currency">
+            <el-select v-model="purchaseInquiry.currency" filterable placeholder="请选择品牌">
+              <el-option label="RMB 人民币" :value="1"></el-option>
+              <el-option label="USD 美元" :value="2"></el-option>
+              <el-option label="GBP 英镑" :value="3"></el-option>
+              <el-option label="EUR 欧元" :value="4"></el-option>
+            </el-select>
+          </el-form-item>
+        </div>
+        <div style="width:50%;">
+          <el-form-item label="询价日期">
+            <el-date-picker
+              v-model="purchaseInquiry.enquiryTime"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              type="datetime"
+              size="medium"
+              style
+            ></el-date-picker>
+          </el-form-item>
+          <el-form-item label="报价日期">
+            <el-date-picker
+              v-model="purchaseInquiry.expirationTime"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              type="datetime"
+              size="medium"
+              style
+            ></el-date-picker>
+          </el-form-item>
+          <el-form-item label="交期">
+            <el-input v-model="purchaseInquiry.deliveryTime" style="width:220px;"></el-input>
+          </el-form-item>
+          <el-form-item label="询价状态">
+            <el-radio-group v-model="purchaseInquiry.status">
+              <el-radio :label="0">待报价</el-radio>
+              <el-radio :label="1">已报价</el-radio>
+              <el-radio :label="2">已采纳</el-radio>
+              <el-radio :label="3">作废</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="上传文件类型">
+            <el-select v-model="fileStatus" placeholder="请选择">
+              <el-option label="图片" :value="1"></el-option>
+              <el-option label="文件" :value="2"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="上传图片" v-if="fileStatus==1">
+            <el-upload
+              class="upload-demo"
+              action="/nte-crm/uploadImage"
+              :on-preview="handlePreview"
+              :on-remove="handleRemoveImage"
+              :before-remove="beforeRemove"
+              :limit="1"
+              accept=".jpeg, .png, .jpg"
+              :on-success="successUploadImage"
+              :on-exceed="handleExceed"
+              :file-list="fileList"
+            >
+              <el-button size="small" type="primary" style="vertical-align: top;">点击上传</el-button>
+
+              <div slot="tip" style="width:20%;" class="el-upload__tip"></div>
+            </el-upload>
+            <div>
+              <img v-if="fileList.length>0" style="width:50%;" :src="fileList[0].url" />
+            </div>
+          </el-form-item>
+          <el-form-item label="上传文件" style="position: relative;" v-else>
+            <el-upload
+              class="upload-demo"
+              action="/nte-crm/uploadFile"
+              :on-preview="handlePreview"
+              :on-remove="handleRemoveFile"
+              :before-remove="beforeRemove"
+              :limit="1"
+              accept=".pdf"
+              :on-success="successUploadFile"
+              :on-exceed="handleExceed"
+              :file-list="fileListPdf"
+            >
+              <el-button size="small" type="primary" style="vertical-align: top;">点击上传</el-button>
+              <div slot="tip" class="el-upload__tip"></div>
+            </el-upload>
+          </el-form-item>
+          <el-form-item label="备注">
+            <el-input type="textarea" v-model="purchaseInquiry.remark" style="width:80%;"></el-input>
+          </el-form-item>
+        </div>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="purchaseInquiryClose">取 消</el-button>
+        <el-button type="primary" :disabled="btnStatus" @click="purchaseInquirySub">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 预览询价文件 -->
+    <el-dialog
+      title="询价文件"
+      :visible.sync="pdfVisible"
+      width="80%"
+      class="selFile"
+      :before-close="pdfVisibleClose"
+      :append-to-body="true"
+    >
+      <div>
+        <object
+          v-if="viewFile&&viewFile.toLowerCase().indexOf('pdf')>-1"
+          :data="viewFile"
+          width="100%"
+          height="550px"
+          internalinstanceid="130"
+        ></object>
+        <img v-else :src="viewFile" style="width:100%;" alt />
+      </div>
+    </el-dialog>
+  </div>
+</template>
+<script>
+import { getBrandList } from "@/util/req/goods/index";
+import {
+  queryInquiryList,
+  saveInquiry
+} from "@/util/req/purchaseInquiry/index";
+import {
+  getSupplierList,
+  getSupplierBrandById
+} from "@/util/req/supplier/index";
+export default {
+  name: "purchaseInquiry",
+  data() {
+    return {
+      tableHeight: null,
+      currentPage: 1,
+      pageSize: 10,
+      pageCount: null,
+      loading: false,
+      purchaseList: [], //列表数据
+      purchaseInquiryVisible: false,
+      purchaseInquiry: {
+        status: 0
+      }, //询价表单
+      rules: {
+        supplierId: {
+          required: true,
+          trigger: "blur",
+          message: "供应商不能为空"
+        },
+        brandId: {
+          required: true,
+          trigger: "blur",
+          message: "品牌不能为空"
+        },
+        price: {
+          required: true,
+          pattern: /^[1-9]\d*(\.\d+)?$/,
+          message: "只能输入大于0的价格"
+        },
+        currency: {
+          required: true,
+          trigger: "blur",
+          message: "币种不能为空"
+        },
+        rate: {
+          required: true,
+          trigger: "blur",
+          message: "汇率不能为空"
+        }
+      },
+      fileList: [], //上传图片
+      fileListPdf: [], //上传pnf
+      file: null, //上传成功返回路径
+      goodsImg: null, //显示图片路径
+      fileStatus: 1, //选择文件类型
+      pdfVisible: false,
+      viewFile: "", //阅读的文件
+      brandList: [], //品牌列表
+      supplierList: [], //供应商列表
+      createTimeStart: null,
+      createTimeEnd: null,
+      createTime: null,
+      updateTimeStart: null,
+      updateTimeEnd: null,
+      updateTime: null,
+      orderNo: null,
+      status: null,
+      editStatus: false,
+      btnStatus: false
+    };
+  },
+  watch: {
+    createTime(val) {
+      if (val != null) {
+        this.createTimeStart = val[0];
+        this.createTimeEnd = val[1];
+      } else {
+        this.createTimeStart = null;
+        this.createTimeEnd = null;
+      }
+    },
+    updateTime(val) {
+      if (val != null) {
+        this.updateTimeStart = val[0];
+        this.updateTimeEnd = val[1];
+      } else {
+        this.updateTimeStart = null;
+        this.updateTimeEnd = null;
+      }
+    }
+  },
+  methods: {
+    pdfVisibleClose() {
+      this.pdfVisible = false;
+      this.viewFile = null;
+    },
+    purchaseInquiryClose() {
+      this.purchaseInquiryVisible = false;
+      this.selPurchaseInquiry = {};
+      this.purchaseInquiry = { status: 0 };
+      this.file = null;
+      this.fileList = [];
+      this.fileListPdf = [];
+    },
+    handleSizeChange(pageSize) {
+      //数据条数改变时
+      this.loading = true;
+      this.pageSize = pageSize;
+      this.currentPage = 1;
+      this.queryInquiryList();
+    },
+    handleCurrentChange(currentPage) {
+      //选取分页
+      this.loading = true;
+      this.queryInquiryList();
+    },
+    handleRemoveFile(file, fileList) {
+      this.file = null;
+    },
+    handleRemoveImage(file, fileList) {
+      this.goodsImg = null;
+    },
+    handlePreview(file) {
+      //console.log(file);
+    },
+    handleExceed(files, fileList) {
+      this.$message.warning("当前只允许传输一个文件");
+    },
+    beforeRemove(file, fileList) {
+      return this.$confirm(`确定移除 ${file.name}？`);
+    },
+    successUploadImage(response, file, fileList) {
+      this.fileList = [{ name: response.data.url, url: response.data.url }];
+      this.goodsImg = response.data.url;
+      this.file = response.data.url;
+    },
+    successUploadFile(response, file, fileList) {
+      this.fileListPdf = [{ name: response.data.url, url: response.data.url }];
+      this.file = response.data.url;
+    },
+    getBrandList() {
+      //获取所有品牌
+      getBrandList({ isShow: 1 }, res => {
+        this.brandList = res.data.goodsList;
+      });
+    },
+    getSupplierList() {
+      //获取所有供应商
+      getSupplierList(res => {
+        this.supplierList = res.data.list;
+      });
+    },
+    getSupChange(id, status) {
+      //根据供应商ID查询品牌列表
+      if (!id) {
+        return;
+      }
+      if (status == "brandId") {
+        var params = {
+          brandId: id
+        };
+      } else {
+        var params = {
+          supplierId: id
+        };
+      }
+      getSupplierBrandById(params, res => {
+        if (res.msgCode != 200) {
+          this.$message({
+            type: "info",
+            message: res.msg
+          });
+        } else {
+          //this.purchaseInquiry.supplierId=null;
+          //this.purchaseInquiry.brandId=null;
+          if (status == "brandId") {
+            this.supplierList = res.data.list;
+            // this.purchaseInquiry.supplierId=null;
+          } else {
+            this.brandList = res.data.list;
+            // this.purchaseInquiry.brandId=null;
+          }
+        }
+      });
+    },
+    selpurchaseInquiry(row, status) {
+      this.purchaseInquiryVisible = true;
+      this.editStatus = status;
+      if (status) {
+        this.purchaseInquiry = row;
+        if (row.file) {
+          if (row.file.indexOf("pdf") > -1) {
+            this.fileStatus = 2;
+            this.fileListPdf = [{ name: row.file, url: row.file }];
+          } else {
+            this.fileStatus = 1;
+            this.fileList = [{ name: row.file, url: row.file }];
+          }
+        }
+        if (row.price == 0) {
+          row.price = null;
+        }
+        this.file = row.file;
+      }
+    },
+    resetSearchCondition() {
+      this.createTimeStart = null;
+      this.createTimeEnd = null;
+      this.createTime = null;
+      this.updateTimeStart = null;
+      this.updateTimeEnd = null;
+      this.updateTime = null;
+      this.orderNo = null;
+      this.status = null;
+      this.queryInquiryList();
+    },
+    queryInquiryList() {
+      var parmas = {
+        pageSize: this.pageSize,
+        page: this.currentPage
+      };
+      if (this.status) {
+        parmas.status = this.status;
+      }
+      if (this.orderNo) {
+        parmas.keys = this.orderNo;
+      }
+      if (this.createTimeStart) {
+        parmas.createTimeStart = this.createTimeStart;
+        parmas.createTimeEnd = this.createTimeEnd;
+      }
+      if (this.updateTimeStart) {
+        parmas.updateTimeStart = this.updateTimeStart;
+        parmas.updateTimeEnd = this.updateTimeEnd;
+      }
+      this.loading = false;
+      queryInquiryList(parmas, res => {
+        this.loading = true;
+        if (res.msgCode == "200") {
+          res = res.data;
+          this.purchaseList = res.list;
+          this.pageCount = res.pageCount;
+          this.$refs.table.bodyWrapper.scrollTop = 0;
+          setTimeout(() => {
+            this.loading = false;
+          }, 200);
+        } else {
+          setTimeout(() => {
+            this.loading = false;
+          }, 200);
+        }
+      });
+    },
+    purchaseInquirySub() {
+      //提交询价
+      var parmas = {
+        demandModel: this.purchaseInquiry.demandModel, //需求型号
+        supplierId: this.purchaseInquiry.supplierId, // 供应商ID
+        brandId: this.purchaseInquiry.brandId, //品牌ID
+        status: this.purchaseInquiry.status, // 询价状态0待报价1已报价2已采纳3作废
+        changeModel: this.purchaseInquiry.changeModel, // 替换型号
+        file: this.file, // 文件
+        enquiryTime: this.purchaseInquiry.enquiryTime, // 询价日期
+        expirationTime: this.purchaseInquiry.expirationTime, //  报价日期
+        deliveryTime: this.purchaseInquiry.deliveryTime, // 目标货期
+        currency: this.purchaseInquiry.currency, // 币种1RMB 人民币2USD 美元3GBP 英镑4EUR 欧元
+        rate: this.purchaseInquiry.rate, //汇率
+        price: this.purchaseInquiry.price // 单价
+      };
+      if (this.editStatus) {
+        parmas.id = this.purchaseInquiry.id; // 询价ID
+      }
+      console.log(parmas);
+
+      this.$refs.purchaseInquiry.validate(valid => {
+        if (valid) {
+          this.btnStatus = true;
+          saveInquiry(parmas, res => {
+            if (res.msgCode == 200) {
+              this.$message({
+                type: "success",
+                message: res.msg
+              });
+              this.btnStatus = false;
+              this.purchaseInquiryClose();
+              this.queryInquiryList();
+            } else {
+              this.$message({
+                type: "info",
+                message: res.msg
+              });
+            }
+          });
+        }
+      });
+    }
+  },
+  mounted() {
+    this.tableHeight =
+      window.innerHeight - this.$refs.table.$el.offsetTop - 150;
+    this.queryInquiryList();
+    this.getBrandList();
+    this.getSupplierList();
+  }
+};
+</script>
+<style scoped>
+.purchaseInquiry {
+  background: #fff;
+  padding: 20px;
+  border-radius: 4px;
+}
+.purchaseInquiry /deep/ ::-webkit-scrollbar {
+  height: 9px;
+  width: 7px;
+}
+.purchaseInquiry /deep/ .el-dialog {
+  margin-top: 10px !important;
+}
+</style>

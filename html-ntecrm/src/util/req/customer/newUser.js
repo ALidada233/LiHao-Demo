@@ -1,0 +1,124 @@
+import Vue from 'vue'
+import axios from 'axios';
+import { MessageBox } from 'element-ui';
+import Qs from 'qs';
+import requestUrl from '@/util/http.js'
+//本地环境
+var api;
+if(process.env.NODE_ENV=="development"){
+    api="/nte-crm"
+}else{  //测试环境
+    api=requestUrl;
+}
+//新建用户
+export const newUser=(params,callback)=>{
+  axios({
+      url:api+"/saveUserInfo",
+      method:'post',
+      data: params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+//新建、编辑客户
+export const newCust=(params,callback)=>{
+  axios({
+      url:api+"/operCustomer",
+      method:'post',
+      data: params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+//获取编辑客户信息
+export const getCust=(params,callback)=>{
+  axios({
+      url:api+"/editCustomer",
+      method:'post',
+      data: params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+
+//客户负责人名 列表
+export const getOperator=(callback)=>{
+  axios({
+      url:api+"/operSave",
+      method:'get',
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+
+//个人统计详情数据，根据时间来筛选
+export const getCustCount=(params,callback)=>{
+  axios({
+      url:api+"/openCustCount",
+      method:'post',
+      data: params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+//销售人员列表
+export const getSalesList=(callback)=>{
+  axios({
+      url:api+"/getSalesList",
+      method:'get',
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+
+//删除联系人
+export const deleteContacts=(params,callback)=>{
+  axios({
+      url:api+"/deleteContacts",
+      method:'post',
+      data: params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+
+//检查公司名称是否存在
+export const checkCustCompanyName=(params,callback)=>{
+    axios({
+        url:api+"/checkCustCompanyName",
+        method:'post',
+        data: params
+    }).then(res=>{
+       callback(res.data)
+    })
+}
+//检查客户手机是否存在
+export const checkCustPhone=(params,callback)=>{
+    axios({
+        url:api+"/checkCustPhone",
+        method:'post',
+        data: params
+    }).then(res=>{
+       callback(res.data)
+    })
+}
+//获取拜访记录数据
+export const getCustomerVisit=(params,callback)=>{
+  axios({
+      url:api+"/getCustomerVisit",
+      method:'post',
+      data: params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+//新增&编辑客户拜访记录
+export const saveCustomerVisit=(params,callback)=>{
+  axios({
+      url:api+"/saveCustomerVisit",
+      method:'post',
+      data: params
+  }).then(res=>{
+     callback(res.data)
+  })
+}

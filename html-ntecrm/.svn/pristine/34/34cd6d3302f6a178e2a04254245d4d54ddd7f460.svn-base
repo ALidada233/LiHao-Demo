@@ -1,0 +1,294 @@
+<template>
+	<div class="customersContract">
+		<div>
+			<i class="iconfont">&#xe616;</i>
+			<el-button type="primary" size="small" @click="$emit('closeContractDialog')">返回</el-button>
+		</div>
+		<div style="padding:20px;">
+			<h2 style="font-size: 16px;">已报价列表</h2>
+			<div class="right" style="margin-bottom: 10px;">
+				
+			</div>
+			 <el-table
+			    v-loading="loading"
+			    :data="dataList"
+			    style="width: 100%;margin-top: 30px;">
+			    <el-table-column
+			      label="操作"
+			      width="150"
+			      >
+			      <template slot-scope="props">
+			      	 <el-button type="primary" size="mini" @click="comfirmContract(props.row)">
+			      	 	{{selectType=="offerNaiteen"?"生成报价单":"生成合同"}}
+			      	 </el-button>
+			      </template>
+			    </el-table-column>
+			  <!--   <el-table-column
+			      label="需求 ID"
+			      prop="demandId">
+			    </el-table-column> -->
+			   	<!-- <el-table-column
+			      label="需求编码"
+						align="center"
+			      prop="demandCode">
+			    </el-table-column> -->
+			    <el-table-column
+			      label="产品信息"
+			      width="400"
+						align="center"
+			      prop="goods_info">
+			      <template slot-scope="scope">
+			      	<!-- <span v-html="capitalizeHandle(scope.row.goods_info)"></span> -->
+			      	<span>{{scope.row.goodsInfo}}</span><br>
+			      	<span>{{scope.row.assistInfo}}</span>
+			      </template>
+			    </el-table-column>
+			    <el-table-column
+			      label="总标准价"
+						align="center">
+						<template slot-scope="scope">
+			      	<span>￥{{scope.row.goodsOffer}}</span>
+			      </template>
+			    </el-table-column>
+			    <el-table-column
+			      label="总报价">
+						<template slot-scope="scope">
+			      	<span>￥{{scope.row.totalOffer}}</span>
+			      </template>
+			    </el-table-column>
+			    <el-table-column
+			      label="商品折扣"
+						align="center">
+						<template slot-scope="scope">
+			      	<span>{{scope.row.discount}}%</span>
+			      </template>
+			    </el-table-column>
+			    <el-table-column
+			      label="总折扣率"
+						align="center">
+						<template slot-scope="scope">
+			      	<span>{{scope.row.finalDiscount}}%</span>
+			      </template>
+			    </el-table-column>
+					<el-table-column
+			      label="客户信息"
+			      align="center"
+			      width="200"
+			    >
+			      <template slot-scope="scope">
+			      	<span>
+						  <el-popover
+							placement="top-start"
+							title=""
+							width="200"
+							trigger="hover"
+							:content="scope.row.companyName">
+							<span  slot="reference" style="cursor:default;" v-html="$root.OmissionText(scope.row.companyName,10)"></span>
+						</el-popover>
+						<br>{{scope.row.contacts}}-{{scope.row.phone}}<br>{{scope.row.email}}</span>
+			      </template>
+			    </el-table-column>
+			    <el-table-column
+			      label="备注"
+			       width="200"
+			      prop="remark">
+			    </el-table-column>
+					<el-table-column
+			      label="操作人"
+				  align="center"
+			      prop="createName">
+			    </el-table-column>
+			    <el-table-column
+			      label="创建时间"
+			      width="180"
+			      prop="createTime">
+			    </el-table-column>
+			</el-table>
+
+		</div>
+		<!--分页-->
+	    <div class="block" style="float: right;margin-top:10px;">
+		   <el-pagination
+		      @size-change="handleSizeChange"
+		      @current-change="handleCurrentChange"
+		      :current-page.sync="currentPage"
+		      :page-sizes="[5, 10, 15, 30]"
+		      :page-size="pageSize"
+		      layout="sizes, prev, pager, next"
+		      :total="pageCount">
+		    </el-pagination>
+		</div>	
+
+		<!-- 耐特恩报价 -->
+		<transition name="el-fade-in-linear">
+			<component :is="selectType"
+				v-show="naiteenVisible"
+			 class="naiteen"
+			 @closeContractDialog="naiteenVisible=false;naiteenId=null"
+			 @resetTable="queryContractList"
+			 :id="naiteenId"
+			 :naiteenContent="naiteenContent"
+			></component>
+			<!-- <naiteen
+			 v-show="naiteenVisible"
+			 class="naiteen"
+			 @closeContractDialog="naiteenVisible=false;naiteenId=null"
+			 @resetTable="queryContractList"
+			 :id="naiteenId"
+			 :naiteenContent="naiteenContent"
+			 >
+			</naiteen> -->
+		</transition>
+		<!-- 必优合同 -->
+		<transition name="el-fade-in-linear">
+			<biyou 
+			class="biyou"
+			@closeContractDialog="biyouVisible=false;"
+			@resetTable="queryContractList"
+			v-show="biyouVisible"
+			:biyou="biyouContent"
+			>
+				
+			</biyou>
+		</transition>	
+	</div>
+</template>
+
+<script type="text/javascript">
+import {queryContractList} from "util/req/customer/demand";
+import biyou from "@/page/admin/offerList/components/biyou";
+import offerNaiteen from "@/page/admin/offerList/components/naiteen";
+import contractNaiteen from "@/page/admin/offerList/components/components/naiteen";
+	export default{
+		name:"customersContract",
+		props:{
+			getCustID:{
+				type:Number
+			},
+			contractStatus:{
+				type:Boolean
+			},
+			type:{
+				type:String
+			}
+		},
+		data(){
+			return {
+				loading:false,
+				dataList: [{
+				 	  id:null,           //id
+			          goodsCategory:null,	//产品类别
+			          productName:null,		//产品名称
+			          model:null,			//品牌
+			          budgetaryPrice:null, //预算价格
+			          contacts:null,    //联系人
+			          phone:null,       //电话
+			          email:null,		//邮箱
+			          status:null,  //状态
+			          delFlag:null, //删除状态
+			          remark:null,  //备注
+			          createName:null, //创建人姓名
+			          createTime:null, //创建人时间
+			          updateTime:null //修改时间
+			    }],
+			    pageSize:10,
+			    page:1,
+			    currentPage: 1,
+			    pageCount:null,
+			    naiteenVisible:false,
+			    biyouVisible:false,
+			    naiteenContent:null,		//耐特恩合同详情内容
+			    biyouContent:null, 			//必优合同详情内容
+			    naiteenId:null,
+			    selectType:this.type
+			}
+		},
+		watch:{
+			getCustID(val){
+
+			},
+			contractStatus(status){
+				if(status){
+					this.queryContractList();
+				}
+			},
+			type(status){
+				if(status=="offer"){
+					this.selectType="offerNaiteen"
+				}else{
+					this.selectType="contractNaiteen"
+				}
+			}
+		},
+		methods:{
+			capitalizeHandle(value){
+				if(value){
+					return value.replace("|","<br><br>");
+				}			
+			},
+			queryContractList(){				//获取报价列表
+					var params={
+						// customerId:val
+						// status:2,
+						pageSize:this.pageSize,
+						page:this.page
+					}
+					if(this.type=='offer'){
+						params.status=1
+					}else{
+						params.status=2
+					}
+					this.loading=true;
+					queryContractList(params,res=>{
+						this.loading=false;
+						console.log(res);
+						this.dataList=res.data.list;
+					})
+			},
+			handleSizeChange(pageSize){	//数据条数改变时
+		      	this.pageSize=pageSize;
+		      	this.currentPage=1;
+		      	this.queryContractList();
+		    },
+		    handleCurrentChange(currentPage){	//选取分页
+		      	this.currentPage=currentPage;
+		      	this.queryContractList();
+		    },
+		    comfirmContract(row){
+		    	console.log(row);
+		    	this.naiteenVisible=true;
+		    	this.naiteenContent=row;
+		    	this.naiteenId=row.id;
+		    	console.log(this.naiteenContent);
+		    }
+		},
+		mounted(){
+
+		},
+		components:{
+			biyou,
+			offerNaiteen,
+			contractNaiteen
+		}
+	}
+</script>
+
+
+<style lang="scss" scoped>
+	.customersContract{
+		padding:20px;
+		box-sizing:border-box;
+	}  
+
+	.naiteen{
+		position:absolute;
+		left:0;
+		top:0;
+		background:#fff;
+		z-index:100;
+		width:100%;
+		min-height:100%;
+	}
+
+
+</style>

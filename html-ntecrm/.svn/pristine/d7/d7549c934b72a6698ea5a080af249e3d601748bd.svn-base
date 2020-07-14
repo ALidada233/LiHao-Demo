@@ -1,0 +1,332 @@
+<template>
+  <div id="app">
+    <router-view/>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'App'
+}
+</script>
+
+<style lang="scss">
+  @font-face {
+  font-family: 'iconfont';  /* project id 831598 */
+  src: url('//at.alicdn.com/t/font_831598_4x3gzv8koad.eot');
+  src: url('//at.alicdn.com/t/font_831598_4x3gzv8koad.eot?#iefix') format('embedded-opentype'),
+  url('//at.alicdn.com/t/font_831598_4x3gzv8koad.woff2') format('woff2'),
+  url('//at.alicdn.com/t/font_831598_4x3gzv8koad.woff') format('woff'),
+  url('//at.alicdn.com/t/font_831598_4x3gzv8koad.ttf') format('truetype'),
+  url('//at.alicdn.com/t/font_831598_4x3gzv8koad.svg#iconfont') format('svg');
+}
+  .iconfont{  //设置icon通用样式
+    font-family:"iconfont" !important;
+    font-size:16px;font-style:normal;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-stroke-width: 0.2px;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .tooltip-inner {
+		color:#fff!important;
+    background: #111112;
+    padding:  10px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    font-size: 11px!important;
+	}
+
+  .rootCompontent{
+    .el-checkbox__inner{  //复选框
+      width:16px;
+      height:16px;
+    }
+    .el-checkbox__input.is-indeterminate .el-checkbox__inner:before{  //不全选的背景
+      left:-1px;
+    }
+    .el-button{  //按钮
+      padding:12px 10px;
+    }
+    .el-input__inner{  //输入框border
+      border-color:#ddd;
+    }
+  }
+  // 阿里图标库图标
+  .icon {
+     width: 18px; height:18px;
+     // vertical-align: -0.15em;
+     fill: currentColor;
+     overflow: hidden;
+  }
+  .iconBtn{  // 有图标的按钮
+    height:40px;
+    top:3px;
+    .icon{
+      position:relative;
+      top:-2px;
+    }
+    .iconWord{
+      position:relative;
+      top:-2px;
+    }
+  }
+  .dropBtn{
+    position:relative;
+    top:2px;
+    button{
+      padding:11px;
+    }
+  }
+  .smallMarRight{
+    margin-right:8px;
+  }
+  .shadow{
+    box-shadow: 0px 0px 24px #ddd;
+  }
+  .cur{
+      cursor:pointer;
+  }
+  .transition{
+      transition:all 0.3s;
+      -moz-transition:all 0.3s;
+      -webkit-transition:all 0.3s;
+      -o-transition:all 0.3s;
+  }
+  .overOmit{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .vertivalCenter{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+  }
+  .center{
+    text-align: center;
+  }
+  .left{
+      float:left;
+  }
+  .right{
+      float:right;
+  }
+  .clear{
+      clear:all;
+  }
+  .clearPa:after{display:block;clear:both;content:"";visibility:hidden;height:0}
+  .clearPa{zoom:1}   //解决ie6，7浮动问题
+  .posire{
+      position: relative;
+      z-index:2;
+  }
+  .posiab{
+      position:absolute;
+      z-index:2;
+  }
+  .posifix{
+      position:fixed;
+      z-index:3;
+  }
+  .hide{
+      display:none;
+  }
+  input::-webkit-input-placeholder {
+      color:#ccc;
+  }
+  input:-moz-placeholder {
+       color:#ccc;
+  }
+  input::-moz-placeholder {
+       color:#ccc;
+  }
+  input:-ms-input-placeholder {
+       color:#ccc;
+  }
+  /* 这是针对缺省样式 (必须的) */
+  *::-webkit-scrollbar {
+  		height:4px;
+  	  width: 7px;
+      // border-radius: 4px;
+  }
+
+   /* 滚动条的滑轨背景颜色 */
+  *::-webkit-scrollbar-track {
+  	  background-color: #f5f8fe;
+      // border-radius: 4px;
+  }
+
+    /* 滑块颜色 */
+  *::-webkit-scrollbar-thumb {
+  	  background-color: #c6cedf;
+      border-radius: 4px;
+  	  /*border-radius:5px;*/
+  }
+
+   /* 滑轨两头的监听按钮颜色 */
+  *::-webkit-scrollbar-button {
+  	height:10px;
+  	width:10px;
+  	  display:none;
+  	  background-color: #7a8395;
+  	  /*display:none;*/
+  }
+
+   /* 横向滚动条和纵向滚动条相交处尖角的颜色 */
+  *::-webkit-scrollbar-corner {
+  	  background-color: #323944;
+  }
+  *{
+    scrollbar-face-color: #c6cedf;  
+    scrollbar-arrow-color: #CED8F0;  
+    scrollbar-3dlight-color: #c6cedf;  
+    scrollbar-highlight-color: #c6cedf;  
+    scrollbar-shadow-color: #fff;  
+    scrollbar-darkshadow-color: #fff;  
+    scrollbar-track-color: #fff;  
+    scrollbar-base-color: #c6cedf;  
+  }
+  td{
+    white-space: normal;
+  }
+  html,
+  body {
+    width: 100%;
+    min-width:1024px;
+    min-height:100%;
+    background:#fff;
+    font-weight:400;
+  }
+  *{
+    margin:0;
+    padding:0;
+  }
+  html {
+    -webkit-text-size-adjust: none;
+    /*解决chrome浏览器下字体不能小于12px*/
+  }
+  /** 设置默认字体 **/
+  body,
+  button,
+  select,
+  textarea,
+  input,
+  label,
+  option,
+  fieldset,
+  legend {
+    font-family: '微软雅黑', 'Microsoft YaHei', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif';
+    font-size: 14px;
+  }
+  /*设置margin和padding为0*/
+  body,
+  div,
+  dl,
+  dt,
+  dd,
+  ul,
+  ol,
+  li,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  pre,
+  code,
+  form,
+  fieldset,
+  legend,
+  input,
+  textarea,
+  p,
+  blockquote,
+  th,
+  td {
+    margin: 0;
+    padding: 0;
+  }
+  a {
+    outline: none;
+    text-decoration: none;
+  }
+  ul,
+  ol,
+  li {
+    list-style: none;
+  }
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+  fieldset,
+  img {
+    border: 0;
+  }
+  address,
+  caption,
+  cite,
+  code,
+  dfn,
+  em,
+  th,
+  var，i {
+    font-style: normal;
+    font-weight: normal;
+  }
+  /* 将斜体扶正 */
+  caption,
+  th {
+    text-align: left;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: 100%;
+    font-weight: normal;
+  }
+  input,
+  textarea {
+    outline: none;
+    border:1px solid #A9A9A9;
+  }
+  textarea {
+    resize: none;
+    overflow: auto;
+  }
+  em {
+    font-style: normal;
+  }
+  small {
+    font-size: 12px;
+  }
+  /* 小于 12px 的中文很难阅读, 让 small 正常化 */
+  input[type="submit"],
+  input[type="reset"],
+  input[type="button"],
+  input[type=date],
+  button,
+  select {
+    appearance: none;
+    -moz-appearance: none;
+    /* Firefox */
+    -webkit-appearance: none;
+    /* Safari 和 Chrome */
+    /*去掉苹果的默认UI来渲染按钮 、解决部分手机浏览器对border：none无效办法*/
+  }
+  img {
+    border-style: none;
+    /*解决ie8 a标签内图片出现边框问题*/
+  }
+
+  /*自己修改的某部分样式*/
+  
+td{
+ white-space: nowrap;
+}
+
+</style>

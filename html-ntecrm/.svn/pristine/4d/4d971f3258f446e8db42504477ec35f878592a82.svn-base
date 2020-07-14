@@ -1,0 +1,2213 @@
+<template>
+	<div>
+		<div style="margin-top: 10px;">
+			<i class="iconfont" style="margin-left: 10px;">&#xe616;</i>
+			<el-button type="primary" size="small" @click="$emit('closeContractDialog')">关闭</el-button>
+			<!-- <div v-for="(item,index) in content.offerGoodsList" :key="index" style="margin-top:15px;">
+				<span style="margin-left:30px;">货期：{{item.goodsInfo}}</span>
+				<el-input v-model="item.weeksStart" min="0" style="width:20%;" type="number" placeholder="请输入内容"></el-input>-
+				<el-input v-model="item.weeksEnd" min="0" style="width:20%;" type="number" placeholder="请输入内容"></el-input> weeks
+			</div> -->
+			
+		</div>
+		<div class="htmlModel" id="subOutputRank-print" style="-webkit-transform:scale(0.65);background: #fff;">
+		  		<table border="0" cellpadding="0" cellspacing="0" width="1259" style="border-collapse: 
+					 collapse;table-layout:fixed;width:944pt">
+					 <colgroup><col class="x23" width="72" span="2" style="mso-width-source:userset;width:54pt">
+					 <col class="x23" width="68" style="mso-width-source:userset;width:51pt">
+					 <col class="x23" width="111" style="mso-width-source:userset;width:83pt">
+					 <col class="x23" width="200" style="mso-width-source:userset;width:150pt">
+					 <col class="x23" width="128" style="mso-width-source:userset;width:96pt">
+					 <col class="x23" width="125" style="mso-width-source:userset;width:93pt">
+					 <col class="x23" width="72" style="mso-width-source:userset;width:54pt">
+					 <col class="x23" width="112" style="mso-width-source:userset;width:84pt">
+					 <col class="x23" width="155" style="mso-width-source:userset;width:116pt">
+					 <col width="72" span="2" style="width:54pt">
+					 </colgroup><tbody><tr height="68" style="mso-height-source:userset;height:51pt" id="r0">
+					<td height="68" class="x76" width="72" style="height:51pt;width:54pt;" align="left" valign="top"><span style="mso-ignore:vglayout;position:absolute;z-index:3;margin-left:2px;margin-top:1px;width:398px;height:109px"><img width="398" height="109" src="@/assets/offer/image000.jpeg" name="图片 2"></span><span style="mso-ignore:vglayout2"><table cellpadding="0" cellspacing="0"><tbody><tr><td height="68" class="x24" width="72" style="height:51pt;width:54pt;"></td></tr></tbody></table></span></td>
+					<td class="x24" width="72" style="width:54pt;"></td>
+					<td class="x24" width="68" style="width:51pt;"></td>
+					<td class="x24" width="111" style="width:83.25pt;"></td>
+					<td class="x24" width="200" style="width:150pt;"></td>
+					<td class="x24" width="128" style="width:96pt;"></td>
+					<td class="x24" width="125" style="width:93.75pt;"></td>
+					<td class="x24" width="72" style="width:54pt;"></td>
+					<td height="68" class="x76" width="112" style="height:51pt;width:84pt;" align="left" valign="top"><span style="mso-ignore:vglayout;position:absolute;z-index:2;margin-left:1px;margin-top:1px;width:183px;height:67px">
+					<p style="font-weight: 550;margin-top:10px;">PAGE:1 of 1</p>
+					<p style="font-weight: 550;">QUOT.DATE:{{times}}</p>
+					<p style="font-weight: 550;">CUSTOMER NO.:</p>
+					</span><span style="mso-ignore:vglayout2"><table cellpadding="0" cellspacing="0"><tbody><tr><td height="68" class="x24" width="112" style="height:51pt;width:84pt;"></td></tr></tbody></table></span></td>
+					<td class="x24" width="155" style="width:116.25pt;"></td>
+					<td class="x23" width="72" style="width:54pt;"></td>
+					<td class="x23" width="72" style="width:54pt;"></td>
+					 </tr>
+					 <tr height="42" style="mso-height-source:userset;height:32.1pt" id="r1">
+					<td height="42" class="x25" style="height:32.1pt;"></td>
+					<td class="x25"></td>
+					<td class="x25"></td>
+					<td class="x25"></td>
+					<td height="42" class="x77" width="200" style="height:32.1pt;width:150pt;" align="left" valign="top"><span style="mso-ignore:vglayout;position:absolute;z-index:4;margin-left:80px;margin-top:-38px;width:289px;height:101px"><img width="289" height="101" src="@/assets/offer/rectangle_Sheet1_4.png" name="Rectangle 3"></span><span style="mso-ignore:vglayout2"><table cellpadding="0" cellspacing="0"><tbody><tr><td height="42" class="x25" width="200" style="height:32.1pt;width:150pt;"></td></tr></tbody></table></span></td>
+					<td class="x24"></td>
+					<td class="x24"></td>
+					<td class="x26"></td>
+					<td class="x43"><font class="font4">QUOT. NO.</font><font class="font9">：</font></td>
+					<td class="x43">{{content.offerCode}}</td>
+					<td class="x23"></td>
+					<td class="x23"></td>
+					 </tr>
+					 <tr height="46" style="mso-height-source:userset;height:35.1pt" id="r2">
+					<td height="46" class="x77" width="72" style="height:35.1pt;width:54pt;" align="left" valign="top"><span style="mso-ignore:vglayout;position:absolute;z-index:5;margin-left:43px;margin-top:-15px;width:332px;height:43px"><img width="332" height="43" src="@/assets/offer/textBox_Sheet1_5.png" name="Text Box 4"></span><span style="mso-ignore:vglayout2"><table cellpadding="0" cellspacing="0"><tbody><tr><td height="46" class="x25" width="72" style="height:35.1pt;width:54pt;"></td></tr></tbody></table></span></td>
+					<td class="x25"></td>
+					<td class="x25"></td>
+					<td class="x25"></td>
+					<td class="x25"></td>
+					<td class="x24"></td>
+					<td class="x24"></td>
+					<td class="x24"></td>
+					<td class="x24"></td>
+					<td class="x24"></td>
+					<td class="x23"></td>
+					<td class="x23"></td>
+					 </tr>
+					 <tr height="19" style="mso-height-source:userset;height:14.25pt" id="r3">
+					<td colspan="3" id="tc0" rowspan="3" height="94" class="x70" style="height:70.5pt;"><font class="font5">CUSTOMER</font><font class="font6">　　</font><font class="font5"><br></font><font class="font6">需方</font></td>
+					<td colspan="2" id="tc1" rowspan="2" height="38" class="x73" style="height:28.5pt;">{{content.companyName}}</td>
+					<td rowspan="3" height="94" class="x70" style="height:70.5pt;overflow:hidden;"><font class="font5">SUPPLIER</font><font class="font6">　</font><font class="font5"><br></font><font class="font6">供方</font></td>
+					<td colspan="4" id="tc2" rowspan="3" height="94" class="x52" style="height:70.5pt;overflow:hidden;"><font class="font19">深圳耐特恩科技有限公司　　　　　　　　　　　　　　　　　　　　　　</font><font class="font8">NEW TRANSFORM TECHNOLOGY CO.,LTD<span style="mso-spacerun:yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></font><font class="font19">　　　</font><font class="font8"><br></font><font class="font19">深圳市宝安42区华创达中心商务大厦D座301</font></td>
+					<td class="x23"></td>
+					<td class="x23"></td>
+					 </tr>
+					 <tr height="19" style="mso-height-source:userset;height:14.25pt" id="r4">
+					<td class="x23"></td>
+					<td class="x23"></td>
+					 </tr>
+					 <tr height="56" style="mso-height-source:userset;height:42pt" id="r5">
+					<td class="x27"></td>
+					<td class="x27"></td>
+					<td class="x23"></td>
+					<td class="x23"></td>
+					 </tr>
+					 <tr height="19" style="mso-height-source:userset;height:14.25pt" id="r6">
+					<td colspan="3" id="tc3" rowspan="3" height="66" class="x70" style="height:49.5pt;overflow:hidden;"><font class="font5">CONTACT</font><font class="font6">　　</font><font class="font5"><span style="mso-spacerun:yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></font><font class="font6">　</font><font class="font5"><br></font><font class="font6">联系人</font></td>
+					<td colspan="2" id="tc4" rowspan="2" height="38" class="x75" style="height:28.5pt;">{{content.contacts}}<span style="mso-spacerun:yes">&nbsp; </span>{{content.phone}}</td>
+					<td rowspan="3" height="66" class="x70" style="height:49.5pt;overflow:hidden;"><font class="font5">CONTACT<br></font><font class="font6">联系人</font></td>
+					<td colspan="4" id="tc5" class="x50">{{content.saleName}}　{{content.salePhone}}</td>
+					<td class="x23"></td>
+					<td class="x23"></td>
+					 </tr>
+					 <tr height="19" style="mso-height-source:userset;height:14.25pt" id="r7">
+					<td colspan="4" id="tc6" class="x51"><font class="font8">TEL:</font><font class="font19">＋</font><font class="font8">86-755-82908211 *<span style="mso-spacerun:yes">&nbsp;&nbsp;&nbsp; </span>FAX:</font><font class="font19">＋</font><font class="font8">86-82959939-802</font></td>
+					<td class="x23"></td>
+					<td class="x23"></td>
+					 </tr>
+					 <tr height="28" style="mso-height-source:userset;height:21pt" id="r8">
+					<td class="x28"></td>
+					<td class="x29"></td>
+					<td colspan="2" id="tc7" class="x30" style="mso-ignore:colspan;"><a href="mailto:colinli@sensorstech.com" target="_parent"><span style="font-size:10pt;color:#000000;font-weight:400;text-decoration:none;text-line-through:none;font-family:&quot;Arial&quot;;">{{content.saleEmail}}</span></a></td>
+					<td class="x30"></td>
+					<td class="x30"></td>
+					<td class="x23"></td>
+					<td class="x23"></td>
+					 </tr>
+					 <tr height="21" style="mso-height-source:userset;height:15.75pt" id="r9">
+					<td height="21" class="x25" style="height:15.75pt;"></td>
+					<td class="x25"></td>
+					<td class="x25"></td>
+					<td class="x25"></td>
+					<td class="x25"></td>
+					<td class="x31"></td>
+					<td colspan="4" id="tc8" class="x52"></td>
+					<td class="x23"></td>
+					<td class="x23"></td>
+					 </tr>
+					 <tr height="21" style="mso-height-source:userset;height:15.75pt" id="r10">
+					<td colspan="8" id="tc9" height="21" class="x53" style="border-bottom:1px solid windowtext;height:15.75pt;"></td>
+					<td class="x24"></td>
+					<td class="x24"></td>
+					<td class="x23"></td>
+					<td class="x23"></td>
+					 </tr>
+					 <tr height="84" style="mso-height-source:userset;height:63pt" id="r11">
+					<td colspan="4" id="tc10" height="84" class="x58" style="border-bottom:1px solid windowtext;height:63pt;"><font class="font11">PAYMENT</font><font class="font20">付款</font><font class="font11">:</font><span v-if="content.moneyStatus==1">全额支付</span>
+				    <span v-if="content.moneyStatus==2">30%预付款，70%款到发货</span>
+				    <span v-if="content.moneyStatus==3">50%预付款 ，50%款到发货</span>
+				    <span v-if="content.moneyStatus==4">货到付款</span>
+				    <span v-if="content.moneyStatus==5">月结</span>
+				    <span v-if="content.moneyStatus==6">其它</span></td>
+					<td class="x32" style="overflow:hidden;"><font class="font11">TAX</font><font class="font20">税率：</font><font class="font11">16% </font><font class="font20">以下报价均含税，</font><font class="font11"> </font><font class="font20">但不包含中国政府自今日后可能对他国额外增加的关税</font></td>
+					<td colspan="3" id="tc11" class="x78" style="border-bottom:1px solid windowtext;">WARRANTY<span style="mso-spacerun:yes">&nbsp; </span>质保：1年</td>
+					<td colspan="2" id="tc12" class="x58" style="border-right:1px solid windowtext;border-bottom:1px solid windowtext;"><font class="font11">VALID PERIOD </font><font class="font20">报价有效期：</font><font class="font11">30</font><font class="font20">天</font></td>
+					<td class="x23"></td>
+					<td class="x23"></td>
+					 </tr>
+					 <tr height="21" style="mso-height-source:userset;height:15.75pt" id="r12">
+					<td colspan="10" id="tc13" height="21" class="x79" style="height:15.75pt;"></td>
+					<td class="x23"></td>
+					<td class="x23"></td>
+					 </tr>
+					 <tr height="19" style="mso-height-source:userset;height:14.25pt" id="r13">
+					<td rowspan="2" height="52" class="x72" style="border-right:2px solid windowtext;border-bottom:2px solid windowtext;height:39.2pt;overflow:hidden;"><font class="font5">ITEM<br></font><font class="font6">项目</font></td>
+					<td colspan="3" id="tc14" rowspan="2" height="52" class="x72" style="border-right:2px solid windowtext;border-bottom:2px solid windowtext;height:39.2pt;overflow:hidden;"><font class="font5">PRODUCT / DESCRIPTION<br></font><font class="font6">产品描述</font></td>
+					<td rowspan="2" height="52" class="x69" style="border-right:2px solid windowtext;border-bottom:2px solid windowtext;height:39.2pt;">备注</td>
+					<td rowspan="2" height="52" class="x72" style="border-right:2px solid windowtext;border-bottom:2px solid windowtext;height:39.2pt;overflow:hidden;"><font class="font5">LEAD TIME<br></font><font class="font6">货期</font></td>
+					<td rowspan="2" height="52" class="x72" style="border-right:2px solid windowtext;border-bottom:2px solid windowtext;height:39.2pt;"><font class="font5">BRAND<br></font><font class="font6">品牌</font></td>
+					<td rowspan="2" height="52" class="x72" style="border-right:2px solid windowtext;border-bottom:2px solid windowtext;height:39.2pt;overflow:hidden;"><font class="font5">QTY<br></font><font class="font6">数量</font></td>
+					<td rowspan="2" height="52" class="x72" style="border-right:2px solid windowtext;border-bottom:2px solid windowtext;height:39.2pt;overflow:hidden;"><font class="font4">UNIT PRICE</font><font class="font9">　单价</font></td>
+					<td rowspan="2" height="52" class="x72" style="border-right:2px solid windowtext;border-bottom:2px solid windowtext;height:39.2pt;"><font class="font5">SUBTOTAL<br></font><font class="font6">小计</font></td>
+					<td class="x23"></td>
+					<td class="x23"></td>
+					 </tr>
+					 <tr height="33" style="mso-height-source:userset;height:24.95pt" id="r14">
+					<td class="x23"></td>
+					<td class="x23"></td>
+					 </tr>
+					 <tr height="41" v-for="(item,index) in content.offerGoodsList" :key="index"  style="mso-height-source:userset;height:30.95pt" id="r15">
+					<td height="41" class="x33" style="height:30.95pt;">{{index+1}}</td>
+					<td colspan="3" id="tc15" class="x60" style="border-right:2px solid windowtext;border-bottom:2px solid windowtext;">{{item.goodsInfo}}</td>
+					<td class="x34" style="border-bottom: 2px solid #000;white-space: initial;">{{item.remark}}</td>
+					<td class="x35">{{item.deliveryStart}}-{{item.deliveryEnd}} WEEKS</td>
+					<td class="x36">{{item.brandName}}</td>
+					<td class="x37">{{item.quantity}}</td>
+					<td class="x44" v-html="currency(item.offer,'￥',2)"></td>
+					<td class="x45" v-html="currency(item.offer*item.quantity,'￥',2)"></td>
+					<td class="x23"></td>
+					<td class="x23"></td>
+					 </tr>
+					
+					 <tr height="21" style="mso-height-source:userset;height:15.75pt" id="r18">
+					<td colspan="8" id="tc18" height="21" class="x80" style="height:15.75pt;"></td>
+					<td class="x48"><font class="font17">TOTAL</font><font class="font20">总计</font><font class="font17">:</font></td>
+					<td class="x49" align="right" x:num="0" x:fmla="=SUM(J16:J18)" v-html="currency(content.totalOffer,'￥',2)"> </td>
+					<td class="x23"></td>
+					<td class="x23"></td>
+					 </tr>
+					<!--[if supportMisalignedColumns]-->
+					 <tr height="0" style="display:none">
+					  <td width="72" style="width:54pt"></td>
+					  <td width="72" style="width:54pt"></td>
+					  <td width="68" style="width:51pt"></td>
+					  <td width="111" style="width:83.25pt"></td>
+					  <td width="200" style="width:150pt"></td>
+					  <td width="128" style="width:96pt"></td>
+					  <td width="125" style="width:93.75pt"></td>
+					  <td width="72" style="width:54pt"></td>
+					  <td width="112" style="width:84pt"></td>
+					  <td width="155" style="width:116.25pt"></td>
+					  <td width="72" style="width:54pt"></td>
+					  <td width="72" style="width:54pt"></td>
+					 </tr>
+					 <!--[endif]-->
+					</tbody>
+				</table>
+		  	</div>
+		  	<div style="text-align:center">
+		  		 <el-button type="primary" @click="printContent">打 印</el-button>
+		  		 <el-upload
+		  		  style="display: inline-block;margin-left: 10px;"
+				  class="upload-demo"
+				  action="/nte-crm/uploadFile"
+				  :on-preview="handlePreview"
+				  :on-remove="handleRemoveFile"
+				  :before-remove="beforeRemove"
+				  :limit="1"
+				  accept=".pdf"
+				  :on-success="successUploadFile"
+				  :on-exceed="handleExceed"
+				  :file-list="fileList">
+				  <el-button type="success">上传报价单</el-button>
+				  <div slot="tip" class="el-upload__tip"></div>
+				</el-upload>
+		  	</div>
+	</div>
+</template>
+<script type="text/javascript">
+import {getContractCode,saveOfferFile} from "util/req/offerList/index"
+	export default{
+		name:"offerNaiteen",
+		props:{
+			naiteenContent:{
+				type:Object  
+			},
+			id:{
+				type:Number
+			}
+		},
+		data(){
+			return{
+				content:{},	//合同内容
+				fileList:[],
+				weeksStart:6,
+				weeksEnd:8,
+				times:null
+			}
+		},
+		watch:{
+			
+			naiteenContent(res){
+				this.content=res;	
+				//this.getContractCode();
+			},
+			weeksStart(val){
+				this.$set(this.content,'weeksStart',val)
+			},
+			weeksEnd(val){
+				this.$set(this.content,'weeksEnd',val)
+			},
+			id(){
+				this.getContractCode();
+			}
+		},
+		filters:{//局部过滤器
+
+				toChies:function(values){//形参
+					let len=values.length//统计出长度
+					let arr=[];
+					
+					let chin_list=['零','壹','贰','叁','肆','伍','陆','柒','捌','玖']//所有的数值对应的汉字
+					
+					let chin_lisp=['仟','佰','拾','亿','仟','佰','拾','万','仟','佰','拾']//进制
+					
+					for(let i=0;i<len;i++){
+						arr.push(parseInt(values[i]));		//输入的数据按下标存进去   存进去的只是数字
+						arr[i]=chin_list[arr[i]]			//是根据我们输入的输入的数字，对应着我们的chin_list这个数组
+					}//123['壹','佰','贰','拾','叁']
+					
+					for(let i=len-1,j=1;i>0;i--){//i =2	1		//倒序		为了添加进制，方便我们去观看
+						arr.splice(i,0,chin_lisp[chin_lisp.length-j++])	//j=2
+					}
+					console.log(arr)
+					
+					arr=arr.join('')
+					if(len>=1){
+						arr+='元整'
+					}
+					return arr
+				}	
+			},
+		methods:{
+			 getContractCode(){
+
+			 	getContractCode({offerId:this.content.id,status:0},res=>{
+			 		//this.content.contractCode=res.data.contractCode;
+			 		this.content.date=res.data.date;
+			 		this.times=res.data.date;
+			 		this.$set(this.content,"date",res.data.date)
+			 		//this.content.weeksStart=this.weeksStart;
+			 		//this.$set(this.content,'weeksStart',this.weeksStart)
+			 		//this.content.weeksEnd=this.weeksEnd;
+			 		//this.$set(this.content,'weeksEnd',this.weeksEnd)
+			 		console.log(this.content);
+			 	})
+			 },
+			 printContent(){
+		    	let subOutputRankPrint = document.getElementById('subOutputRank-print');
+                console.log(subOutputRankPrint.innerHTML);
+                let newContent =subOutputRankPrint.innerHTML;
+                let oldContent = document.body.innerHTML;
+                document.title=this.content.contractCode;
+                document.body.innerHTML = newContent;
+                window.print();
+                window.location.reload();
+                document.body.innerHTML = oldContent;
+                return false;
+		    },
+		    currency(value, currency, decimals){		//价格转格式
+		    	  const digitsRE = /(\d{3})(?=\d)/g;
+		    	  value = parseFloat(value)
+				  if (!isFinite(value) || (!value && value !== 0)) return ''
+				  currency = currency != null ? currency : '$'
+				  decimals = decimals != null ? decimals : 2
+				  var stringified = Math.abs(value).toFixed(decimals)
+				  var _int = decimals
+				    ? stringified.slice(0, -1 - decimals)
+				    : stringified
+				  var i = _int.length % 3
+				  var head = i > 0
+				    ? (_int.slice(0, i) + (_int.length > 3 ? ',' : ''))
+				    : ''
+				  var _float = decimals
+				    ? stringified.slice(-1 - decimals)
+				    : ''
+				  var sign = value < 0 ? '-' : ''
+				  return sign + currency + head +_int.slice(i).replace(digitsRE, '$1,') + _float
+
+		    },
+		    convertCurrency(money) {  				//价格转中文
+			  //汉字的数字  
+			  var cnNums = new Array('零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖');  
+			  //基本单位  
+			  var cnIntRadice = new Array('', '拾', '佰', '仟');  
+			  //对应整数部分扩展单位  
+			  var cnIntUnits = new Array('', '万', '亿', '兆');  
+			  //对应小数部分单位  
+			  var cnDecUnits = new Array('角', '分', '毫', '厘');  
+			  //整数金额时后面跟的字符  
+			  var cnInteger = '整';  
+			  //整型完以后的单位  
+			  var cnIntLast = '元';  
+			  //最大处理的数字  
+			  var maxNum = 999999999999999.9999;  
+			  //金额整数部分  
+			  var integerNum;  
+			  //金额小数部分  
+			  var decimalNum;  
+			  //输出的中文金额字符串  
+			  var chineseStr = '';  
+			  //分离金额后用的数组，预定义  
+			  var parts;  
+			  if (money == '') { return ''; }  
+			  money = parseFloat(money);  
+			  if (money >= maxNum) {  
+			    //超出最大处理数字  
+			    return '';  
+			  }  
+			  if (money == 0) {  
+			    chineseStr = cnNums[0] + cnIntLast + cnInteger;  
+			    return chineseStr;  
+			  }  
+			  //转换为字符串  
+			  money = money.toString();  
+			  if (money.indexOf('.') == -1) {  
+			    integerNum = money;  
+			    decimalNum = '';  
+			  } else {  
+			    parts = money.split('.');  
+			    integerNum = parts[0];  
+			    decimalNum = parts[1].substr(0, 4);  
+			  }  
+			  //获取整型部分转换  
+			  if (parseInt(integerNum, 10) > 0) {  
+			    var zeroCount = 0;  
+			    var IntLen = integerNum.length;  
+			    for (var i = 0; i < IntLen; i++) {  
+			      var n = integerNum.substr(i, 1);  
+			      var p = IntLen - i - 1;  
+			      var q = p / 4;  
+			      var m = p % 4;  
+			      if (n == '0') {  
+			        zeroCount++;  
+			      } else {  
+			        if (zeroCount > 0) {  
+			          chineseStr += cnNums[0];  
+			        }  
+			        //归零  
+			        zeroCount = 0;  
+			        chineseStr += cnNums[parseInt(n)] + cnIntRadice[m];  
+			      }  
+			      if (m == 0 && zeroCount < 4) {  
+			        chineseStr += cnIntUnits[q];  
+			      }  
+			    }  
+			    chineseStr += cnIntLast;  
+			  }  
+			  //小数部分  
+			  if (decimalNum != '') {  
+			    var decLen = decimalNum.length;  
+			    for (var i = 0; i < decLen; i++) {  
+			      var n = decimalNum.substr(i, 1);  
+			      if (n != '0') {  
+			        chineseStr += cnNums[Number(n)] + cnDecUnits[i];  
+			      }  
+			    }  
+			  }  
+			  if (chineseStr == '') {  
+			    chineseStr += cnNums[0] + cnIntLast + cnInteger;  
+			  } else if (decimalNum == '') {  
+			    chineseStr += cnInteger;  
+			  }  
+			  return chineseStr;  
+			},
+			//图片上传
+		    handleRemoveFile(file) { 
+		        this.file=null;
+		    },
+		    handlePreview(file) {
+		        console.log(file);
+		    },
+		    handleExceed(files) {
+		        this.$message.warning('当前只允许传输一个文件');
+		    },
+		    beforeRemove(file) {
+		         return this.$confirm(`确定移除 ${ file.name }？`);
+		    },
+		    successUploadFile(response, file){
+		    	var params={
+		    		name:response.data.url,
+		    		url:response.data.url
+		    	};
+		    	this.fileList.push(params);
+		    	var res={
+		    		offerId:this.content.offerGoodsList[0].offerId,
+		    		// contractCode:this.content.contractCode,
+		    		offerFile:response.data.url
+		    	}
+		    	saveOfferFile(res,row=>{
+		    		if(row.msgCode==200){
+		    			this.$message({
+				            type: 'success',
+				            message: row.msg
+				        });
+				        this.$emit('closeContractDialog')
+				        this.$emit('resetTable');
+				        this.fileList=[];
+		    		}else{
+		    			this.$message({
+				            type: 'info',
+				            message: row.msg
+				        });
+		    		}
+		    	})
+		    }
+		},
+		mounted(){
+
+		}	 
+}
+</script>
+
+<style lang="scss" scoped>
+	.upload-demo{
+		position:relative;
+	} 
+	.upload-demo /deep/ .el-upload-list{
+		position:absolute;
+		top: -40px;
+	    left: -168px;
+	}
+tr
+ {mso-height-source:auto;
+ mso-ruby-visibility:none;}
+col
+ {mso-width-source:auto;
+ mso-ruby-visibility:none;}
+br
+ {mso-data-placement:same-cell;}
+ruby
+ {ruby-align:left;}
+.style0
+ {
+ mso-number-format:General;
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ mso-style-name:Normal;
+ mso-style-id:0;}
+.font0
+ {
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif"; }
+.font1
+ {
+ color:#000000;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif"; }
+.font2
+ {
+ color:#000000;
+ font-size:12pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif"; }
+.font3
+ {
+ color:#000000;
+ font-size:12pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif"; }
+.font4
+ {
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif"; }
+.font5
+ {
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif"; }
+.font6
+ {
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"宋体","sans-serif"; }
+.font7
+ {
+ color:#000000;
+ font-size:10pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif"; }
+.font8
+ {
+ color:#000000;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif"; }
+.font9
+ {
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"宋体","sans-serif"; }
+.font10
+ {
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"宋体","sans-serif"; }
+.font11
+ {
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif"; }
+.font12
+ {
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"MS Reference Sans Serif","sans-serif"; }
+.font13
+ {
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif"; }
+.font14
+ {
+ color:#191F25;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Segoe UI","sans-serif"; }
+.font15
+ {
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"MS Reference Sans Serif","sans-serif"; }
+.font16
+ {
+ color:#000000;
+ font-size:12pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"MS Reference Sans Serif","sans-serif"; }
+.font17
+ {
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"MS Reference Sans Serif","sans-serif"; }
+.font18
+ {
+ color:#0000FF;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ text-decoration:underline;
+ font-family:"宋体","sans-serif"; }
+.font19
+ {
+ color:#000000;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif"; }
+.font20
+ {
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"宋体","sans-serif"; }
+.font21
+ {
+ color:#000000;
+ font-size:9pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif"; }
+.font22
+ {
+ color:#000000;
+ font-size:9pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","monospace"; }
+.font23
+ {
+ color:#000000;
+ font-size:8pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"宋体","sans-serif"; }
+.font24
+ {
+ color:#000000;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif"; }
+.font25
+ {
+ color:#000000;
+ font-size:10pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif"; }
+.font26
+ {
+ color:#FF0000;
+ font-size:18pt;
+ font-weight:700;
+ font-style:italic;
+ font-family:"Arial","sans-serif"; }
+.font27
+ {
+ color:#FF0000;
+ font-size:18pt;
+ font-weight:700;
+ font-style:italic;
+ font-family:"宋体","sans-serif"; }
+.font28
+ {
+ color:#000000;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif"; }
+.font29
+ {
+ color:#000000;
+ font-size:10pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif"; }
+td
+ {mso-style-parent:style0;
+ mso-number-format:General;
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ mso-ignore:padding;}
+.style0
+ {
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ mso-style-name:"Normal";
+ }
+.style1
+ {
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ mso-protection:locked visible;
+ }
+.style2
+ {
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ mso-protection:locked visible;
+ }
+.style3
+ {
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ mso-protection:locked visible;
+ }
+.style4
+ {
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ mso-protection:locked visible;
+ }
+.style5
+ {
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ mso-protection:locked visible;
+ }
+.style6
+ {
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ mso-protection:locked visible;
+ }
+.style7
+ {
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ mso-protection:locked visible;
+ }
+.style8
+ {
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ mso-protection:locked visible;
+ }
+.style9
+ {
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ mso-protection:locked visible;
+ }
+.style10
+ {
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ mso-protection:locked visible;
+ }
+.style11
+ {
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ mso-protection:locked visible;
+ }
+.style12
+ {
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ mso-protection:locked visible;
+ }
+.style13
+ {
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ mso-protection:locked visible;
+ }
+.style14
+ {
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ mso-protection:locked visible;
+ }
+.x15
+ {
+ mso-style-parent:style0;
+ mso-number-format:General;
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ }
+.style16
+ {
+ mso-number-format:"0%";
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ mso-protection:locked visible;
+ mso-style-name:"Percent";
+ }
+.style17
+ {
+ mso-number-format:"_ \0022¥\0022* \#\,\#\#0\.00_ \;_ \0022¥\0022* -\#\,\#\#0\.00_ \;_ \0022¥\0022* \0022-\0022??_ \;_ \@_ ";
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ mso-protection:locked visible;
+ mso-style-name:"Currency";
+ }
+.style18
+ {
+ mso-number-format:"_ \0022¥\0022* \#\,\#\#0_ \;_ \0022¥\0022* -\#\,\#\#0_ \;_ \0022¥\0022* \0022-\0022_ \;_ \@_ ";
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ mso-protection:locked visible;
+ mso-style-name:"Currency [0]";
+ }
+.style19
+ {
+ mso-number-format:"_ * \#\,\#\#0\.00_ \;_ * -\#\,\#\#0\.00_ \;_ * \0022-\0022??_ \;_ \@_ ";
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ mso-protection:locked visible;
+ mso-style-name:"Comma";
+ }
+.style20
+ {
+ mso-number-format:"_ * \#\,\#\#0_ \;_ * -\#\,\#\#0_ \;_ * \0022-\0022_ \;_ \@_ ";
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ mso-protection:locked visible;
+ mso-style-name:"Comma [0]";
+ }
+.style21
+ {
+ text-align:general;
+ vertical-align:bottom;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#0000FF;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ text-decoration:underline;
+ font-family:"宋体","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ mso-style-name:"超链接";
+ }
+.style22
+ {
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:12pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ mso-style-name:"普通";
+ }
+.x23
+ {
+ mso-style-parent:style0;
+ mso-number-format:General;
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ font-size:12pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ }
+.x24
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:general;
+ vertical-align:bottom;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:12pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ }
+.x25
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:general;
+ vertical-align:bottom;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ }
+.x26
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:general;
+ vertical-align:bottom;
+ white-space:nowrap;
+ background:#FFFFFF;
+ mso-pattern:auto none;
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ }
+.x27
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:general;
+ vertical-align:top;
+ white-space:normal;word-wrap:break-word;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ }
+.x28
+ {
+ mso-style-parent:style21;
+ mso-number-format:General;
+ text-align:general;
+ vertical-align:bottom;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ }
+.x29
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:general;
+ vertical-align:bottom;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:10pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ }
+.x30
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:general;
+ vertical-align:bottom;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ }
+.x31
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:general;
+ vertical-align:top;
+ white-space:normal;word-wrap:break-word;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:10pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ }
+.x32
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:general;
+ vertical-align:middle;
+ white-space:normal;word-wrap:break-word;
+ background:#FFFF00;
+ mso-pattern:auto none;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border-top:1px solid windowtext;
+ border-right:1px solid windowtext;
+ border-bottom:1px solid windowtext;
+ border-left:1px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x33
+ {
+ mso-style-parent:style0;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"MS Reference Sans Serif","sans-serif";
+ border-top:2px solid windowtext;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x34
+ {
+ mso-style-parent:style0;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#191F25;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Segoe UI","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ }
+.x35
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border-top:2px solid windowtext;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x36
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"MS Reference Sans Serif","sans-serif";
+ border-top:2px solid windowtext;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x37
+ {
+ mso-style-parent:style0;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"MS Reference Sans Serif","sans-serif";
+ border-top:2px solid windowtext;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x38
+ {
+ mso-style-parent:style0;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"MS Reference Sans Serif","sans-serif";
+ border-top:none;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x39
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border-top:none;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x40
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"MS Reference Sans Serif","sans-serif";
+ border-top:none;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x41
+ {
+ mso-style-parent:style0;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"MS Reference Sans Serif","sans-serif";
+ border-top:none;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x42
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border-top:none;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x43
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:general;
+ vertical-align:bottom;
+ white-space:nowrap;
+ background:#FFFF00;
+ mso-pattern:auto none;
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border-top:1px solid windowtext;
+ border-right:1px solid windowtext;
+ border-bottom:1px solid windowtext;
+ border-left:1px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x44
+ {
+ mso-style-parent:style0;
+ mso-number-format:"\0022￥\0022\#\,\#\#0\.00\;\0022￥\0022\\-\#\,\#\#0\.00";
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border-top:2px solid windowtext;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x45
+ {
+ mso-style-parent:style0;
+ mso-number-format:"\0022￥\0022\#\,\#\#0\.00_\)\;\\\(\0022￥\0022\#\,\#\#0\.00\\\)";
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"MS Reference Sans Serif","sans-serif";
+ border-top:2px solid windowtext;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x46
+ {
+ mso-style-parent:style0;
+ mso-number-format:"\0022￥\0022\#\,\#\#0\.00\;\0022￥\0022\\-\#\,\#\#0\.00";
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border-top:none;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x47
+ {
+ mso-style-parent:style0;
+ mso-number-format:"\0022￥\0022\#\,\#\#0\.00_\)\;\\\(\0022￥\0022\#\,\#\#0\.00\\\)";
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"MS Reference Sans Serif","sans-serif";
+ border-top:none;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x48
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:#FFFF00;
+ mso-pattern:auto none;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"MS Reference Sans Serif","sans-serif";
+ border-top:none;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x49
+ {
+ mso-style-parent:style22;
+ mso-number-format:"\\¥\#\,\#\#0\.00_\)\;\\\(\\¥\#\,\#\#0\.00\\\)";
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:#FFFF00;
+ mso-pattern:auto none;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border-top:none;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x50
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:left;
+ vertical-align:bottom;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ }
+.x51
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:left;
+ vertical-align:bottom;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ }
+.x52
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:left;
+ vertical-align:top;
+ white-space:normal;word-wrap:break-word;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:10pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ }
+.x53
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:left;
+ vertical-align:top;
+ white-space:normal;word-wrap:break-word;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border-top:none;
+ border-right:none;
+ border-bottom:1px solid windowtext;
+ border-left:none;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x54
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:left;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:#FFFF00;
+ mso-pattern:auto none;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border-top:1px solid windowtext;
+ border-right:none;
+ border-bottom:1px solid windowtext;
+ border-left:1px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x55
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:left;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:#FFFF00;
+ mso-pattern:auto none;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border-top:1px solid windowtext;
+ border-right:none;
+ border-bottom:1px solid windowtext;
+ border-left:none;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x56
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:#FFFF00;
+ mso-pattern:auto none;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border-top:1px solid windowtext;
+ border-right:none;
+ border-bottom:1px solid windowtext;
+ border-left:1px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x57
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:#FFFF00;
+ mso-pattern:auto none;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border-top:1px solid windowtext;
+ border-right:none;
+ border-bottom:1px solid windowtext;
+ border-left:none;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x58
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:left;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:#FFFF00;
+ mso-pattern:auto none;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border-top:1px solid windowtext;
+ border-right:1px solid windowtext;
+ border-bottom:1px solid windowtext;
+ border-left:1px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x59
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:left;
+ vertical-align:bottom;
+ white-space:nowrap;
+ background:#FFFFFF;
+ mso-pattern:auto none;
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border-top:1px solid windowtext;
+ border-right:none;
+ border-bottom:none;
+ border-left:none;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x60
+ {
+ mso-style-parent:style22;
+ mso-number-format:"MMM-yy";
+ text-align:center;
+ vertical-align:middle;
+ white-space:normal;word-wrap:break-word;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border-top:2px solid windowtext;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x61
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:normal;word-wrap:break-word;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border-top:2px solid windowtext;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x62
+ {
+ mso-style-parent:style22;
+ mso-number-format:"MMM-yy";
+ text-align:center;
+ vertical-align:middle;
+ white-space:normal;word-wrap:break-word;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border-top:none;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x63
+ {
+ mso-style-parent:style22;
+ mso-number-format:"MMM-yy";
+ text-align:center;
+ vertical-align:middle;
+ white-space:normal;word-wrap:break-word;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border-top:none;
+ border-right:none;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x64
+ {
+ mso-style-parent:style22;
+ mso-number-format:"MMM-yy";
+ text-align:center;
+ vertical-align:middle;
+ white-space:normal;word-wrap:break-word;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border-top:none;
+ border-right:none;
+ border-bottom:2px solid windowtext;
+ border-left:none;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x65
+ {
+ mso-style-parent:style22;
+ mso-number-format:"MMM-yy";
+ text-align:center;
+ vertical-align:middle;
+ white-space:normal;word-wrap:break-word;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:11pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border-top:none;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:none;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x66
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:12pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"MS Reference Sans Serif","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ }
+.x67
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:normal;word-wrap:break-word;
+ background:#C0C0C0;
+ mso-pattern:auto none;
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border-top:2px solid windowtext;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x68
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:#C0C0C0;
+ mso-pattern:auto none;
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border-top:2px solid windowtext;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x69
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:#C0C0C0;
+ mso-pattern:auto none;
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border-top:2px solid windowtext;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x70
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:left;
+ vertical-align:top;
+ white-space:normal;word-wrap:break-word;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ }
+.x71
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:left;
+ vertical-align:top;
+ white-space:normal;word-wrap:break-word;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ }
+.x72
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:normal;word-wrap:break-word;
+ background:#C0C0C0;
+ mso-pattern:auto none;
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border-top:2px solid windowtext;
+ border-right:2px solid windowtext;
+ border-bottom:2px solid windowtext;
+ border-left:2px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x73
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:left;
+ vertical-align:top;
+ white-space:normal;word-wrap:break-word;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ }
+.x74
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:left;
+ vertical-align:top;
+ white-space:normal;word-wrap:break-word;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:10pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ }
+.x75
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:left;
+ vertical-align:bottom;
+ white-space:normal;word-wrap:break-word;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ border:none;
+ mso-protection:locked visible;
+ }
+.x76
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:12pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"宋体","sans-serif";
+ mso-protection:locked visible;
+ }
+.x77
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:general;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ mso-protection:locked visible;
+ }
+.x78
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:#FFFF00;
+ mso-pattern:auto none;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border-top:1px solid windowtext;
+ border-right:1px solid windowtext;
+ border-bottom:1px solid windowtext;
+ border-left:1px solid windowtext;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x79
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:left;
+ vertical-align:bottom;
+ white-space:nowrap;
+ background:#FFFFFF;
+ mso-pattern:auto none;
+ color:#000000;
+ font-size:12pt;
+ font-weight:700;
+ font-style:normal;
+ font-family:"Arial","sans-serif";
+ border-top:1px solid windowtext;
+ border-right:none;
+ border-bottom:2px solid windowtext;
+ border-left:none;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+.x80
+ {
+ mso-style-parent:style22;
+ mso-number-format:General;
+ text-align:center;
+ vertical-align:middle;
+ white-space:nowrap;
+ background:auto;
+ mso-pattern:auto;
+ color:#000000;
+ font-size:12pt;
+ font-weight:400;
+ font-style:normal;
+ font-family:"MS Reference Sans Serif","sans-serif";
+ border-top:2px solid windowtext;
+ border-right:2px solid windowtext;
+ border-bottom:none;
+ border-left:none;
+ mso-diagonal-down:none;
+ mso-diagonal-up:none;
+ mso-protection:locked visible;
+ }
+</style>

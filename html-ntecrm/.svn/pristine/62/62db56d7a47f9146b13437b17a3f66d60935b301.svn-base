@@ -1,0 +1,534 @@
+<template>
+  <div class="detail">
+    <div style="text-align:right;margin-top:20px;">
+      <i class="iconfont" style="cursor:default;" @click="$emit('closeVisible');resetHandle();">&#xe633;</i>
+    </div>
+    <!-- 订单信息 -->
+    <div>
+      <div style="display:flex;justify-content:space-between;margin-top:15px;">
+          <span>订单信息:</span> 
+          <el-popover
+            placement="left"
+            width="650"
+            trigger="click">
+            <el-table :data="orderOptLog" height="400">
+                <el-table-column width="60" prop="id" label="id"></el-table-column>
+                <el-table-column width="60" label="状态">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.status==0">无效</span>
+                        <span v-if="scope.row.status==1">创建</span>
+                        <span v-if="scope.row.status==2">确认</span>
+                        <span v-if="scope.row.status==3">合同更换</span>
+                        <span v-if="scope.row.status==4">修改</span>
+                    </template>
+                </el-table-column>
+                <el-table-column width="350"  prop="remark" label="备注"></el-table-column>
+                <el-table-column width="160" prop="createTime" label="操作时间"></el-table-column>
+            </el-table>
+            <span style="color:#409EFF;font-size:12px;cursor:default;" slot="reference">操作日志</span>
+        </el-popover>
+       </div>
+      <div style="display:flex;padding:20px 0 20px 20px;flex-wrap:wrap;background: #f7f7f7;border-radius: 10px;margin: 10px 0;">
+        <span style="color:#999;width:25%;padding:10px 0;text-align:left;">订单编号: <span style="color:#333">
+            {{orderDetailList.order.orderNo||'无'}}</span></span>
+        <span style="color:#999;width:25%;padding:10px 0;text-align:left;">业务员: <span style="color:#333">
+            {{orderDetailList.order.saleName||'无'}}</span></span>
+        <span style="color:#999;width:25%;padding:10px 0;text-align:left;">创建时间: <span style="color:#333">
+            {{orderDetailList.order.createTime||'无'}}</span></span>
+        <span style="color:#999;width:25%;padding:10px 0;text-align:left;">更新时间: <span style="color:#333">
+            {{orderDetailList.order.updateTime||'无'}}</span></span>
+        <span style="color:#999;width:25%;padding:10px 0;text-align:left;">订单状态:
+          <span style="color:#333" v-if="orderDetailList.order.orderStatus==0">待确认</span>
+          <span style="color:#333" v-if="orderDetailList.order.orderStatus==1">已确认</span>
+          <span style="color:#333" v-if="orderDetailList.order.orderStatus==2">退货中</span>
+          <span style="color:#333" v-if="orderDetailList.order.orderStatus==3">已退货</span>
+          <span style="color:#333" v-if="orderDetailList.order.orderStatus==4">退款</span>
+          <span style="color:#333" v-if="orderDetailList.order.orderStatus==5">无效</span>
+        </span>
+        <span style="color:#999;width:25%;padding:10px 0;text-align:left;">支付状态:
+          <span style="color:#333" v-if="orderDetailList.order.payStatus==0">未支付</span>
+          <span style="color:#333" v-if="orderDetailList.order.payStatus==1">已预付</span>
+          <span style="color:#333" v-if="orderDetailList.order.payStatus==2">已支付</span>
+        </span>
+        <span style="color:#999;width:25%;padding:10px 0;text-align:left;">发货状态:
+          <span style="color:#333" v-if="orderDetailList.order.shippingStatus==0">未到货</span>
+          <span style="color:#333" v-if="orderDetailList.order.shippingStatus==1">到货未发货</span>
+          <span style="color:#333" v-if="orderDetailList.order.shippingStatus==2">已发货</span>
+          <span style="color:#333" v-if="orderDetailList.order.shippingStatus==3">确认收货</span>
+        </span>
+        <span style="color:#999;width:25%;padding:10px 0;text-align:left;">付款方式:
+          <span style="color:#333" v-if="orderDetailList.order.moneyStatus==1">预付全款</span>
+          <span style="color:#333" v-if="orderDetailList.order.moneyStatus==2">30%预付款<span><br>70%款到发货</span></span>
+          <span style="color:#333" v-if="orderDetailList.order.moneyStatus==3">50%预付款<span><br>50%款到发货</span></span>
+          <span style="color:#333" v-if="orderDetailList.order.moneyStatus==4">货到付款</span>
+          <span style="color:#333" v-if="orderDetailList.order.moneyStatus==7">款到发货</span>
+          <span style="color:#333" v-if="orderDetailList.order.moneyStatus==5">月结</span>
+          <span style="color:#333" v-if="orderDetailList.order.moneyStatus==6">其它</span>
+        </span>
+
+        <span style="color:#999;width:25%;padding:10px 0;text-align:left;">应付金额: <span style="color:#333">
+            {{'￥'+orderDetailList.order.copeMoney||'无'}}</span></span>
+        <span style="color:#999;width:25%;padding:10px 0;text-align:left;">预付金额: <span style="color:#333">
+            {{'￥'+orderDetailList.order.preMoney||'无'}}</span></span>
+        <span style="color:#999;width:25%;padding:10px 0;text-align:left;">待付金额: <span style="color:#333">
+            {{'￥'+orderDetailList.order.waitMoney||'无'}}</span></span>
+        <span style="color:#999;width:25%;padding:10px 0;text-align:left;">总金额: <span style="color:#333">
+            {{'￥'+orderDetailList.order.totalMoney||'无'}}</span></span>
+      </div>
+    </div>
+    <!-- 客户信息 -->
+    <div>
+      <div style="">客户信息:</div>
+      <div style="display:flex;padding:20px 0 20px 20px;background: #f7f7f7;border-radius: 10px;margin: 10px 0;">
+        <span style="color:#999;width:25%;padding:10px 0;text-align:left;">客户名称: <span style="color:#333">
+            {{orderDetailList.order.conName||'无'}}</span></span>
+        <span style="color:#999;width:25%;padding:10px 0;text-align:left;">客户公司: <span style="color:#333">
+            {{orderDetailList.order.custCompanyName||'无'}}</span></span>
+        <span style="color:#999;width:25%;padding:10px 0;text-align:left;">联系方式: <span style="color:#333">
+            {{orderDetailList.order.telePhone||'无'}}</span></span>
+      </div>
+    </div>
+    <!-- 商品信息 -->
+    <div>
+      <div style="">商品信息:</div>
+      <div style="background: #f7f7f7;border-radius: 10px;margin: 10px 0;padding:20px 0 20px 20px;">
+        <div style="display:flex;flex-wrap:wrap;" v-for="(item,index) in orderDetailList.orderGoodsList" :key="index">
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">类型: <span style="color:#333">
+              {{item.describe||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">参数: <span style="color:#333">
+              {{item.goodsInfo||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">备注: <span style="color:#333">
+              {{item.remark||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">名称: <span style="color:#333">
+              {{item.title||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">数量: <span style="color:#333">
+              {{item.quantity||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">品牌: <span style="color:#333">
+              {{item.brandName||'无'}}</span></span>
+        </div>
+      </div>
+    </div>
+    <!-- 报价 -->
+    <div>
+      <div style="">报价信息:</div>
+      <div style="background: #f7f7f7;border-radius: 10px;margin: 10px 0;padding:20px 0 20px 20px;">
+        <div style="display:flex;" v-for="(item,index) in orderDetailList.orderGoodsList" :key="index">
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">商品折扣: <span style="color:#333">
+              {{item.discount+'%'||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">最终折扣: <span style="color:#333">
+              {{item.finalDiscount+'%'||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">标准价: <span style="color:#333">
+              {{'￥'+item.goodsOffer||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">报价: <span style="color:#333">
+              {{'￥'+item.offer||'无'}}</span></span>
+        </div>
+      </div>
+    </div>
+    <!-- 财务-付款方式 -->
+    <div>
+      <div style="display:flex;justify-content:space-between;">
+        <span>财务:</span>
+        <span v-if="roleId == 42 || roleId == 37 || roleId == 36|| roleId == 39">
+            <span style="color:#409EFF;cursor:default;" v-if="moneyStatusSty" @click="moneyStatusSty=!moneyStatusSty">编辑</span>
+            <span style="cursor:default;" v-else>
+            <span style="margin-right:10px;" @click="resetHandle();moneyStatusSty=!moneyStatusSty">取消</span>
+            <span style="color:#409EFF;" @click="sendOrder(3,null)">保存</span>
+            </span>
+        </span>
+        
+      </div>
+      <div style="display:flex;padding:20px ;background: #f7f7f7;border-radius: 10px;margin: 10px 0;">
+        <el-form ref="form" :model="form" label-width="80px" :disabled="moneyStatusSty" style="display:flex;flex-wrap:wrap;">
+          <el-form-item label="金额状态" style="width:33.33%;">
+            <el-select v-model="orderDetailList.order.moneyStatus" placeholder="金额状态">
+              <el-option :value="1" label="全额支付">预付全款</el-option>
+              <el-option :value="2" label="30%预付款">30%预付款，70%款到发货 </el-option>
+              <el-option :value="3" label="50%预付款">50%预付款 ，50%款到发货</el-option>
+              <el-option :value="4" label="货到付款">货到付款</el-option>
+              <el-option :value="7" label="款到发货">款到发货</el-option>
+              <el-option :value="5" label="月结">月结</el-option>
+              <el-option :value="6" label="其它">其它</el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="支付时间" style="width:33.33%;">
+            <el-date-picker v-model="orderDetailList.order.payTime" value-format="yyyy-MM-dd HH:mm:ss" type="datetime"
+              placeholder="请输入支付时间">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="预付时间" style="width:33.33%;">
+            <el-date-picker v-model="orderDetailList.order.prePayTime" value-format="yyyy-MM-dd HH:mm:ss" type="datetime"
+              placeholder="请输入预付时间">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="运费" style="width:33.33%;">
+            <el-input type="text" placeholder="请输入运费" v-model="orderDetailList.order.freightMoney">
+            </el-input>
+          </el-form-item>
+          <el-form-item label="待付金额" style="width:33.33%;">
+            <el-input type="text" placeholder="请输入待付金额" v-model="orderDetailList.order.waitMoney">
+            </el-input>
+          </el-form-item>
+          <el-form-item label="预付金额" style="width:33.33%;">
+            <el-input type="text" placeholder="请输入预付金额" v-model="orderDetailList.order.preMoney">
+            </el-input>
+          </el-form-item>
+          <el-form-item label="预付流水号" label-width="100px"  style="width:33.33%;">
+            <el-input type="text" placeholder="请输入预付流水号" v-model="orderDetailList.order.preTradeNo">
+            </el-input>
+          </el-form-item>
+          <el-form-item label="支付状态" style="width:50%;">
+            <el-radio-group v-model="orderDetailList.order.payStatus">
+              <el-radio :label="0">未支付</el-radio>
+              <el-radio :label="1">已预付</el-radio>
+              <el-radio :label="2">已支付</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-form>
+      </div>
+    </div>
+    <!-- 采购 -->
+    <div>
+      <div style="display:flex;justify-content:space-between;">
+        <span>采购:</span>
+        <span v-if="roleId == 40|| roleId == 39">
+            <span style="color:#409EFF;cursor:default;" v-if="arrivalTimeSty" @click="arrivalTimeSty=!arrivalTimeSty">编辑</span>
+            <span style="cursor:default;" v-else>
+            <span style="margin-right:10px;" @click="resetHandle();arrivalTimeSty=!arrivalTimeSty">取消</span>
+            <span style="color:#409EFF;" @click="sendOrder(1,null)">保存</span>
+            </span>
+        </span>
+      </div>
+      <div style="padding:20px;background: #f7f7f7;border-radius: 10px;margin: 10px 0;">
+        <el-form ref="form" :model="form" label-width="80px" :disabled="arrivalTimeSty" style="display:flex;flex-wrap:wrap;">
+          <el-form-item label="到货时间">
+            <el-date-picker v-model="orderDetailList.order.arrivalTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss"
+              placeholder="请输入到货时间">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="货期">
+            <el-date-picker v-model="orderDetailList.order.deliveryTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss"
+              placeholder="请输入货期">
+            </el-date-picker>
+          </el-form-item>
+        </el-form>
+      </div>
+    </div>
+
+    <div>
+      <div style="display:flex;justify-content:space-between;">
+        <span>发票:</span>
+        <span v-if="roleId == 38 || roleId == 37 || roleId == 36|| roleId == 39">
+            <span style="color:#409EFF;cursor:default;" v-if="billSty" @click="billSty=!billSty">编辑</span>
+            <span style="cursor:default;" v-else>
+            <span style="margin-right:10px;" @click="resetHandle();billSty=!billSty">取消</span>
+            <span style="color:#409EFF;" @click="sendOrder(2,1)">保存</span>
+            </span>
+        </span>
+      </div>
+      <div style="padding:20px;background: #f7f7f7;border-radius: 10px;margin: 10px 0;">
+        <el-form ref="form" :model="form" label-width="80px" :disabled="billSty" style="display:flex;flex-wrap:wrap;">
+          <el-form-item label="收票人" style="width:33.33%">
+            <el-input type="text" placeholder="请输入收票人" v-model="orderDetailList.order.billReceiptName">
+            </el-input>
+          </el-form-item>
+          <el-form-item label="手机号码" style="width:33.33%">
+            <el-input type="text" placeholder="请输入手机号码" v-model="orderDetailList.order.billReceiptPhone">
+            </el-input>
+          </el-form-item>
+          <el-form-item label="发票地址" style="width:33.33%">
+            <el-input type="textarea" :rows="2" label="内容" placeholder="请输入发票地址" v-model="orderDetailList.order.billAddress">
+            </el-input>
+          </el-form-item>
+          <el-form-item label="物流公司" style="width:33.33%">
+            <el-input type="textarea" :rows="2" placeholder="请输入物流公司" v-model="orderDetailList.order.billLogBank">
+            </el-input>
+          </el-form-item>
+          <el-form-item label="物流单号" style="width:33.33%">
+            <el-input type="textarea" :rows="2" placeholder="请输入物流单号" v-model="orderDetailList.order.billLogNo">
+            </el-input>
+          </el-form-item>
+          
+          <el-form-item label="邮政编码" style="width:33.33%">
+            <el-input type="text" placeholder="请输入邮政编码" v-model="orderDetailList.order.billPostNo">
+            </el-input>
+          </el-form-item>
+          <el-form-item label="寄出时间" style="width:33.33%">
+            <el-date-picker v-model="orderDetailList.order.sendBillTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="请输入寄出时间">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="发票状态" style="width:33.33%">
+            <el-radio-group v-model="orderDetailList.order.invoice">
+              <el-radio :label="0">不开发票</el-radio>
+              <el-radio :label="1">开票</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="是否寄出" style="width:33.33%">
+            <el-radio-group v-model="orderDetailList.order.isSendBill">
+              <el-radio :label="0">否</el-radio>
+              <el-radio :label="1">是</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-form>
+      </div>
+    </div>
+    <!-- 物流   -->
+    <div>
+      <div style="display:flex;justify-content:space-between;">
+        <span>物流:</span>
+        <span v-if="roleId == 38 || roleId == 37 || roleId == 36|| roleId == 39">
+            <span style="color:#409EFF;cursor:default;" v-if="wlSty" @click="wlSty=!wlSty">编辑</span>
+            <span style="cursor:default;" v-else>
+            <span style="margin-right:10px;" @click="resetHandle();wlSty=!wlSty">取消</span>
+            <span style="color:#409EFF;" @click="sendOrder(2,2)">保存</span>
+            </span>
+        </span>
+      </div>
+      <div style="padding:20px;background: #f7f7f7;border-radius: 10px;margin: 10px 0;">
+        <el-form ref="form" :model="form" label-width="80px" :disabled="wlSty" style="display:flex;flex-wrap:wrap;">
+          <el-form-item label="收货人" style="width:33.33%">
+            <el-input type="text" placeholder="请输入收货人" v-model="orderDetailList.order.receiptName">
+            </el-input>
+          </el-form-item>
+          <el-form-item label="手机号码" style="width:33.33%">
+            <el-input type="text" placeholder="请输入手机号码" v-model="orderDetailList.order.receiptPhone">
+            </el-input>
+          </el-form-item>
+          <el-form-item label="收货地址" style="width:33.33%">
+            <el-input type="textarea" :rows="2" label="内容" placeholder="请输入发票地址" v-model="orderDetailList.order.address">
+            </el-input>
+          </el-form-item>
+          <el-form-item label="物流公司" style="width:33.33%">
+            <el-input type="text" placeholder="请输入物流公司" v-model="orderDetailList.order.logBank">
+            </el-input>
+          </el-form-item>
+          <el-form-item label="物流单号" style="width:33.33%">
+            <el-input type="text" :rows="2" placeholder="请输入物流单号" v-model="orderDetailList.order.logNo">
+            </el-input>
+          </el-form-item>
+          <el-form-item label="邮政编码" style="width:33.33%">
+            <el-input type="text" :rows="2" placeholder="请输入邮政编码" v-model="orderDetailList.order.postNo">
+            </el-input>
+          </el-form-item>
+          <!-- <el-form-item label="发货时间" style="width:33.33%">
+            <el-date-picker v-model="orderDetailList.order.sendTime" type="datetime" placeholder="请输入发货时间">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="签收时间" style="width:33.33%">
+            <el-date-picker v-model="orderDetailList.order.signForTime" type="datetime" placeholder="请输入签收时间">
+            </el-date-picker>
+          </el-form-item> -->
+        </el-form>
+      </div>
+    </div>
+    <!-- 其它 -->
+    <div>
+      <div style="display:flex;justify-content:space-between;">
+        <span>其它:</span>
+        <span v-if="roleId == 38 || roleId == 37 || roleId == 36|| roleId == 39">
+            <span style="color:#409EFF;cursor:default;" v-if="OtherSty" @click="OtherSty=!OtherSty">编辑</span>
+            <span style="cursor:default;" v-else>
+            <span style="margin-right:10px;" @click="resetHandle();OtherSty=!OtherSty">取消</span>
+            <span style="color:#409EFF;" @click="sendOrder(2,0)">保存</span>
+            </span>
+        </span>
+      </div>
+      <div style="padding:20px;background: #f7f7f7;border-radius: 10px;margin: 10px 0;">
+        <el-form ref="form" :model="form" label-width="80px" :disabled="OtherSty" style="display:flex;flex-wrap:wrap;">
+          <el-form-item label="发货状态" style="width:33.33%;">
+            <el-select v-model="orderDetailList.order.shippingStatus" placeholder="发货状态">
+              <el-option :value="0" label="未到货">未到货</el-option>
+              <el-option :value="1" label="到货未发货">到货未发货</el-option>
+              <el-option :value="2" label="已发货">已发货</el-option>
+              <el-option :value="3" label="确认收货">确认收货</el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="发货时间" style="width:33.33%">
+            <el-date-picker v-model="orderDetailList.order.sendTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="请输入发货时间">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="签收时间" style="width:33.33%">
+            <el-date-picker v-model="orderDetailList.order.signForTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="请输入签收时间">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="调试要求" style="width:33.33%">
+            <el-input type="textarea" :rows="2" label="内容" placeholder="请输入调试要求" v-model="orderDetailList.order.debugRequirement">
+            </el-input>
+          </el-form-item>
+        </el-form>
+      </div>
+      <!-- <button @click="handle()">确定</button> -->
+    </div>
+  </div>
+</template>
+<script>
+  import {
+    queryOrderDetail,
+    updateOrder
+  } from "util/req/order/index"
+  export default {
+    name: "detail",
+    props: {
+      detailVisible: {
+        typeL: Boolean
+      },
+      orderRowList: {
+        type: Object
+      },
+      rowId: {
+
+      }
+    },
+    computed: {
+        roleId: function () {
+          var userDto = JSON.parse(sessionStorage.getItem('userDto'));
+          return userDto.roleId
+        }
+    },
+    data() {
+      return {
+        loading:true,
+        orderDetailList: {
+          order: {
+            conName: null,
+            custCompanyName: null,
+            telePhone: null
+          },
+          orderGoodsList: []
+        },
+        recordList: null,
+        form: null,
+        moneyStatusSty: true,
+        arrivalTimeSty: true,
+        billSty: true,
+        wlSty: true,
+        OtherSty: true,
+        orderOptLog:[]
+      }
+    },
+    watch: {
+      'rowId': function () {
+        const loading = this.$loading({
+            lock: true,
+            target:'.detail',
+            text: '重载中',
+            spinner: 'el-icon-loading',
+            background: 'rgba(255, 255, 255, 1)'
+        });
+        queryOrderDetail({
+          id: this.rowId
+        }, (res) => {
+          this.orderDetailList = res.data;
+          this.orderOptLog=JSON.parse(JSON.stringify(res.data.orderOptLog));
+          console.log(this.orderOptLog)
+          this.recordList = JSON.parse(JSON.stringify(res.data));
+           loading.close(); 
+        })
+      }
+    },
+    methods: {
+      handle() {
+        console.log(this.recordList)
+        console.log(this.orderDetailList.order)
+        console.log(sessionStorage.getItem('userDto'))
+      },
+      resetHandle() {
+        this.orderDetailList = this.recordList;
+      },
+      recovery(){
+        this.moneyStatusSty= true;
+        this.arrivalTimeSty= true;
+        this.billSty= true;
+        this.wlSty= true;
+        this.OtherSty=true;
+      },
+      sendOrder(updateType,type) {
+        var parmas = {};
+        parmas.id=this.rowId;
+        if (updateType==2) { //销售人员
+          parmas.updateType = 2
+          if (type == 0) {      //其它
+            parmas.type=0;
+            parmas.debugRequirement=this.orderDetailList.order.debugRequirement//调试要求,
+            parmas.shippingStatus=this.orderDetailList.order.shippingStatus//0未到货1到货未发货2已发货3确认收货
+            parmas.signForTime=this.orderDetailList.order.signForTime//签收时间
+            parmas.sendTime=this.orderDetailList.order.sendTime//发货时间
+            
+          } else if (type == 1) { //发票
+            parmas.type=1;
+            parmas.invoice=this.orderDetailList.order.invoice//发票状态0不开发票1开发票
+            parmas.billAddress=this.orderDetailList.order.billAddress//收发票地址
+            parmas.billLogBank=this.orderDetailList.order.billLogBank//收票物流公司
+            parmas.billLogNo=this.orderDetailList.order.billLogNo//收票物流单号
+            parmas.billReceiptName=this.orderDetailList.order.billReceiptName//收票人姓名
+            parmas.billReceiptPhone=this.orderDetailList.order.billReceiptPhone//收票人手机号
+            parmas.billPostNo=this.orderDetailList.order.billPostNo//收票人邮政编码
+            parmas.isSendBill=this.orderDetailList.order.isSendBill//是否寄出发票0否1是
+            parmas.sendBillTime=this.orderDetailList.order.sendBillTime//发票寄出时间
+          }else if(type==2){
+            parmas.type=2;
+            parmas.address=this.orderDetailList.order.address//收货地址
+            parmas.receiptName=this.orderDetailList.order.receiptName//收货人姓名
+            parmas.receiptPhone=this.orderDetailList.order.receiptPhone//收货人手机
+            parmas.postNo=this.orderDetailList.order.postNo//邮政编码
+            parmas.logBank=this.orderDetailList.order.logBank//物流公司
+            parmas.logNo=this.orderDetailList.order.logNo//物流单号
+          }
+        } else if (updateType==1) { //采购
+          parmas.updateType = 1;
+          parmas.deliveryTime = this.orderDetailList.order.deliveryTime; //预交货日期，
+          parmas.arrivalTime = this.orderDetailList.order.arrivalTime; //到货日期
+        } else if (updateType == 3) { //财务(42)总助（37）超级管理员（36）
+          parmas.updateType = 3;
+          parmas.payTime = this.orderDetailList.order.payTime; //支付时间
+          parmas.prePayTime = this.orderDetailList.order.prePayTime; //预付时间
+          parmas.freightMoney = this.orderDetailList.order.freightMoney; //运费
+          parmas.waitMoney = this.orderDetailList.order.waitMoney; //待付金额
+          parmas.preMoney = this.orderDetailList.order.preMoney; //待付金额
+          parmas.preTradeNo = this.orderDetailList.order.preTradeNo; //预付流水号
+          parmas.payStatus = this.orderDetailList.order.payStatus; //支付状态
+          parmas.moneyStatus = this.orderDetailList.order.moneyStatus; //金额状态
+        }else {
+            return false
+        }
+        updateOrder(parmas,(res)=>{
+            console.log(res);
+            if (res.msgCode == 200) {
+                this.$message({
+                    message: res.msg,
+                    type: 'success'
+                });
+                const loading = this.$loading({
+                    lock: true,
+                    target:'.detail',
+                    text: '重载中',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(255, 255, 255, 0.9)'
+                });
+                new Promise((resolve,reject)=>{
+                    queryOrderDetail({id:this.rowId},(res)=>{
+                        resolve(res)
+                    })
+                }).then((res)=>{
+                    console.log(res)
+                    this.orderDetailList = res.data;
+                    this.recordList = JSON.parse(JSON.stringify(res.data))
+                    this.recovery();
+                    loading.close();
+                }).catch((err)=>{
+                    this.$message({
+                        message:err,
+                        type: 'warning'
+                    });
+                })               
+            } else {
+                this.$message({
+                    message: res.msg,
+                    type: 'warning'
+                });
+            }
+        })
+      }
+    }
+  }
+
+</script>

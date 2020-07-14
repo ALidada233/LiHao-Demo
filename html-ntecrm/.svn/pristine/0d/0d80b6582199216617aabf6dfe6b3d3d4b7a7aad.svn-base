@@ -1,0 +1,150 @@
+import Vue from 'vue'
+import axios from 'axios';
+import { MessageBox } from 'element-ui';
+import Qs from 'qs';
+import requestUrl from '@/util/http.js'
+//本地环境
+var api;
+if(process.env.NODE_ENV=="development"){
+    api="/nte-crm"
+}else{  //测试环境
+    api=requestUrl;
+}
+//查询客戶需求列表（分页）
+export const getDemand=(params,callback)=>{
+  axios({
+      url:api+"/queryDemandList",
+      method:'post',
+      data: params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+//新增、修改客戶需求 
+export const saveDemand=(params,callback)=>{
+  axios({
+      url:api+"/saveDemand",
+      method:'post',
+      data: params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+//获取产品列表
+export const getGoodsCategory=(callback)=>{
+  axios({
+      url:api+"/getGoodsCategory",
+      method:'get'
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+
+//需求列表状态改变
+export const saveDemandStatus=(params,callback)=>{
+  axios({
+      url:api+"/saveDemand",
+      method:'post',
+      data: params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+
+// 获取跟进信息
+export const getDemandOptLogList=(params,callback)=>{
+  axios({
+      url:api+"/getDemandOptLogList",
+      method:'post',
+      data:params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+
+//新增跟进记录
+export const saveDemandOptLog=(params,callback)=>{
+  axios({
+      url:api+"/saveDemandOptLog",
+      method:'post',
+      data:params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+
+//获取报价列表
+export const getDemandList=(params,callback)=>{
+  axios({
+      url:api+"/getDemandList",
+      method:'post',
+      data:params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+
+// 获取用户折扣
+export const getOptApplyDiscount=(params,callback)=>{
+  axios({
+      url:api+"/getOptApplyDiscount",
+      method:'post',
+      data:params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+
+
+
+//新增,修改报价
+export const saveDemandOffer=(params,callback)=>{
+  axios({
+      url:api+"/saveDemandOffer",
+      method:'post',
+      data:params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+//获取报价详情
+export const getOfferInfo=(params,callback)=>{
+  axios({
+      url:api+"/getOfferInfo",
+      method:'post',
+      data:params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+
+//新增,修改申请折扣
+export const saveDiscountApply=(params,callback)=>{
+  axios({
+      url:api+"/saveDiscountApply",
+      method:'post',
+      data:params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+//查询可生成合同列表
+export const queryContractList=(params,callback)=>{
+  axios({
+      url:api+"/queryContractList",
+      method:'post',
+      data:params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+//需求数据置顶
+export const checkDemandIsTop=(params,callback)=>{
+  axios({
+      url:api+"/checkDemandIsTop",
+      method:'post',
+      data: params
+  }).then(res=>{
+     callback(res.data)
+  })
+}

@@ -1,0 +1,422 @@
+<template>
+	<el-popover
+    placement="bottom-start"
+    width="300"
+    v-model="popoverState"
+    trigger="click">	    
+		<div class="clearPa" style="margin-bottom:10px;">
+			<div class="left" style="line-height:30px;margin-right:15px;margin-left:22px;">年份</div>
+			<el-select class="left" v-model="yearValue" size="small" placeholder="请选择">
+				<el-option
+				v-for="item in yearOptions"
+				:key="item.value"
+				:label="item.label"
+				:value="item.value">
+				</el-option>
+			</el-select>
+		</div>
+		<el-tabs :tab-position="tabPosition" style="height: 200px;" @tab-click="tabHandle">
+			<el-tab-pane label="常用">
+				<div style="padding:0 20px;">
+					  <el-radio class="common_use" style="margin-top: 3px;" v-model="timeRadio" label="昨天">昨天</el-radio>
+					  <el-radio class="common_use" v-model="timeRadio" label="今天">今天</el-radio>
+					  <el-radio class="common_use" v-model="timeRadio" label="上周">上周</el-radio>
+					  <el-radio class="common_use" v-model="timeRadio" label="本周">本周</el-radio>
+					  <el-radio class="common_use" v-model="timeRadio" label="上月">上月</el-radio>
+					  <el-radio class="common_use" v-model="timeRadio" label="本月">本月</el-radio>
+					  <el-radio class="common_use" v-model="timeRadio" label="上半年">上半年</el-radio>
+					  <el-radio class="common_use" v-model="timeRadio" label="下半年">下半年</el-radio>
+					  <p style="font-size:10px;line-height: 20px;">备注：常用时间默认看板数据为当前年份，视图数据为选定的年份</p>	
+				</div>				  		
+			</el-tab-pane>
+			<el-tab-pane label="月份">
+				<div style="padding:0 20px;">
+					<el-radio class="month_use" style="" v-model="timeRadio" :label="1">一月</el-radio>
+				  	<el-radio class="month_use" v-model="timeRadio" :label="2">二月</el-radio>
+				  	<el-radio class="month_use" v-model="timeRadio" :label="3">三月</el-radio>
+				  	<el-radio class="month_use" v-model="timeRadio" :label="4">四月</el-radio>
+				  	<el-radio class="month_use" v-model="timeRadio" :label="5">五月</el-radio>
+				  	<el-radio class="month_use" v-model="timeRadio" :label="6">六月</el-radio>
+				  	<el-radio class="month_use" v-model="timeRadio" :label="7">七月</el-radio>
+				  	<el-radio class="month_use" v-model="timeRadio" :label="8">八月</el-radio>
+				  	<el-radio class="month_use" v-model="timeRadio" :label="9">九月</el-radio>
+				  	<el-radio class="month_use" v-model="timeRadio" :label="10">十月</el-radio>
+				  	<el-radio class="month_use" v-model="timeRadio" :label="11">十一月</el-radio>
+				  	<el-radio class="month_use" v-model="timeRadio" style="margin-left: 13px;" :label="12">十二月</el-radio>
+				</div>
+			  	
+			</el-tab-pane>
+			<el-tab-pane label="季度">
+				<div style="padding:20px 20px;">
+					<el-radio class="quarter_use" style="margin-left:30px;margin-top: 3px;" v-model="timeRadio" label="1">第一季度</el-radio>
+				  	<el-radio class="quarter_use" v-model="timeRadio" label="2">第二季度</el-radio>
+				  	<el-radio class="quarter_use" v-model="timeRadio" label="3">第三季度</el-radio>
+				  	<el-radio class="quarter_use" v-model="timeRadio" label="4">第四季度</el-radio>
+				</div>	
+			</el-tab-pane>
+			<el-tab-pane label="半年">
+				<div style="padding:20px 20px;">
+					<el-radio class="quarter_use" style="margin-left:30px;margin-top: 3px;" v-model="timeRadio" label="firstHalfYear">上半年</el-radio>
+				  	<el-radio class="quarter_use" v-model="timeRadio" label="secondHalf">下半年</el-radio>
+				</div>
+			</el-tab-pane>
+			<el-tab-pane label="年度">
+				<div style="padding:20px 20px;">
+					<el-radio class="quarter_use" style="margin-left:30px;margin-top: 3px;" v-model="timeRadio" label="all">全年</el-radio>
+				</div>
+			</el-tab-pane>
+		</el-tabs>
+		<el-collapse accordion style="padding:0 20px;">
+		  <el-collapse-item>
+		    <template slot="title">
+		      自定义时间
+		    </template>
+		    <div class="el_date_change_size">
+		    	<el-date-picker
+			      v-model="timeSelect"
+			      type="datetimerange"
+			      size="mini"
+			      range-separator="至"
+			      start-placeholder="开始日期"
+			      end-placeholder="结束日期">
+			    </el-date-picker>
+		    </div>		     
+		  </el-collapse-item>		  
+		</el-collapse>
+		<el-row style="text-align: right;margin-top:5px;">
+		  <el-button size="small" @click="cancleHandle">取消</el-button>
+		  <el-button size="small" type="primary" @click="confirmHandle">确认</el-button>
+		</el-row>
+		<span slot="reference" style="font-size: 12px;color:#666;margin-right: 10px;cursor:default;">选择时间： {{echoMsg}}
+			<i class="el-icon-arrow-down"></i>
+		</span>
+	</el-popover>
+</template>
+<script type="text/javascript">
+import {formatDateTime} from "util/fn/transTime"
+	export default{
+		name:"datetimePick",
+		data(){
+			return{
+				yearOptions:[{
+			          value: 2019,
+			          label: '2019'
+			        },
+					{
+			          value: 2018,
+			          label: '2018'
+			        }, {
+			          value: 2017,
+			          label: '2017'
+			        }, {
+			          value: 2016,
+			          label: '2016'
+			        }, {
+			          value: 2015,
+			          label: '2015'
+			        }, {
+			          value: 2014,
+			          label: '2014'
+			    }],
+			    yearValue:2019,
+			    tabPosition: 'left',
+			    timeRadio:"本月",
+			    timeSelect:null,
+			    popoverState:false,
+			    tabIndex:0, 			//时间切换默认选中项
+			    chooseTime:null, 		//最终选中的时间
+			    timeStart:null,			//要发送的开始时间
+			    timeEnd:null,			//要发送的结束时间
+			    echoMsg:"本月", 			//回显内容
+			    timeState:"quick"
+			}
+		},
+		methods:{
+			tabHandle(tab, event){
+				//console.log(tab, event);
+				this.tabIndex=tab.index;
+			},
+			getDaysOfMonth(year,month){			//获取月份天数
+			    var date=new Date(year,month,0);
+			    var days=date.getDate();
+			    return days;
+			},
+			getMonthDays(nowYear,myMonth) {
+			    var monthStartDate = new Date(nowYear, myMonth, 1);
+			    var monthEndDate = new Date(nowYear, myMonth + 1, 1);
+			    var days = (monthEndDate - monthStartDate) / (1000 * 60 * 60 * 24);
+			    return days;
+			},
+			getQuarterStartDate(paraYear,paraSeason){　　 
+			　 switch (paraSeason){　　 
+			　　　 case '1' : return paraYear+"-01-01";
+			　　　 case '2' : return paraYear+"-04-01";
+			　　　 case '3' : return paraYear+"-07-01";
+			　　　 case '4' : return paraYear+"-10-01";
+			　 }
+			},　　 　 
+			//获得某季度的结束日期　　 
+			getQuarterEndDate(paraYear,paraSeason){　　 
+			　 switch (paraSeason){　　 
+			　 case '1' : return paraYear+"-03-31";
+			　 case '2' : return paraYear+"-06-30";
+			　 case '3' : return paraYear+"-09-30";
+			　 case '4' : return paraYear+"-12-31";
+			　 }　 
+			},
+			formatDate(date) {			//时间格式化
+			    var myyear = date.getFullYear();
+			    var mymonth = date.getMonth() + 1;
+			    var myweekday = date.getDate();
+			    if (mymonth < 10) {
+			        mymonth = "0" + mymonth;
+			    }
+			    if (myweekday < 10) {
+			        myweekday = "0" + myweekday;
+			    }
+			    return (myyear + "-" + mymonth + "-" + myweekday);
+			},	
+			cancleHandle(){					//取消
+				this.popoverState=false;
+				this.yearValue=2018;
+			    this.timeRadio="本周";
+			    this.timeSelect=null;
+			    this.tabIndex=0;  			//时间切换默认选中项
+			    this.chooseTime=null; 		//最终选中的时间
+			    this.timeStart=null;			//要发送的开始时间
+			    this.timeEnd=null;			//要发送的结束时间
+			    this.echoMsg="本周"; 			//回显内容
+			    this.timeState="quick";
+			},
+			confirmHandle(){
+				var params;
+				
+				if(this.timeState=="quick"){
+					params={
+						echoMsg:this.echoMsg,
+						timeState:this.timeState,
+						timeStart:this.timeStart,
+						timeEnd:this.timeEnd,
+						yearValue:this.yearValue
+					}
+				}else if(this.timeState=="select"){
+					params={
+						echoMsg:this.echoMsg,
+						timeState:this.timeState,
+						timeStart:formatDateTime(this.timeSelect[0]),
+						timeEnd:formatDateTime(this.timeSelect[1]),
+						yearValue:this.yearValue
+					}
+				}
+				this.$emit('changetime',params);
+				//console.log(params);
+				this.popoverState=false;
+			}
+		},
+		watch:{
+			yearValue(val){
+				if(this.tabIndex!=0){
+					//console.log(this.timeState);
+					var arrStart=this.timeStart.split("-");
+					arrStart.splice(0,1,val);
+					var arrEnd=this.timeStart.split("-");
+					arrEnd.splice(0,1,val);
+					this.timeStart=arrStart.join('-');
+					this.timeEnd=arrEnd.join('-');
+				}
+			},
+			echoMsg(val){
+				var params={
+					echoMsg:this.echoMsg,
+					timeState:this.timeState
+				}
+				this.$emit('changetimeName',params);
+
+			},
+			timeSelect(val){
+				
+				if(val==null){
+					this.timeState="quick";
+				}else{
+					this.echoMsg=this.formatDate(val[0])+"~"+this.formatDate(val[1]);
+					this.timeState="select";
+				}
+			},
+			tabIndex(index){
+				if(index==0){
+					this.tabIndex=0;
+				}else if(index==1){
+					this.tabIndex=1;					
+				}else if(index==2){
+					this.tabIndex=2;
+				}else if(index==3){
+					this.tabIndex=3;
+				}else if(index==4){
+					this.tabIndex=4;
+				}
+			},
+			timeRadio(val){
+				var now = new Date(); //当前日期
+				var nowDayOfWeek = now.getDay(); //今天本周的第几天
+				var nowDay = now.getDate(); //当前日
+				var nowMonth = now.getMonth(); //当前月
+				var nowYear = now.getYear(); //当前年
+				nowYear += (nowYear < 2000) ? 1900 : 0; //
+				var lastMonthDate = new Date(); //上月日期
+				lastMonthDate.setDate(1);
+				lastMonthDate.setMonth(lastMonthDate.getMonth() - 1);
+				var lastYear = lastMonthDate.getYear();
+				var lastMonth = lastMonthDate.getMonth();
+				this.timeState="quick";
+				if(this.tabIndex==0){
+					if(this.timeRadio=="昨天"){
+						var yesterday = new Date();
+						yesterday.setTime(yesterday.getTime()-24*60*60*1000);
+						var yesterdayTime = yesterday.getFullYear()+"-" + (yesterday.getMonth()+1) + "-" + yesterday.getDate();
+						this.timeStart=yesterdayTime;
+						this.timeEnd=yesterdayTime;
+						console.log(this.timeStart,this.timeEnd);
+					}else if(this.timeRadio=="今天"){
+						var today = new Date();
+						today.setTime(today.getTime());
+						var todayTime = today.getFullYear()+"-" + (today.getMonth()+1) + "-" + today.getDate();
+						this.timeStart=todayTime
+						this.timeEnd=todayTime;
+						console.log(this.timeStart,this.timeEnd);
+					}else if(this.timeRadio=="上周"){
+						var weekStartDate = new Date(nowYear, nowMonth, nowDay - nowDayOfWeek - 7);
+						var weekEndDate = new Date(nowYear, nowMonth, nowDay - nowDayOfWeek - 1);
+						this.timeStart=this.formatDate(weekStartDate);
+						this.timeEnd=this.formatDate(weekEndDate);
+						console.log(this.timeStart,this.timeEnd);
+					}else if(this.timeRadio=="本周"){
+						var NowWeekStartDate = new Date(nowYear, nowMonth, nowDay - nowDayOfWeek);
+						var NowWeekEndDate = new Date(nowYear, nowMonth, nowDay + (6 - nowDayOfWeek));
+						this.timeStart=this.formatDate(NowWeekStartDate);
+						this.timeEnd=this.formatDate(NowWeekEndDate);
+						console.log(this.timeStart,this.timeEnd);
+					}else if(this.timeRadio=="上月"){
+						var newYear;
+						if(lastMonth==11){
+							newYear=nowYear-1
+						}else{
+							newYear=nowYear
+						}
+						var lastMonthStartDate = new Date(newYear, lastMonth, 1);
+						var lastMonthEndDate = new Date(newYear, lastMonth, this.getMonthDays(newYear,lastMonth));
+						this.timeStart=this.formatDate(lastMonthStartDate);
+						this.timeEnd=this.formatDate(lastMonthEndDate);
+						console.log(this.timeStart,this.timeEnd);
+
+					}else if(this.timeRadio=="本月"){
+						var monthStartDate = new Date(nowYear, nowMonth, 1);
+						var monthEndDate = new Date(nowYear, nowMonth, this.getMonthDays(this.yearValue,nowMonth));
+						this.timeStart=this.formatDate(monthStartDate);
+						this.timeEnd=this.formatDate(monthEndDate);
+						console.log(this.timeStart,this.timeEnd);
+					}else if(this.timeRadio=="上半年"){
+						var now = new Date(); //当前日期
+						var nowYear = now.getFullYear(); //当前年
+						this.timeStart=nowYear+"-"+"01-01";
+						this.timeEnd=nowYear+"-"+"06-31";
+						console.log(this.timeStart,this.timeEnd);
+					}else if(this.timeRadio=="下半年"){
+						var now = new Date(); //当前日期
+						var nowYear = now.getFullYear(); //当前年
+						this.timeStart=nowYear+"-"+"07-01";
+						this.timeEnd=nowYear+"-"+"12-31";
+						console.log(this.timeStart,this.timeEnd);
+					}
+					this.echoMsg=this.timeRadio;
+				}else if(this.tabIndex==1){	
+					var day=this.getDaysOfMonth(this.yearValue,this.timeRadio);
+					var month=this.timeRadio<10?"0"+this.timeRadio:this.timeRadio;
+					this.timeStart=this.yearValue+"-"+month+"-"+"01";
+					this.timeEnd=this.yearValue+"-"+month+"-"+day;
+					console.log(this.timeStart,this.timeEnd);	
+					if(this.timeRadio==1){
+						this.echoMsg="一月"
+					}else if(this.timeRadio==2){
+						this.echoMsg="二月"
+					}else if(this.timeRadio==3){
+						this.echoMsg="三月"
+					}else if(this.timeRadio==4){
+						this.echoMsg="四月"
+					}else if(this.timeRadio==5){
+						this.echoMsg="五月"
+					}else if(this.timeRadio==6){
+						this.echoMsg="六月"
+					}else if(this.timeRadio==7){
+						this.echoMsg="七月"
+					}else if(this.timeRadio==8){
+						this.echoMsg="八月"
+					}else if(this.timeRadio==9){
+						this.echoMsg="九月"
+					}else if(this.timeRadio==10){
+						this.echoMsg="十月"
+					}else if(this.timeRadio==11){
+						this.echoMsg="十一月"
+					}else if(this.timeRadio==12){
+						this.echoMsg="十二月"
+					}
+				}else if(this.tabIndex==2){
+					this.timeStart=this.getQuarterStartDate(this.yearValue,this.timeRadio);
+					this.timeEnd=this.getQuarterEndDate(this.yearValue,this.timeRadio);
+					if(this.timeRadio=="1"){
+						this.echoMsg="第一季度"
+					}else if(this.timeRadio=="2"){
+						this.echoMsg="第二季度"
+					}else if(this.timeRadio=="3"){
+						this.echoMsg="第三季度"
+					}else if(this.timeRadio=="4"){
+						this.echoMsg="第四季度"
+					}
+					console.log(this.timeStart,this.timeEnd);
+				}else if(this.tabIndex==3){
+					if(this.timeRadio=="firstHalfYear"){	//上半年
+						this.timeStart=this.yearValue+"-"+"01"+"-"+"01";
+						this.timeEnd=this.yearValue+"-"+"06"+"-"+"30";
+						this.echoMsg="上半年";
+					}else if(this.timeRadio=="secondHalf"){	//下半年
+						this.timeStart=this.yearValue+"-"+"07"+"-"+"01";
+						this.timeEnd=this.yearValue+"-"+"12"+"-"+"31";
+						this.echoMsg="下半年";
+					}
+					console.log(this.timeStart,this.timeEnd);
+				}else if(this.tabIndex==4){		//全年
+					this.timeStart=this.yearValue+"-"+"01"+"-"+"01";
+					this.timeEnd=this.yearValue+"-"+"12"+"-"+"31";
+					console.log(this.timeStart,this.timeEnd);
+					this.echoMsg="全年"
+				}
+				
+			}
+		}
+	}
+</script>
+<style lang="scss" scoped>
+.common_use{
+	width:45%;
+	margin-bottom: 15px;
+	margin-left:0!important;
+	margin-right:0!important;
+	color:#666;
+	font-size:10px;
+}
+.month_use{
+	width:45%;
+	margin-left:0!important;
+	margin-right:0!important;
+	margin-bottom:15px;
+}
+.quarter_use{
+	width:100%;
+	margin-left:30px;
+	margin-bottom:15px;
+}
+.el_date_change_size/deep/.el-date-editor{
+	width:289px;
+	position: relative;
+    left: -12px;
+}
+</style>

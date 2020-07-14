@@ -1,0 +1,848 @@
+<template>
+  <div class="customerDemand" id="customerDemand" ref="customerDemand">
+    <div style="padding:10px;">
+      <div class="left" style="margin-bottom: 0px;">
+        <el-select v-model="demandStatus" multiple clearable @change="selChangeStatus" placeholder="请选择需求类型">
+          <el-option :value="1" label="待报价"></el-option>
+          <el-option :value="2" label="已报价"></el-option>
+          <el-option :value="3" label="报价单"></el-option>
+          <el-option :value="5" label="合同单"></el-option>
+          <el-option :value="6" label="已作废"></el-option>
+          <el-option :value="7" label="全部"></el-option>
+        </el-select>
+        <el-select no-data-text="加载中" clearable v-model="selectLinkMan" filterable @change="searchLinkName(selectLinkMan)"
+          placeholder="请选择公司">
+          <el-option v-for="(item,index) in customerList" :key="index" :label="item.custCompanyName" :value="item.custCompanyName">
+          </el-option>
+        </el-select>
+        <el-select no-data-text="加载中" clearable v-model="selectConId" filterable placeholder="请选择联系人">
+          <el-option v-for="(item,index) in selectLinkList" :key="index" :label="item.conName" :value="item.conId">
+          </el-option>
+        </el-select>
+        <el-select v-model="saleId" placeholder="请选择负责人" :filterable="true" :clearable="true" style="width:150px;margin-top: 10px;">
+          <el-option v-for="(item,index) in salesList" :key="index" :label="item.name" :value="item.id">
+          </el-option>
+        </el-select>
+        <el-select v-model="typeStatus" placeholder="请选择类型" :filterable="true" :clearable="true" style="width:150px;margin-top: 10px;">
+          <el-option label="标准" value="1"></el-option>
+          <el-option label="非标准" value="2"></el-option>
+        </el-select>
+        <el-select v-model="indexStr" placeholder="技术协助需求" :filterable="true" :clearable="true" style="width:150px;margin-top: 10px;">
+          <el-option label="是" value="1"></el-option>
+          <el-option label="否" value="2"></el-option>
+        </el-select>
+        <el-date-picker
+          v-model="searchConditionTimeC"
+          type="datetimerange"
+          style="width: 380px;"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="创建开始日期"
+          end-placeholder="创建结束日期">
+        </el-date-picker>
+        <el-date-picker
+          v-model="searchConditionTimeU"
+          type="datetimerange"
+          style="width: 380px;"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          start-placeholder="更新开始日期"
+          end-placeholder="更新结束日期">
+        </el-date-picker>
+        <el-button type="primary" style="margin-top:10px;" size="medium" icon="el-icon-search" @click="getDemandList()"></el-button>
+        <el-button v-tip.top.dark="'重置'" style="margin-top:10px;" size="medium" icon="el-icon-refresh" @click="resetSearchCondition()"></el-button>
+      </div>
+      <div class="right" style="margin-bottom: 5px;">
+        <el-button v-tip.top.dark="'返回客户管理'" size="medium" @click="$router.push({ path: '/admin/customer', query: {condition:searchCriteria}})"
+          icon="el-icon-back"></el-button>
+        <el-button v-tip.top.dark="'新增需求'" type="primary" size="medium" @click="needVisible=true;" icon="el-icon-plus"></el-button>
+        <el-button v-tip.top.dark="'生成报价单'" style="background:#5bc0de;color:#fff;" size="medium" @click="contractDialogVisible=true;contractType='offer'"
+          icon="el-icon-document"></el-button>
+        <el-button v-tip.top.dark="'生成合同'" style="background:#8E8CBC;color:#fff;" size="medium" @click="contractDialogVisible=true;contractType='contract'"
+          icon="el-icon-tickets"></el-button>
+      </div>
+      <el-table  ref="table" v-loading="loading" :data="dataList" :border="true" :fit="true" :height="tableHeight" class="demandList" style="width: 100%;" :header-cell-style="{'background-color':'#EFEDF0'}">
+        <el-table-column label="操作" width="195">
+          <template slot-scope="props" v-if="isShow">
+            <el-button v-tip.top.dark="'报价'" type="primary" size="mini" @click="offerHandle(props.row.id,props.row.status)"
+              v-if="props.row.status==1" style="margin-bottom:5px;" class="iconfont" round>&#xe63c;</el-button>
+            <el-button v-tip.top.dark="'已报价'" size="mini" @click="offerHandle(props.row.id,props.row.status)"
+              v-if="props.row.status==2||props.row.status==3" style="margin-bottom:5px;background:#5cb85c;color:#fff;" class="iconfont" round>&#xe715;</el-button>
+            <el-button v-tip.top.dark="'预览报价单'" size="mini" @click="offerHandle(props.row.id,props.row.status,props.row,'offer')"
+              v-if="(props.row.status==3 || props.row.status==5) && props.row.offerFile!==null && props.row.offerFile!==''"
+              style="margin-bottom:5px;background:#5bc0de;color:#fff;" class="iconfont" round>&#xe651;</el-button>
+            <el-button  v-tip.top.dark="'预览合同'" size="mini" @click="offerHandle(props.row.id,props.row.status,props.row)"
+              v-if="(props.row.status==5) && props.row.contractFile!==null && props.row.contractFile!==''" style="margin-bottom:5px;background:#8085E9;color:#fff;"
+              class="iconfont"  round>&#xe617;</el-button>
+            <el-button type="danger" v-tip.top.dark="'作废'" size="mini" @click="cancelId=props.row.id;cancelVisible=true;"
+              v-if="props.row.status!==6" style="margin-bottom:5px;" class="iconfont" round>&#xe71a;</el-button>
+          </template>
+        </el-table-column>
+        <el-table-column label="需求信息" align="center" width="300">
+          <template slot-scope="scope">
+            <el-badge :is-dot="scope.row.technicalNum>0" class="item">
+              <div v-if="scope.row.type==1"  :style="{'color':scope.row.indexId>0?'#409EFF':''}">
+                <div v-if="infoActive==scope.$index&&scope.row.demandInfos.length>1" style="cursor: pointer;">
+                  <div v-for="(item,index) in scope.row.demandInfos" :key="index" @click="getFollowList(scope.row.id,scope.row)"
+                    style="margin-top:5px;">
+                    <p v-for="(item,index) in item" :key="index" style="text-align:left;">{{item}}</p>
+                  </div>
+                  <i class="el-icon-arrow-up" @click.self="infoActive=-1"></i>
+                </div>
+                <span v-else style="cursor: pointer;text-align:left;">
+                  <p v-for="(item,index) in scope.row.demandInfos[0]" :key="index" @click="getFollowList(scope.row.id,scope.row)">{{item}}</p>
+                  <i class="el-icon-arrow-down" v-if="scope.row.demandInfos.length>1" @click="infoActive=scope.$index"></i>
+                </span>
+              </div>
+              <div style="cursor: pointer;text-align:left;" @click="getFollowList(scope.row.id,scope.row)">
+                <span :style="{'color':scope.row.indexId>0?'#409EFF':''}" v-if="scope.row.type==2">{{scope.row.demandContent}}</span>
+              </div>
+            </el-badge>
+          </template>
+        </el-table-column>
+        <el-table-column label="跟进信息数量" align="center" width="110">
+          <template slot-scope="scope">
+            <span style="color:#409EFF;cursor: pointer;" @click="getFollowList(scope.row.id,scope.row)">{{scope.row.followCount}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="客户公司" align="center" width="150">
+          <template slot-scope="scope">
+            <span>
+              <el-popover placement="top-start" title="" width="150" trigger="hover" :content="scope.row.companyName">
+                <span slot="reference" style="cursor:default;" v-html="$root.OmissionText(scope.row.companyName==null?null:scope.row.companyName,8)"></span>
+              </el-popover>
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="联系人信息" align="center" width="190">
+          <template slot-scope="scope">
+            <i class="el-icon-edit" style="margin-right:10px;" @click="editContactsVisible=true;demandId=scope.row.id"></i>
+            <span style="color:#409EFF;cursor:pointer;" @click="$router.push({ path: '/admin/customer', query: {name:scope.row.companyName}})">
+              {{scope.row.contacts}}-{{scope.row.phone}}<br>{{scope.row.email}}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="状态" align="center" width="80" prop="status">
+          <template slot-scope="scope">
+            <el-tag type="info" v-if="scope.row.status==1">待报价</el-tag>
+            <el-tag color="#B9DB F9" v-if="scope.row.status==2">已报价</el-tag>
+            <el-tag v-if="scope.row.status==3">报价单</el-tag>
+            <el-tag type="warning" v-if="scope.row.status==4">合同单</el-tag>
+            <el-tag type="success" v-if="scope.row.status==5">已成单</el-tag>
+            <el-tag type="danger" v-if="scope.row.status==6">已作废</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="类型" align="center" prop="type" width="80">
+          <template slot-scope="scope">
+            <el-tag type="success" v-if="scope.row.type==1">标准</el-tag>
+            <el-tag type="warning" v-if="scope.row.type==2">非标准</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column  width="78" align="center" label="是否置顶">
+          <template slot-scope="scope">
+            <el-switch
+              v-model="scope.row.isTop"
+              :active-value="1"
+              :inactive-value="0"
+              active-color="#13ce66"
+              @change="istopHandle(scope.row.isTop,scope.row.id)"
+              inactive-color="#ff4949">
+            </el-switch>
+          </template>  
+        </el-table-column>
+        <el-table-column label="备注" width="200" align="center" prop="remark">
+        </el-table-column>
+        <el-table-column label="业务员信息" align="center" width="250">
+          <template slot-scope="scope">
+            <span>
+              {{scope.row.saleName}}-{{scope.row.salePhone}}<br>{{scope.row.saleEmail}}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作人" align="center" width="78" prop="createName">
+        </el-table-column>
+        <el-table-column label="需求编号" align="center" prop="demandCode" width="127">
+        </el-table-column>
+        <el-table-column label="需求附件" align="center" prop="demandCode" width="80">
+          <template slot-scope="scope">
+            <span v-if="scope.row.demandFile" @click="previewFileVisible=true;previewFileUrl=scope.row.demandFile"
+              style="color:#409EFF;cursor:pointer;">预览</span>
+            <span v-else>无</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="更新时间" width="180" align="center" prop="updateTime">
+        </el-table-column>
+        <el-table-column label="创建时间" width="180" align="center" prop="createTime">
+        </el-table-column>
+        <el-table-column prop="id" label="需求ID">
+        </el-table-column>
+      </el-table>
+    </div>
+    <!-- 分页 -->
+    <div class="block" style="text-align:right;margin-top:10px;">
+      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="currentPage"
+        :page-sizes="[5, 10, 15, 30]" :page-size="pageSize" layout="sizes, prev, pager, next, total" :total="pageCount">
+      </el-pagination>
+    </div>
+    <!-- 跟进记录 -->
+    <transition name="fade-transform" mode="out-in">
+      <add-follow class="addFollow" ref="addFollow" v-if="toggleFollowVisible" :toggleFollowVisible="toggleFollowVisible" @closeVisible="toggleFollowVisible=false;getDemandDataList=null;$root.BackToTop();getDemandList()"
+        @getFollowList="getFollowList(id)" :getDemandDataList="getDemandDataList" :followListId="followListId"
+        :selectFollowList="selectFollowList">
+      </add-follow>
+    </transition>
+    <!-- 作废 -->
+    <el-dialog title="作废备注" :visible.sync="cancelVisible" :append-to-body="true">
+      <div style="width:100%">
+        <span style="width:10%;vertical-align:top;margin-right: 10px;">作废原因（必填）</span>
+        <el-input style="width:70%" type="textarea" :rows="4" placeholder="请输入内容" v-model="remarkCancel">
+        </el-input>
+      </div>
+      <div style="text-align: right;margin-top: 20px;">
+        <el-button size="small" @click="cancelVisible=false;remarkCancel=null;">取消</el-button>
+        <el-button type="primary" size="small" @click="saveDemandStatusCancel(6)">确定</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 需求新增 -->
+    <new-demand :needVisible="needVisible" @closeNeedVisible="needVisible=false;" :customerList="customerList"
+    @sucAddDemand="getDemandList">
+    </new-demand>
+
+    <!-- 生成合同 -->
+    <transition name="fade-transform" mode="out-in">
+      <customersContract :customerList="customerList" class="customersContract" v-show="contractDialogVisible" @closeContractDialog="contractDialogVisible=false;"
+        :getCustID="getCustID" :type="contractType" :contractStatus="contractDialogVisible">
+      </customersContract>
+    </transition>
+
+    <!-- 预览合同 -->
+    <el-dialog :title="sendTitle?'预览合同':'预览报价单'" class="sendTitle" width="80%" :visible.sync="heTongVisible"
+      :append-to-body="true">
+      <div style="width:100%">
+        <object :data="pdfFile" width="100%" height="550px" internalinstanceid="233"></object>
+      </div>
+      <div style="text-align: right;margin-top: 20px;">
+        <el-button type="primary" size="small" @click="sendEmailHandle">发送报价单</el-button>
+        <el-button type="primary" size="small" @click="heTongVisible=false">确定</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 预览需求附件 -->
+    <preview-file :previewFileVisible="previewFileVisible" @closePreviewFile="previewFileVisible=false" :previewFileUrl="previewFileUrl">
+    </preview-file>
+
+    <!-- 报价 -->
+    <transition name="fade-transform" mode="out-in">
+      <offer class="offer"
+       v-if="offerVisible"
+       :demandId="demandId"
+       :editOfferList="offerList"
+       :offerStatus="offerStatus"
+       :offerEditId="offerEditId"
+       :followDemandList="followDemandList"
+       @closeOffer="offerVisible=false;offerEditId=null;
+       offerStatus=false;getDemandList();"
+       >
+      </offer>
+    </transition>
+
+    <!-- 修改联系人 -->
+    <edit-contacts
+      :customerList="customerList"
+      :demandId="demandId"
+      :editContactsVisible="editContactsVisible"
+      @closeEditContactsVisible="editContactsVisible=false;"
+      @contactsRefresh="getDemandList();"
+    >
+    </edit-contacts>
+  </div>
+
+</template>
+<script type="text/javascript">
+  import {
+    saveDemandStatus,
+    getGoodsCategory,
+    getDemand,
+    checkDemandIsTop,
+    getDemandOptLogList,
+    getOptApplyiscount,
+    saveDemandOffer,
+    saveDiscountApply,
+    getOfferInfo
+  } from "util/req/customer/demand";
+  import {
+    getDemadDiscountList,
+    getGoodsList
+  } from "util/req/offerList/index";
+  import {
+    getSalesList,
+    getCustomerConList,
+    getCustomerName
+  } from "util/req/customer/table";
+  import {
+    sendContract
+  } from "util/req/contract/index";
+  import addFollow from "@/page/admin/offerList/components/addFollow";
+  import editContacts from'@/page/admin/offerList/offer/components/editContacts';
+  export default {
+    name: 'customerDemand',
+    props: {
+      getCustID: {
+        type: Number,
+        default: null
+      }
+    },
+    watch: {
+      getCustID(id) {
+        this.getDemandList();
+        this.$root.BackToTop();
+      },
+      heTongVisible(status) {
+        //this.emailSelectRow=null;
+      },
+      contractDialogVisible(status) {
+        if (status == false) {
+          this.getDemandList();
+        }
+      },
+      cancelVisible(status) {
+        if (status == false) {
+          this.remarkCancel = null;
+        }
+      }
+    },
+    data() {
+      return {
+        tableHeight:null,
+        dataList: [], //列表数据
+        getDemandDataList: [],//跟进信息列表
+        pageCount: null, //分页总数
+        pageSize: 10, //每页条数
+        currentPage: 1, //当前页
+        cancelVisible: false, //作废弹框 
+        needVisible: false, //新增需求
+        offerVisible: false, //报价
+        toggleFollowVisible: false, //跟进记录
+        editContactsVisible:false,//修改联系人弹框
+        selectFollowList: null, //跟进记录选中行
+        previewFileVisible: false, //预览需求附件弹框
+        previewFileUrl: null,
+        customerId: this.getCustID, //客户id
+        loading: false,
+        deliveryTime: null, //有效期
+        followList: null, //跟进信息
+        saleId: null,
+        salesList: [],
+        typeStatus: null,
+        indexStr:null,
+        followListId: null, //需求ID
+        cancelId: null, //作废选中的需求Id
+        remarkCancel: null, //作废原因
+        contractDialogVisible: null, //生成合同弹框
+        goodsName: [], //品牌名字
+        goodsList: [],
+        offerList: [], //报价列表
+        getDiscount: null, //获取的设定折扣率
+        isShow:true,
+        completedEditList: [], //已编辑的列表
+        multipleSelection: [], //选中要报价的
+        demandId: null, //需求ID
+        demandCustomerId: null,
+        offerStatus: false, //报价的状态（新增为false，true为编辑）
+        offerEditId: null, //编辑报价需要id
+        customerList: [], //客户列表
+        demandCustomerRow: [],
+        conId: null,
+        followDemandList: [], //需求里面的跟进信息						
+        partsGoodsOffer: null,
+        partsTotalOffer: null,
+        partsQuantity: null,
+        heTongVisible: false, //合同预览弹框
+        pdfFile: null, //合同路径
+        contractType: null, //合同类型
+        sendTitle: false, //预览报价合同title(false为报价单，true为合同)
+        emailSelectRow: {}, //选择预览的内容，用于发送邮件
+        selectLinkMan: null, //公司联系人集合
+        searchName: null, //联系人
+        infoActive: null, //需求信息展示状态
+        demandStatus: [],
+        selectLinkList: [],
+        selectConId: null,
+        createTimeStart: null, //创建开始时间
+        createTimeEnd: null, //创建结束时间
+        searchCriteria: {}, //设置由客户带搜索参数进来，再带回去
+        searchConditionTimeC:null,   //查询创建时间数组
+        searchConditionTimeU:null     //查询更新时间数组
+      }
+    },
+    methods: {
+      selChangeStatus(){
+        if(this.demandStatus[this.demandStatus.length-1]==7){
+          this.demandStatus=[7];
+        }
+        if(this.demandStatus.length>1 && this.demandStatus.indexOf(7)>-1){
+          this.demandStatus.splice(this.demandStatus.indexOf(7),1);
+        }
+      },
+      handleSizeChange(pageSize) { //数据条数改变时
+        this.loading = true;
+        this.pageSize = pageSize;
+        this.currentPage = 1;
+        this.getDemandList();
+      },
+      handleCurrentChange(currentPage) { //选取分页
+        this.loading = true;
+        this.currentId = [];
+        this.getDemandList();
+      },
+      resetSearchCondition() {  //清空搜索条件
+        this.demandStatus=[];
+        this.searchConditionTimeC=null;
+        this.searchConditionTimeU=null;
+        this.selectLinkMan = null;
+        this.selectConId = null;
+        this.saleId = null;
+        this.typeStatus = null;
+        this.indexStr=null;
+        this.getDemandList();
+      },
+      getSalesList() {  //获取销售员列表
+        getSalesList(res => {
+          this.salesList = res.data.data.list;
+        })
+      },
+      getDemandList() { //获取需求列表
+        var params = {
+          page: this.currentPage,
+          pageSize: this.pageSize
+        };
+        //查询需求时需要加上的条件
+        if (this.selectConId) { //联系人
+          params.conId = this.selectConId;
+        }
+        if (this.selectLinkMan) { //公司名称
+          params.keys = this.selectLinkMan;
+        }
+        if (this.saleId) { //负责人名称
+          params.saleId = this.saleId;
+        }
+        if (this.demandStatus) { //状态
+          params.statusMore = this.demandStatus.join(',');
+        }
+        //如果搜索选项包含全部
+        if(this.demandStatus.indexOf(7)>-1){
+          params.statusMore="1,2,3,5,6"
+        }
+        if (this.typeStatus) { //需求类型
+          params.type = this.typeStatus;
+        }
+        if(this.indexStr==1){
+          params.indexStr = this.indexStr;
+        }else if(this.indexStr==2){
+          params.indexStr = 0;
+        }
+        if(this.searchConditionTimeC){  //创建时间
+          params.createTimeStart = this.searchConditionTimeC[0];
+          params.createTimeEnd = this.searchConditionTimeC[1];
+        }
+        if(this.searchConditionTimeU){  //更新时间
+          params.updateTimeStart = this.searchConditionTimeU[0];
+          params.updateTimeEnd = this.searchConditionTimeU[1];
+        }
+        //当是采购或技术的账户，需要带上登陆时的id
+        if (sessionStorage.getItem("buyer_department")) {
+          params.buyerIds = sessionStorage.getItem("buyer_department")
+        }
+        if (sessionStorage.getItem("technical_department")) {
+          params.technicalIds = sessionStorage.getItem("technical_department")
+        }
+        this.loading = true;
+        getDemand(params, res => {
+          if (res.msgCode == 200) {
+            res = res.data;
+            this.dataList = res.list;
+            this.pageCount = res.pageCount;
+            setTimeout(() => {
+              this.loading = false;
+            }, 100)
+          } else {
+            setTimeout(() => {
+              this.loading = false;
+            }, 100)
+          }
+        })
+      },
+      getTypeList() { //查询产品类别
+        getCustomerName(null, res => {
+          res = res.data.data;
+          this.customerList = res.list;
+        })
+      },
+      getFollowList(id, row) { //获取跟进记录
+        this.$root.BackToTop(); //页面返回顶部
+        this.selectFollowList = row;
+        this.toggleFollowVisible = true;
+        var params = {
+          demandId: id
+        }
+        this.loadingFllow = true;
+        this.followListId = id;
+        getDemandOptLogList(params, res => {
+          this.getDemandDataList = res.data.list;
+          this.$refs['addFollow'].getTechnicalSupportByDto();
+          setTimeout(() => {
+            this.loadingFllow = false;
+          }, 100)
+        })
+      },
+      saveDemandStatusCancel(status) { //需求状态改变（作废）
+        if (this.remarkCancel == null) {
+          this.$message({
+            type: 'info',
+            message: "作废原因不能为空"
+          });
+        }
+        var params = {
+          id: this.cancelId,
+          status: status,
+          remark: this.remarkCancel || {}
+        };
+        saveDemandStatus(params, res => {
+          if (res.msgCode == 200) {
+            this.$message({
+              type: 'success',
+              message: res.msg
+            });
+            this.cancelVisible = false;
+            this.getDemandList();
+          } else {
+            this.$message({
+              type: 'info',
+              message: res.msg
+            });
+          }
+        })
+      },
+      offerHandle(id, status, row, offer) { //打开报价弹框,获取报价列表,折扣
+        if (status == 5 && offer != 'offer') { //已生成合同需要预览PDF
+          this.heTongVisible = true;
+          this.pdfFile = row.contractFile;
+          this.sendTitle = true;
+          this.emailSelectRow = row;
+          return
+        } else if (offer == 'offer' && (status == 5 || status == 3)) {
+          this.heTongVisible = true;
+          this.pdfFile = row.offerFile;
+          this.sendTitle = false;
+          this.emailSelectRow = row;
+          return
+        }
+        this.offerVisible = true;
+        this.demandId = id;
+        if (status == 1) { //此时为报价状态，需要获取一次申请折扣信息，查看是否有申请折扣信息
+          // getDemadDiscountList({
+          //   demandId: id
+          // }, res => {
+          //   this.followAppList = res.data.disCountList;
+          // })
+          this.offerStatus = false;
+          return
+        }
+        
+        getOfferInfo({
+          demandId: id
+        }, res => {
+          if (res.data == null) {
+            this.offerStatus = false; //offerStatus 为false是处于新增状态
+          } else {
+            this.offerStatus = true;
+            var colum = res.data.offerInfo;
+            //此段为编辑状态下处理的数据
+            colum.offerGoodsList.forEach((item,idx)=>{
+              item.completeStatus=true;
+              item.file=item.goodsImg;
+              var partsList= item.partsList;
+              item.partsList={};
+              item.partList=[];//商品辅件
+              item.editPartsList={};
+              //处理辅件里面的数据
+              var paramsList=[];
+              partsList.forEach(item=>{
+                paramsList.push({
+                  goodsModelId: item.modelId,
+                  modelId: item.modelId,
+                  goodsNo: item.goodsNo, // 商品编号
+                  goodsInfo: item.goodsInfo,
+                  range: item.range,
+                  type:0,
+                  accuracy: item.accuracy,
+                  range: item.range,
+                  outputSignal: item.outputSignal,
+                  price: item.price,
+                  outputSignal: item.outputSignal,
+                  standardPrice: item.standardPrice,
+                  modelNo: item.modelNo, // 产品编号
+                  offer: Number(item.offer), // 商品报价
+                  goodsOffer: Number(item.standardPrice), // 商品标准价
+                  quantity: Number(item.quantity), // 数量
+                  discount: Number(item.discount), // 业务员折扣率
+                  finalDiscount: Math.round(Number(item.finalDiscount) * 100) / 100, // 最终折扣
+                  deliveryStart: item.deliveryStart,
+                  deliveryEnd:item.deliveryEnd,
+                  remark: item.remark,
+                  goodsModel: {
+                    goodsNo: item.goodsNo,
+                    accuracy: item.accuracy,
+                    range: item.range,
+                    outputSignal: item.outputSignal,
+                    price: item.price
+                  }
+                })
+              })
+              item.editPartsList.offerGoodsList=paramsList||[];
+            })
+            //编辑时合拼出现的同一个商品
+            var obj={};
+            var repeatArr=colum.offerGoodsList.reduce(function(item, next) {
+              if(!obj[next.modelId]){
+                item.push(next);
+                obj[next.modelId]=true;
+              }else{
+                var index = item.map(row => row.modelId).indexOf(next.modelId);
+                //分清库存非库存
+                if(item[index].type==1){ //库存
+                  item[index].recordStock={
+                    yStock:item[index].quantity,
+                    nStock:next.quantity
+                  }
+                }else{
+                  item[index].recordStock={
+                    yStock:next.quantity,
+                    nStock:item[index].quantity
+                  }
+                }
+                item[index].editPartsList=item[index].editPartsList.length>0?item[index].editPartsList:next.editPartsList;
+                item[index].allPartsList=item[index].allPartsList.length>0?item[index].allPartsList:next.allPartsList;
+                item[index].quantity=item[index].quantity+next.quantity;
+              }
+                return item;
+              },[]);
+            console.log('repeatArr',repeatArr);
+            this.offerList=JSON.parse(JSON.stringify(repeatArr))||[];
+            this.offerEditId = res.data.offerInfo.id;
+            //此段为报价里面的折扣申请信息，跟进信息
+            this.followDemandList = res.data.offerInfo.optLogList;
+          }
+        })
+      },
+      sendEmailHandle() { //发送邮件
+        this.$confirm('此操作发送报价单于' + this.emailSelectRow.contacts + ', 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          var params;
+          if (!this.sendTitle) {
+            params = {
+              offerCode: this.emailSelectRow.offerCode,
+              status: 1
+            }
+          } else {
+            params = {
+              offerCode: this.emailSelectRow.offerCode,
+              status: 2,
+              contractCode: this.emailSelectRow.contractCode
+            }
+          }
+          sendContract(params, res => {
+            if (res.msgCode == 200) {
+              this.$message({
+                type: 'success',
+                message: res.msg
+              });
+              this.getDemandList();
+            } else {
+              this.$message({
+                type: 'info',
+                message: res.msg
+              });
+            }
+          })
+        }).catch((err) => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+      },
+      searchLinkName(val) { //查询联系人
+        this.selectConId = null;
+        if (!val) {
+          return
+        }
+        var item = this.customerList.filter(res => {
+          return res.custCompanyName == val
+        })
+        getCustomerConList({
+          custCode: item[0].custCode
+        }, data => {
+          this.selectLinkList = data.data.list
+        })
+      },
+      istopHandle(newVal,id){
+        checkDemandIsTop({id:id,isTop:newVal},res=>{
+          if (res.msgCode == 200) {
+              this.$message({
+                type: 'success',
+                message: res.msg
+              });
+              this.getDemandList()
+            } else {
+              this.$message({
+                type: 'info',
+                message: res.msg
+              });
+            }
+        })
+      }
+    },
+    mounted() {
+      this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop-150;
+      this.getSalesList();
+      this.getTypeList();
+      if (this.$route.query.condition) {
+        this.searchCriteria = JSON.parse(JSON.stringify(this.$route.query.condition));
+      }
+      if (this.$route.query.cid) {
+        this.selectLinkMan = this.$route.query.cid;
+        //去掉又客户需求跳转进来的需求带公司名称
+        if (this.$route.query.demandNum == 0) { //当需求数量为0时，不弹出新建需求
+          this.needVisible = true;
+        }
+        this.demandCustomerId = this.$route.query.cid;
+        this.saleId=this.$route.query.salesmanId;
+        var custCode = this.$route.query.custCode;
+        getCustomerConList({
+          custCode: custCode
+        }, data => {
+          this.selectLinkList = data.data.list;
+        })
+      }
+      if (this.$route.query.createTimeStart) {
+        let createTimeStart = this.$route.query.createTimeStart + ' 00:00:00';
+        let createTimeEnd = this.$route.query.createTimeEnd + ' 23:59:59';
+        this.searchConditionTimeC=[createTimeStart,createTimeEnd];
+        this.loading = true;
+        var params = {
+          pageSize: this.pageSize, //每页数量
+          page: this.currentPage, //当前页	
+          createTimeStart: createTimeStart,
+          createTimeEnd: createTimeEnd
+        };
+        if(this.$route.query.saleId){
+          this.saleId=this.$route.query.saleId;
+          params.saleId=this.$route.query.saleId;
+        }
+        this.loading = true;
+        getDemand(params, res => {
+          if (res.msgCode == 200) {
+            res = res.data;
+            this.dataList = res.list;
+            this.pageCount = res.pageCount;
+            setTimeout(() => {
+              this.loading = false;
+            }, 100)
+          } else {
+            setTimeout(() => {
+              this.loading = false;
+            }, 100)
+          }
+        })
+      } else {
+        this.getDemandList();
+      }
+      var currentUrl = window.location.href;
+      var targetUrl = currentUrl.split("?")[0];
+      window.location.href = targetUrl;
+
+      if(sessionStorage.getItem("buyer_department")||sessionStorage.getItem("technical_department")){
+            this.isShow=false;
+      }
+    },
+    components: {
+      customersContract: () => import('@/page/admin/offerList/components/customersContract'),
+      newDemand: () => import('@/page/admin/offerList/components/newDemand'),
+      addFollow,
+      previewFile: () => import('@/page/admin/offerList/components/previewFile'),
+      offer:()=>import('@/page/admin/offerList/offer/index'),
+      editContacts
+    }
+  }
+</script>
+<style lang="scss" scoped>
+  .customerDemand {
+    background-color: #fff;
+    border-radius: 4px;
+    width: 100%;
+    padding-bottom: 20px;
+    box-sizing: border-box;
+    position: relative;
+  }
+  // .customerDemand /deep/ th {
+  //   background-color: #EFEDF0 !important;
+  // }
+  .customerDemand /deep/ .is-fixed{
+    top: 5px;
+  }
+  .customerDemand /deep/ ::-webkit-scrollbar {
+    height: 10px;
+    width: 7px;
+  }
+  .followDemandList /deep/ ::-webkit-scrollbar {
+    height: 9px;
+    width: 7px;
+  }
+  .customersContract {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    min-height: 100%;
+    background-color: #fff;
+    z-index: 1000;
+  }
+  .addFollow {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    min-height: 100%;
+    background-color: #fff;
+    z-index: 1000;
+  }
+  .offer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    min-height: 100%;
+    background:#fff;
+    padding: 10px;
+    box-sizing: border-box;
+    z-index: 1000;
+  }
+  .sendTitle /deep/ .el-dialog {
+    margin-top: 5vh !important;
+  }
+  .fade-transform-leave-active,
+  .fade-transform-enter-active {
+    transition: all .2s;
+  }
+  .fade-transform-enter {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  .fade-transform-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+</style>

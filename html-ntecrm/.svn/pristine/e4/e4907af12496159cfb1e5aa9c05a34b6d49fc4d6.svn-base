@@ -1,0 +1,293 @@
+<template>
+  <div>
+    <h2 style="padding: 10px  ;border-bottom: 1px solid #ddd;background:#fff;border-radius: 5px;">
+      <i class="iconfont" :style="{color:this.$store.state.themeColor.headerColor}">&#xe6d0;</i>
+      <span style="font-size:16px;padding-top:10px;">系统公告</span>
+      <i class="right el-icon-plus" style="padding-right: 10px;font-size: 16px;line-height: 25px;cursor:default;" v-if="roleId==36||roleId==37||roleId==39" @click="noticedialogFormVisible=true"></i>
+    </h2>
+    <div style="background:#fff;padding:10px;border-bottom: 1px solid #eee;height:145px;">
+      <p  class="ellipsis"  v-for="(item,index) in prizeList.slice(0,5)" :key="index" style="color:#409EFF;line-height:30px;">
+        <i class="iconfont" v-if="roleId==36||roleId==37||roleId==39" @click="editNotice(item)" style="color:#999;cursor:default;font-size: 12px;">&#xe687;</i>
+        <span  style="cursor:default;padding-left: 5px;" @click="viewDetail(item.remark,1,item.createTime)">{{item.remark}}</span> 
+      </p>
+    </div>
+    <div class="scroll-wrap"  v-if="prizeList.length>5">
+       <div class="scroll-content" :style="{ top }" @mouseenter="Stop()" @mouseleave="Up()">
+          <p v-for="(item,index) in prizeList" :key="index" class="ellipsis" style="color:#333;padding-left:10px;">
+          <i class="iconfont" v-if="roleId==36||roleId==37||roleId==39" @click="editNotice(item)" style="color:#999;cursor:default;font-size: 12px;">&#xe687;</i>
+          <span style="cursor:default;padding-left: 5px;" @click="viewDetail(item.remark,1,item.createTime)">{{item.remark}}</span> 
+          </p>  
+       </div>
+    </div>
+    <h2 class="clearPa" style="margin-top: 10px;padding:10px;border-bottom: 1px solid #ddd;background:#fff;">
+      <i class="iconfont" :style="{color:this.$store.state.themeColor.headerColor}">&#xe65d;</i>
+      <span style="font-size:16px;">记录本</span>
+      <i class="right el-icon-plus" style="padding-right: 10px;font-size: 16px;line-height: 25px;cursor:default;" @click="editRecord()"></i>
+    </h2>
+    <div class="aside_two_center moreellipsis" style="">
+     <!-- <span  style="cursor:default;flex: 1;"  @click="viewDetail(recordContent.remark,2,recordContent.createTime)"> -->
+       <!-- {{recordContent.remark}} -->
+        <!-- <el-input type="textarea" :rows="12" v-model="recordContent.remark" disabled></el-input> -->
+      <!-- </span>  -->
+      <p v-for="(item,index) in recordContent" :key="index" class="ellipsis" style="color:#333;padding-left:10px;">
+        <i class="iconfont"  @click="editRecord(item)" style="color:#999;cursor:default;font-size: 12px;">&#xe687;</i>
+        <span style="cursor:default;padding-left: 5px;" @click="viewDetail(item.remark,2,item.createTime)">{{item.remark}}</span> 
+      </p> 
+    </div>
+
+    <el-dialog :title="selRecord!=null?'编辑记事本':'新增记事'" :append-to-body="true" :visible.sync="dialogFormVisible">
+      <el-form v-model="recordEvent">
+        <el-form-item label="">
+          <el-input type="textarea" :rows="12" v-model="recordEvent"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitRecord">确 定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog :title="selNotice!=null?'编辑公告':'新增公告'" :append-to-body="true"  :visible.sync="noticedialogFormVisible">
+      <el-form v-model="recordEvent">
+        <el-form-item label="">
+          <el-input type="textarea" :rows="12" v-model="noticeEvent"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="noticedialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitNotice">确 定</el-button>
+      </div>
+    </el-dialog>
+    
+    <el-dialog
+      :title="title==1?'系统公告':'记事本'"
+      :visible.sync="detailVisible"
+      width="50%"
+      :append-to-body="true" 
+      >
+      <div class="detailSty">
+      <el-input type="textarea" :rows="15" v-model="detail" style="color:#000;"  disabled></el-input>
+      <div v-if="detailTime" style="text-align:right;margin-top:10px;">
+        {{detailTime}}
+      </div>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <!-- <el-button type="primary" @click="detailVisible = false">关 闭</el-button> -->
+      </span>
+    </el-dialog>
+    
+  </div>
+  
+</template>
+
+<script>
+import {getPlacard,getNotebook,saveSystemMsg} from "util/req/notice/index";
+  export default {
+    name: 'complexTable',
+    data() {
+      return {
+        prizeList: [
+          {remark:null}
+        ],
+        activeIndex: 0,
+        intnum: undefined,
+        dialogFormVisible:false,
+        noticedialogFormVisible:false,
+        detailVisible:false,
+        recordEvent:null,
+        noticeEvent:null,
+        selNotice:null,
+        selRecord:null,
+        detail:null,
+        detailTime:null,
+        title:1,
+        recordContent:[],
+        roleId:JSON.parse(sessionStorage.getItem('userDto')).roleId||null
+      }
+    },
+    computed: {
+      top() {
+        return -this.activeIndex * 30 + 'px';
+      }
+    },
+    watch: {
+      dialogFormVisible:function(val){
+        if(!val){
+          this.recordEvent=null;
+          this.selRecord=null;
+        }
+      },
+      noticedialogFormVisible:function(val){
+        if(!val){
+          this.noticeEvent=null;
+          this.selNotice=null;
+        }
+      }
+    },
+    created() {
+      this.ScrollUp();
+    },
+    methods: {
+      ScrollUp() {
+        if(this.prizeList.length>5){
+          this.intnum = setInterval(_ => {
+              if (this.activeIndex < this.prizeList.length) {
+                this.activeIndex += 1;
+                //var item=this.prizeList.splice(0,1)
+               // this.prizeList.push(this.prizeList[this.activeIndex])
+              } else {
+                this.activeIndex = 0;
+              }
+            },
+            1000);
+          }
+      },
+      Stop() {
+        clearInterval(this.intnum);
+      },
+      Up() {
+        this.ScrollUp();
+      },
+      getPlacard(){   //获取公告列表
+        getPlacard(res=>{
+          this.prizeList=res.data;
+        })
+      },
+      getNotebook(){
+        getNotebook(res=>{
+          if(!res.data){
+            this.recordContent=[];
+          }else{
+            this.recordContent=res.data;
+          }   
+        })
+      },
+      submitNotice(){
+        var params={
+          type:1,
+          remark:this.noticeEvent
+        }
+        if(!this.noticeEvent){
+          this.$message({
+            message: '输入内容不能为空',
+            type: 'warning'
+          });
+          return
+        }
+        if(this.selNotice){
+          params.id=this.selNotice.id;
+        }
+        saveSystemMsg(params,res=>{
+          if(res.msgCode==200){
+            this.$message({
+              message: res.msg,
+              type: 'success'
+            });
+            this.noticedialogFormVisible=false;
+            this.getPlacard();
+          }else{
+            this.$message({
+              message: res.msg,
+              type: 'info'
+            });
+          }
+        }) 
+      },
+      editNotice(item){
+        this.noticedialogFormVisible=true;
+        this.noticeEvent=item.remark;
+        this.selNotice=item;
+      },
+      editRecord(item){
+        this.dialogFormVisible = true;
+        if(item){
+          this.recordEvent=item.remark;
+          this.selRecord=item;
+        }
+      },
+      submitRecord(){
+        var params={
+          type :0,
+          remark:this.recordEvent
+        }
+        if(this.selRecord){
+          params.id=this.selRecord.id
+        }
+        if(!this.recordEvent){
+          this.$message({
+            message: '输入内容不能为空',
+            type: 'warning'
+          });
+          return
+        }
+        saveSystemMsg(params,res=>{
+          if(res.msgCode==200){
+            this.$message({
+              message: res.msg,
+              type: 'success'
+            });
+            this.dialogFormVisible=false;
+            this.getNotebook();
+          }else{
+            this.$message({
+              message: res.msg,
+              type: 'info'
+            });
+          }
+        }) 
+      },
+      viewDetail(text,status,time){
+        if(!text){return}
+        this.title=status;
+        this.detail=text;
+        this.detailTime=time;
+        this.detailVisible=true;
+      }
+    },
+    mounted(){
+      this.getPlacard();
+      this.getNotebook();
+    }
+  }
+
+</script>
+
+<style lang="scss" scoped>
+  .scroll-wrap {
+    background: #fff;
+    height: 200px;
+    overflow: hidden;
+  }
+
+  .scroll-content {
+    background: #fff;
+    position: relative;
+    transition: top 0.5s;
+  }
+
+  .scroll-content p {
+    line-height: 30px;
+    text-align: left;
+  }
+  .ellipsis{
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+  }
+  .aside_two_center{
+    background: #fff;
+    height: 300px;
+    margin-bottom: 6px;
+    padding: 10px;
+    box-sizing: border-box;
+    line-height: 25px;
+  }
+  .moreellipsis{
+   overflow-y: scroll;
+  }
+  .aside_two_center /deep/ .el-textarea__inner{
+    color:#999!important;
+  }
+  .detailSty /deep/ .el-textarea__inner{
+    color:#333!important;
+  }
+</style>

@@ -1,0 +1,365 @@
+<template>
+  <div class="content">
+    <div class="returnSty" @click="$emit('closeVisilog')">
+      <i class="iconfont">&#xe632;</i>
+      <span>返回工作台</span>
+    </div>
+
+    <div style="color: #888;padding:20px 0;" v-if="type==1">
+      <div class="listSty">
+        <div class="iconSty">
+          <i class="iconfont">&#xe6e5;</i>
+        </div>
+        <span>技术售前支持</span>
+      </div>
+    </div>
+    <div style="color: #888;padding:20px 0;" v-if="type==3">
+      <div class="listSty">
+        <div class="iconSty" style="background:#48A8EE;">
+          <i class="iconfont">&#xe60c;</i>
+        </div>
+        <span>售后技术问题处理</span>
+      </div>
+    </div>
+    <div style="color: #888;padding:20px 0;" v-if="type==2">
+      <div class="listSty">
+        <div class="iconSty" style="background:#FE892C;">
+          <i class="iconfont">&#xe653;</i>
+        </div>
+        <span>技术调试申请</span>
+      </div>
+    </div>
+
+    <!-- 对话 -->
+    <div class="disContent">
+      <div class="disHeader">
+        <p>
+          <span style="color: #BF4243;">{{disMsg.createName}} </span>
+          <span v-if="disMsg.department==0">( 有关部门 )</span>
+          <span v-if="disMsg.department==1">( 业务部 )</span>
+          <span v-if="disMsg.department==2">( 技术部 )</span>
+          <span v-if="disMsg.department==3">( 采购部 )</span>
+        </p>
+        <p style="margin-top: 10px;color:#999;">{{disMsg.remark}}</p>
+        <div class="rpitem">
+          <span class="rpiTime">{{disMsg.createTime}}</span>
+          <p class="rpiHandle">
+            <span class="file" v-if="disMsg.optFile" @click="viewsFile(disMsg.optFile)">文件</span>
+            <span class="reply" @click="replyMsg(disMsg)">回复</span>
+          </p>
+        </div>
+      </div>
+      <div class="disMain" v-if="disMsg.children.length>0">
+        <div style="margin-bottom:20px;" v-for="(item,index) in disMsg.children" :key="index">
+          <div class="disMain_h">
+            <span style="color: #BF4243;">{{item.createName}} </span>
+            <span v-if="item.department==0">( 有关部门 )</span>
+            <span v-if="item.department==1">( 业务部 )</span>
+            <span v-if="item.department==2">( 技术部 )</span>
+            <span v-if="item.department==3">( 采购部 )</span>
+            <span v-if="item.createName!=item.pName">
+              <span style="color:#999;"> 回复：</span>
+              <span>{{item.pName}}</span>
+              <span v-if="item.pDepartment==0">( 有关部门 )</span>
+              <span v-if="item.pDepartment==1">( 业务部 )</span>
+              <span v-if="item.pDepartment==2">( 技术部 )</span>
+              <span v-if="item.pDepartment==3">( 采购部 )</span>
+            </span>
+
+          </div>
+          <div class="disMain_c">
+            <div class="disHeader">
+              <p style="padding-left:20px;margin-top: 10px;">{{item.remark}}</p>
+              <div class="rpitem">
+                <span class="rpiTime">{{item.createTime}}</span>
+                <p class="rpiHandle">
+                  <span class="file" v-if="item.optFile" @click="viewsFile(item.optFile)">文件</span>
+                  <span class="reply" @click="replyMsg(item)">回复</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 查看文件 -->
+    <el-dialog title="附件" :visible.sync="enclosureVisible" width="60%" :append-to-body="true" :before-close="closeEnclosure">
+      <div style="height:400px;overflow-y:scroll;text-align:center;">
+        <object v-if="fileType=='pdf'" :data="fileUrl" width="100%" height="400px" internalinstanceid="5"></object>
+        <img v-else :src="fileUrl" alt="">
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="closeEnclosure">关闭</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- 恢复评论 -->
+    <el-dialog title="评论" :visible.sync="replyVisible" width="60%" :append-to-body="true" :before-close="closeReply">
+      <div style="height:400px;overflow-y:scroll;">
+        <el-form ref="form" :model="form" label-width="120px">
+          <el-form-item>
+            <div style="position:relative;left:-100px;">
+              <span>回复：</span>
+              <span>{{selectdReply.createName}}</span>
+              <span v-if="selectdReply.pDepartment==0">( 有关部门 )</span>
+              <span v-if="selectdReply.pDepartment==1">( 业务部 )</span>
+              <span v-if="selectdReply.pDepartment==2">( 技术部 )</span>
+              <span v-if="selectdReply.pDepartment==3">( 采购部 )</span>
+            </div>
+            <p style="color:#999;"> {{selectdReply.remark}}</p>
+          </el-form-item>
+
+          <el-form-item label="选择文件类型">
+            <el-select v-model="form.type" placeholder="请选择选择文件类型">
+              <el-option label="图片" :value="1"></el-option>
+              <el-option label="文件" :value="2"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="图片" v-if="form.type==1">
+            <el-upload style="display: inline-block;margin-left: 10px;" class="upload-demo" action="/nte-crm/uploadImage"
+              :on-preview="handlePreview" :on-remove="handleRemoveFile" :before-remove="beforeRemove" :limit="1" accept="image/*"
+              :on-success="successUploadFile" :on-exceed="handleExceed" :file-list="fileList">
+              <el-button type="success">上传图片</el-button>
+              <div slot="tip" class="el-upload__tip"></div>
+            </el-upload>
+          </el-form-item>
+          <el-form-item label="文件" v-if="form.type==2">
+            <el-upload style="display: inline-block;margin-left: 10px;" class="upload-demo" action="/nte-crm/uploadFile"
+              :on-preview="handlePreview" :on-remove="handleRemoveFile" :before-remove="beforeRemove" :limit="1" accept=".pdf"
+              :on-success="successUploadFile" :on-exceed="handleExceed" :file-list="fileList">
+              <el-button type="success">上传文件</el-button>
+              <div slot="tip" class="el-upload__tip"></div>
+            </el-upload>
+          </el-form-item>
+          <el-form-item label="回复内容">
+            <el-input type="textarea" style="width:400px;" v-model="form.remark"></el-input>
+          </el-form-item>
+        </el-form>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="closeReply">取消</el-button>
+        <el-button type="primary" @click="confirmReply()">确认</el-button>
+      </span>
+    </el-dialog>
+
+  </div>
+</template>
+<script>
+  import {
+    getTechnicalSupportByDto,
+    insertTechnicalSupport
+  } from "util/req/TechnicalSupport/index"
+  export default {
+    name: "discuss",
+    props: {
+      type: {
+        type: Number
+      },
+      discussMsg: {
+        type: Object
+      }
+    },
+    data() {
+      return {
+        disMsg: {},
+        enclosureVisible: false,
+        replyVisible: false,
+        fileType: null,
+        fileUrl: null,
+        form: {
+          remark: null,
+          type: 1
+        },
+        selectdReply: {},
+        fileList: []
+      }
+    },
+    watch: {
+      'form.type': function () {
+        this.fileList = []
+      }
+    },
+    methods: {
+      handleRemoveFile(file) {
+        this.file = null;
+        this.fileList = [];
+      },
+      handlePreview(file) {
+        console.log(file);
+      },
+      handleExceed(files) {
+        this.$message.warning('当前只允许传输一个文件');
+      },
+      beforeRemove(file) {
+        return this.$confirm(`确定移除 ${ file.name }？`);
+      },
+      successUploadFile(response, file) {
+        this.fileList = [{
+          name: file.name,
+          url: response.data.url
+        }]
+      },
+      getTechnicalSupportByDto() { //获取评论信息
+        var parmas = {
+          beId: this.discussMsg.beId,
+          type: this.type
+        }
+        getTechnicalSupportByDto(parmas, res => {
+          console.log(res)
+          this.disMsg = res.data[0];
+        })
+      },
+      viewsFile(file) { //预览文件
+        this.enclosureVisible = true;
+        var fileIndex = file.lastIndexOf(".");
+        var suffix = file.substring(fileIndex + 1, this.fileUrl.length);
+        if (suffix == "pdf") {
+          this.fileType = "pdf"
+        }
+        this.fileUr = file;
+      },
+      closeEnclosure() { //关闭预览弹窗
+        this.enclosureVisible = false;
+      },
+      closeReply() { //关闭回复评论弹窗
+        this.replyVisible = false;
+        this.fileList = [];
+        this.form = {};
+        this.selectdReply = {};
+      },
+      replyMsg(row) { //回复弹窗
+        this.replyVisible = true;
+        this.selectdReply = row;
+      },
+      confirmReply() { //确认回复评论  
+        if (!this.form.remark) {
+          this.$message({
+            message: '回复内容不能为空',
+            type: 'warning'
+          });
+          return
+        }
+        var parmas = {
+          beId: this.selectdReply.beId, //关联ID 
+          type: this.type, //类型1售前2调试3售后
+          remark: this.form.remark, //内容
+          pId: this.selectdReply.id
+        }
+        if (this.fileList.length > 0) {
+          parmas.optFile = this.fileList[0].url; //文件信息 
+        }
+        insertTechnicalSupport(parmas, res => {
+          if (res.msgCode == 200) {
+            this.$message({
+              type: 'success',
+              message: res.msg
+            });
+            this.getTechnicalSupportByDto();
+            this.closeReply();
+          } else {
+            this.$message({
+              type: 'info',
+              message: res.msg
+            });
+          }
+        })
+      }
+    },
+    mounted() {
+      this.getTechnicalSupportByDto();
+    }
+  }
+
+</script>
+<style lang="scss" scoped>
+  .content {
+    
+  }
+
+  .listSty {
+    display: flex;
+    align-items: center;
+  }
+
+  .iconSty {
+    width: 40px;
+    height: 40px;
+    background: #16BD86;
+    color: #fff;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 5px;
+  }
+
+  .iconSty>i {
+    font-size: 23px;
+  }
+
+  .listSty>span {
+    padding-left: 15px;
+  }
+
+  .returnSty {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    color: #888;
+    font-size: 13px;
+  }
+
+  .afterSale /deep/ ::-webkit-scrollbar {
+    height: 9px;
+    width: 7px;
+    // border-radius: 4px;
+  }
+
+  .disContent {
+    width: 600px;
+    height: 400px;
+    margin-left: 100px;
+  }
+
+  .disHeader {
+    font-size: 15px;
+    line-height: 26px;
+    word-wrap: break-word;
+    word-break: break-all;
+  }
+
+  .rpitem {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+
+  .rpiTime,
+  .rpiHandle {
+    font-size: 13px;
+    color: #999;
+    line-height: 17px;
+  }
+
+  .file {
+    margin-right: 10px;
+    cursor: default;
+    color: #3194d0;
+  }
+
+  .reply {
+    cursor: default;
+  }
+
+  .disMain {
+    margin-top: 14px;
+    padding: 32px 32px 22px 32px;
+    background: #F5F7F9;
+    border-radius: 4px;
+    height: 380px;
+    overflow-y: scroll;
+  }
+
+  .disMain_h {
+    color: #999;
+  }
+
+</style>

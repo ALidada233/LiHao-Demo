@@ -1,0 +1,641 @@
+<template>
+  <div class="content">
+    <div class="returnSty" @click="$emit('closeVisilog')">
+      <i class="iconfont">&#xe632;</i>
+      <span>返回工作台</span>
+    </div>
+
+    <div style="color: #888;padding:20px 0;" v-if="type==1">
+      <div class="listSty">
+        <div class="iconSty">
+          <i class="iconfont">&#xe6e5;</i>
+        </div>
+        <span>技术售前支持</span>
+      </div>
+    </div>
+    <div style="color: #888;padding:20px 0;" v-if="type==3">
+      <div class="listSty">
+        <div class="iconSty" style="background:#48A8EE;">
+          <i class="iconfont">&#xe60c;</i>
+        </div>
+        <span>售后技术问题处理</span>
+      </div>
+    </div>
+    <div style="color: #888;padding:20px 0;" v-if="type==2">
+      <div class="listSty">
+        <div class="iconSty" style="background:#FE892C;">
+          <i class="iconfont">&#xe653;</i>
+        </div>
+        <span>技术调试申请</span>
+      </div>
+    </div>
+
+    <!-- 售前的需求信息 -->
+    <div v-if="type==1">
+      <div style="box-sizing:border-box;padding-bottom:10px;">
+        <span>客户信息</span>
+        <div style="background:#C0C4CC;padding:20px;margin-top: 5px;">
+          <span style="margin-left:0px;">公司：<span style="color:#fff;"> {{demandList.companyName}}</span></span>
+          <span style="margin-left:15px;">联系人：<span style="color:#fff;"> {{demandList.contacts}}</span></span>
+          <span v-if="demandList.phone" style="margin-left:15px;">联系人电话：<span style="color:#fff;">
+              {{demandList.phone}}</span></span>
+          <span style="margin-left:15px;">更新时间：<span style="color:#fff;"> {{demandList.updateTime}}</span></span>
+        </div>
+      </div>
+      <div style="padding-bottom:20px;box-sizing:border-box;" v-if="demandList.type==1">
+        <span style="">客户需求</span>
+        <div style="width:100%;background:#C0C4CC;margin-top:5px;" v-for="(item,index) in demandList.demandInfos" :key="index">
+          <span v-for="(item,index) in item" :key="index" style="width:33%;display:inline-block;text-align:center;padding:10px 0;border-bottom:1px solid #eee;color:#fff;">{{item}}</span>
+        </div>
+      </div>
+      <div style="padding-bottom:20px;box-sizing:border-box;" v-if="demandList.type==2">
+        <span style="">客户需求</span>
+        <div style="width:100%;background:#C0C4CC;margin-top:10px;padding:20px;box-sizing:border-box;color:#fff;">
+          {{demandList.demandContent}}
+        </div>
+      </div>
+    </div>
+
+    <!-- 售后调试 -->
+    <div v-if="type==2||type==3">
+      
+      <!-- 订单信息2技术 -->
+      <div style="width: 100%;margin:0 auto;" v-if="roleId==41">
+        <div style="display:flex;justify-content:space-between;">
+          <span>订单信息:</span>
+        </div>
+        <div style="display:flex;padding:10px 0px 10px 10px;flex-wrap:wrap;background: #f7f7f7;border-radius: 10px;margin: 10px 0;">
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">订单编号: <span style="color:#333">
+              {{orderList.order.orderNo||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">业务员: <span style="color:#333">
+              {{orderList.order.saleName||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">创建时间: <span style="color:#333">
+              {{orderList.order.createTime||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">更新时间: <span style="color:#333">
+              {{orderList.order.updateTime||'无'}}</span></span>
+        </div>
+      </div>
+      <!-- 订单信息1采购 -->
+      <div style="width: 100%;margin:0 auto;" v-else>
+        <div style="display:flex;justify-content:space-between;">
+          <span>订单信息:</span>
+        </div>
+        <div style="display:flex;padding:10px 0px 10px 10px;flex-wrap:wrap;background: #f7f7f7;border-radius: 10px;margin: 10px 0;">
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">订单编号: <span style="color:#333">
+              {{orderList.order.orderNo||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">业务员: <span style="color:#333">
+              {{orderList.order.saleName||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">创建时间: <span style="color:#333">
+              {{orderList.order.createTime||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">更新时间: <span style="color:#333">
+              {{orderList.order.updateTime||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">订单状态:
+            <span style="color:#333" v-if="orderList.order.orderStatus==0">待确认</span>
+            <span style="color:#333" v-if="orderList.order.orderStatus==1">已确认</span>
+            <span style="color:#333" v-if="orderList.order.orderStatus==2">退货中</span>
+            <span style="color:#333" v-if="orderList.order.orderStatus==3">已退货</span>
+            <span style="color:#333" v-if="orderList.order.orderStatus==4">退款</span>
+            <span style="color:#333" v-if="orderList.order.orderStatus==5">无效</span>
+          </span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">支付状态:
+            <span style="color:#333" v-if="orderList.order.payStatus==0">未支付</span>
+            <span style="color:#333" v-if="orderList.order.payStatus==1">已预付</span>
+            <span style="color:#333" v-if="orderList.order.payStatus==2">已支付</span>
+          </span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">发货状态:
+            <span style="color:#333" v-if="orderList.order.shippingStatus==0">未到货</span>
+            <span style="color:#333" v-if="orderList.order.shippingStatus==1">到货未发货</span>
+            <span style="color:#333" v-if="orderList.order.shippingStatus==2">已发货</span>
+            <span style="color:#333" v-if="orderList.order.shippingStatus==3">确认收货</span>
+          </span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">付款方式:
+            <span style="color:#333" v-if="orderList.order.moneyStatus==1">预付全款</span>
+            <span style="color:#333" v-if="orderList.order.moneyStatus==2">30%预付款<span><br>70%款到发货</span></span>
+            <span style="color:#333" v-if="orderList.order.moneyStatus==3">50%预付款<span><br>50%款到发货</span></span>
+            <span style="color:#333" v-if="orderList.order.moneyStatus==4">货到付款</span>
+            <span style="color:#333" v-if="orderList.order.moneyStatus==7">款到发货</span>
+            <span style="color:#333" v-if="orderList.order.moneyStatus==5">月结</span>
+            <span style="color:#333" v-if="orderList.order.moneyStatus==6">其它</span>
+          </span>
+
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">应付金额: <span style="color:#333">
+              {{'￥'+orderList.order.copeMoney||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">预付金额: <span style="color:#333">
+              {{'￥'+orderList.order.preMoney||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">待付金额: <span style="color:#333">
+              {{'￥'+orderList.order.waitMoney||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">总金额: <span style="color:#333">
+              {{'￥'+orderList.order.totalMoney||'无'}}</span></span>
+        </div>
+      </div>
+      <!-- 客户信息 -->
+      <div style="width: 100%;margin:0 auto;">
+        <div style="">客户信息:</div>
+        <div style="display:flex;padding:10px 0px 10px 10px;background: #f7f7f7;border-radius: 10px;margin: 10px 0;">
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">客户名称: <span style="color:#333">
+              {{orderList.order.conName||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">客户公司: <span style="color:#333">
+              {{orderList.order.custCompanyName||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">联系方式: <span style="color:#333">
+              {{orderList.order.telePhone||'无'}}</span></span>
+        </div>
+      </div>
+      <!-- 商品信息 -->
+      <div style="width: 100%;margin:0 auto;">
+        <div style="">商品信息:</div>
+        <div style="background: #f7f7f7;border-radius: 10px;margin: 10px 0;padding:10px 0px 10px 10px;">
+          <div style="display:flex;flex-wrap:wrap;" v-for="(item,index) in orderList.orderGoodsList" :key="index">
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">类型: <span style="color:#333">
+                {{item.describe||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">参数: <span style="color:#333">
+                {{item.goodsInfo||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">备注: <span style="color:#333">
+                {{item.remark||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">名称: <span style="color:#333">
+                {{item.title||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">数量: <span style="color:#333">
+                {{item.quantity||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">品牌: <span style="color:#333">
+                {{item.brandName||'无'}}</span></span>
+          </div>
+        </div>
+      </div>
+      <!-- 报价 -->
+      <div style="width: 100%;margin:0 auto 30px;" v-if="roleId!=41">
+        <div style="">报价信息:</div>
+        <div style="background: #f7f7f7;border-radius: 10px;margin: 10px 0;padding:10px 0px 10px 10px;">
+          <div style="display:flex;" v-for="(item,index) in orderList.orderGoodsList" :key="index">
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">商品折扣: <span style="color:#333">
+                {{item.discount+'%'||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">最终折扣: <span style="color:#333">
+                {{item.finalDiscount+'%'||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">标准价: <span style="color:#333">
+                {{'￥'+item.goodsOffer||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">报价: <span style="color:#333">
+                {{'￥'+item.offer||'无'}}</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 对话 -->
+    <div>
+      技术协助：
+    </div>
+    <div class="disContent" v-for="(item,index) in disMsg" :key="index">
+      <div class="disHeader">
+        <div>
+          <span style="color: #BF4243;" :class="{isDot:item.status==0}">{{item.createName}} </span>
+          <span v-if="item.department==0">( 有关部门 )</span>
+          <span v-if="item.department==1">( 业务部 )</span>
+          <span v-if="item.department==2">( 技术部 )</span>
+          <span v-if="item.department==3">( 采购部 )</span>
+          <span class="rpiTime" v-html="item.createTime" style="margin-left:10px;"></span>
+          <p class="rpiHandle" style="float:right;">
+            <span v-if="item.children.length>0">
+              <i class="iconfont" v-if="item.foldStatus" @click="item.foldStatus=!item.foldStatus;" style="cursor:default;margin-right:10px;">&#xe661;</i>
+              <i class="iconfont" v-else @click="item.foldStatus=!item.foldStatus;" style="cursor:default;margin-right:10px;">&#xe63d;</i>
+            </span>
+            <span class="file" v-if="item.optFile" @click="viewsFile(item.optFile)">文件</span>
+            <span class="reply" @click="replyMsg(item)">回复</span>
+          </p>
+        </div>
+        <p style="margin-top: 10px;color:#999;">{{item.remark}}</p>
+        <div class="rpitem">
+        </div>
+      </div>
+
+      <div class="disMain" v-if="item.children.length>0 && item.foldStatus">
+        <div style="padding:10px 0;border-bottom:1px solid #eee;" v-for="(item,index) in item.children" :key="index">
+          <div class="disMain_h">
+            <span style="color: #BF4243;" :class="{isDot:item.status==0}">{{item.createName}} </span>
+            <span v-if="item.department==0">( 有关部门 )</span>
+            <span v-if="item.department==1">( 业务部 )</span>
+            <span v-if="item.department==2">( 技术部 )</span>
+            <span v-if="item.department==3">( 采购部 )</span>
+            <!-- <span v-if="item.createName!=item.pName"> -->
+              <span style="color:#999;"> 回复：</span>
+              <span>{{item.pName}}</span>
+              <span v-if="item.pDepartment==0">( 有关部门 )</span>
+              <span v-if="item.pDepartment==1">( 业务部 )</span>
+              <span v-if="item.pDepartment==2">( 技术部 )</span>
+              <span v-if="item.pDepartment==3">( 采购部 )</span>
+              <span v-if="item.pRemark">【 {{item.pRemark.slice(0,10)+'...'}} 】</span>
+            <!-- </span> -->
+            <span class="rpiTime" style="margin-left:10px;">{{item.createTime}}</span>
+            <p class="rpiHandle" style="float:right;">
+              <span class="file" v-if="item.optFile" @click="viewsFile(item.optFile)">文件</span>
+              <span class="reply" @click="replyMsg(item)">回复</span>
+            </p>
+          </div>
+          <div class="disMain_c">
+            <div class="disHeader">
+              <p style="padding-left:20px;margin-top: 10px;">{{item.remark}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 查看文件 -->
+    <el-dialog title="附件" :visible.sync="enclosureVisible" width="60%" :append-to-body="true" :before-close="closeEnclosure">
+      <div style="height:400px;overflow-y:scroll;text-align:center;">
+        <object v-if="fileType=='pdf'" :data="fileUrl" width="100%" height="400px" internalinstanceid="5"></object>
+        <img v-else :src="fileUrl" alt="">
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="closeEnclosure">关闭</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- 回复评论 -->
+    <el-dialog title="评论" :visible.sync="replyVisible" width="60%" :append-to-body="true" :before-close="closeReply">
+      <div style="height:400px;overflow-y:scroll;">
+        <el-form ref="form" :model="form" label-width="120px">
+          <el-form-item>
+            <div style="position:relative;left:-100px;">
+              <span>回复：</span>
+              <span>{{selectdReply.createName}}</span>
+              <span v-if="selectdReply.pDepartment==0">( 有关部门 )</span>
+              <span v-if="selectdReply.pDepartment==1">( 业务部 )</span>
+              <span v-if="selectdReply.pDepartment==2">( 技术部 )</span>
+              <span v-if="selectdReply.pDepartment==3">( 采购部 )</span>
+            </div>
+            <p style="color:#999;"> {{selectdReply.remark}}</p>
+          </el-form-item>
+
+          <el-form-item label="选择文件类型">
+            <el-select v-model="form.type" placeholder="请选择选择文件类型">
+              <el-option label="图片" :value="1"></el-option>
+              <el-option label="文件" :value="2"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="图片" v-if="form.type==1">
+            <el-upload style="display: inline-block;margin-left: 10px;" class="upload-demo" action="/nte-crm/uploadImage"
+              :on-preview="handlePreview" :on-remove="handleRemoveFile" :before-remove="beforeRemove" :limit="1" accept="image/*"
+              :on-success="successUploadFile" :on-exceed="handleExceed" :file-list="fileList">
+              <el-button type="success">上传图片</el-button>
+              <div slot="tip" class="el-upload__tip"></div>
+            </el-upload>
+          </el-form-item>
+          <el-form-item label="文件" v-if="form.type==2">
+            <el-upload style="display: inline-block;margin-left: 10px;" class="upload-demo" action="/nte-crm/uploadFile"
+              :on-preview="handlePreview" :on-remove="handleRemoveFile" :before-remove="beforeRemove" :limit="1" accept=".pdf"
+              :on-success="successUploadFile" :on-exceed="handleExceed" :file-list="fileList">
+              <el-button type="success">上传文件</el-button>
+              <div slot="tip" class="el-upload__tip"></div>
+            </el-upload>
+          </el-form-item>
+          <el-form-item label="是否屏蔽技术" v-if="roleId!=41 && selectdReply.isShield!=1">
+            <el-switch
+              v-model="form.isShield"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+              :active-value="1"
+              :inactive-value="0">
+            </el-switch>
+          </el-form-item>
+          <el-form-item label="回复内容">
+            <el-input type="textarea" style="width:400px;" v-model="form.remark"></el-input>
+          </el-form-item>
+        </el-form>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="closeReply">取消</el-button>
+        <el-button type="primary" @click="confirmReply()">确认</el-button>
+      </span>
+    </el-dialog>
+
+  </div>
+</template>
+<script>
+  import {
+    formatTime
+  } from "util/fn/transTime.js";
+  import {
+    getTechnicalSupportByDto,
+    insertTechnicalSupport,
+    updateTechnicalSupport
+  } from "util/req/TechnicalSupport/index";
+  import {
+    getDemand
+  } from "util/req/customer/demand";
+    import {
+    queryOrderDetail
+  } from "util/req/order/index"
+  export default {
+    name: "discuss",
+    props: {
+      type: {
+        type: Number
+      },
+      discussMsg: {
+        type: Object
+      }
+    },
+    data() {
+      return {
+        disMsg:[],
+        enclosureVisible: false,
+        replyVisible: false,
+        fileType: null,
+        fileUrl: null,
+        form: {
+          remark: null,
+          type: 1,
+          isShield:0
+        },
+        selectdReply: {},
+        fileList: [],
+        roleId: JSON.parse(sessionStorage.getItem('userDto')).roleId || null,
+        demandList: {}, //需求信息
+        orderList: {
+          order:{
+            orderNo:null
+          }
+        } //订单信息
+      }
+    },
+    watch: {
+      'form.type': function () {
+        this.fileList = []
+      },
+      type: {
+        handler(val) {
+          console.log(val)
+          if (val == 1) { //售前
+            this.getDemand();
+          }else{
+            this.queryOrderDetail();
+          }
+        },
+        immediate: true
+      }
+    },
+    methods: {
+      handleRemoveFile(file) {
+        this.file = null;
+        this.fileList = [];
+      },
+      handlePreview(file) {
+        console.log(file);
+      },
+      handleExceed(files) {
+        this.$message.warning('当前只允许传输一个文件');
+      },
+      beforeRemove(file) {
+        return this.$confirm(`确定移除 ${ file.name }？`);
+      },
+      successUploadFile(response, file) {
+        this.fileList = [{
+          name: file.name,
+          url: response.data.url
+        }]
+      },
+      getTechnicalSupportByDto() { //获取评论信息
+        var parmas = {
+          beId: this.discussMsg.beId,
+          type: this.type
+        }
+        getTechnicalSupportByDto(parmas, res => {
+          //console.log(res)
+          var newItem = res.data.map((item, index) => {
+            if (index == 0) {
+              item.foldStatus = true;
+            } else {
+              item.foldStatus = false;
+            }
+            return item;
+          })
+          this.disMsg = newItem;
+          //默认先将第一条的信息置为已读
+          if(newItem.length==0){return}
+          var parmas={
+              beId:newItem[0].beId,
+              type: this.type
+          };
+
+          updateTechnicalSupport(parmas, res => {
+            if (res.msgCode != 200) {
+              this.$message({
+                type: 'info',
+                message: res.msg
+              });
+            }
+          })
+        })
+      },
+      viewsFile(file) { //预览文件
+        this.enclosureVisible = true;
+        var fileIndex = file.lastIndexOf(".");
+        var suffix = file.substring(fileIndex + 1);
+        if (suffix == "pdf") {
+          this.fileType = "pdf"
+        }else{
+          this.fileType=null;
+        }
+        this.fileUrl = file;
+      },
+      closeEnclosure() { //关闭预览弹窗
+        this.enclosureVisible = false;
+      },
+      closeReply() { //关闭回复评论弹窗
+        this.replyVisible = false;
+        this.fileList = [];
+        this.form = {
+          isShield:0
+        };
+        this.selectdReply = {};
+      },
+      replyMsg(row) { //回复弹窗
+        this.replyVisible = true;
+        this.selectdReply = row;
+        this.form.isShield=row.isShield;
+      },
+      confirmReply() { //确认回复评论  
+        if (!this.form.remark) {
+          this.$message({
+            message: '回复内容不能为空',
+            type: 'warning'
+          });
+          return
+        }
+        var parmas = {
+          beId: this.selectdReply.beId, //关联ID 
+          type: this.type, //类型1售前2调试3售后
+          remark: this.form.remark, //内容
+          pId: this.selectdReply.id
+        }
+        //当身份不是技术时，才添加的屏蔽参数(上级为1时，下级为1，为0时自已选择)
+        if(this.roleId!=41){
+          if(this.selectdReply.isShield==1){
+            parmas.isShield=1
+          }else{
+            parmas.isShield=this.form.isShield 
+          }
+        }
+        if (this.fileList.length > 0) {
+          parmas.optFile = this.fileList[0].url; //文件信息 
+        }
+        insertTechnicalSupport(parmas, res => {
+          if (res.msgCode == 200) {
+            this.$message({
+              type: 'success',
+              message: res.msg
+            });
+            this.getTechnicalSupportByDto();
+            this.closeReply();
+          } else {
+            this.$message({
+              type: 'info',
+              message: res.msg
+            });
+          }
+        })
+      },
+      formatTimes(time, option) {
+        return formatTime(time, option)
+      },
+      getDemand() { //获取需求信息
+        console.log(this.discussMsg)
+        var parmas = {
+          id: this.discussMsg.beId,
+          indexId:1
+        }
+        getDemand(parmas, res => {
+          this.demandList = res.data.list[0];
+        })
+      },
+      queryOrderDetail(){   //获取订单信息
+        queryOrderDetail({
+          id:this.discussMsg.beId
+        }, (res) => {
+          this.orderList = res.data;
+        })
+      },
+      statusChange(foldStatus,status,row){ //改变此条信息的状态（未读改成待处理）
+        console.log(foldStatus,status,row);
+        if(foldStatus==true){  //二级信息展开的状态·且为未读信息0
+          var parmas={
+              beId:row.beId,
+              id:row.id
+          };
+          updateTechnicalSupport(parmas, res => {
+            if (res.msgCode != 200) {
+              this.$message({
+                type: 'info',
+                message: res.msg
+              });
+            }
+          })
+        }
+      },
+    },
+    mounted() {
+      this.getTechnicalSupportByDto();
+    }
+  }
+
+</script>
+<style lang="scss" scoped>
+  .content {
+    padding: 20px;
+  }
+
+  .listSty {
+    display: flex;
+    align-items: center;
+  }
+
+  .iconSty {
+    width: 40px;
+    height: 40px;
+    background: #16BD86;
+    color: #fff;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 5px;
+  }
+
+  .iconSty>i {
+    font-size: 23px;
+  }
+
+  .listSty>span {
+    padding-left: 15px;
+  }
+
+  .returnSty {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    color: #888;
+    font-size: 13px;
+  }
+
+  .afterSale /deep/ ::-webkit-scrollbar {
+    height: 9px;
+    width: 7px;
+    // border-radius: 4px;
+  }
+
+  .disContent {
+    width: 900px;
+    margin-bottom: 30px;
+    margin-left: 100px;
+  }
+
+  .disHeader {
+    font-size: 15px;
+    line-height: 26px;
+    word-wrap: break-word;
+    word-break: break-all;
+  }
+
+  .rpitem {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+
+  .rpiTime,
+  .rpiHandle {
+    font-size: 13px;
+    color: #999;
+    line-height: 17px;
+  }
+
+  .file {
+    margin-right: 10px;
+    cursor: default;
+    color: #3194d0;
+  }
+
+  .reply {
+    cursor: default;
+  }
+
+  .disMain {
+    margin-top: 14px;
+    padding: 32px 32px 22px 32px;
+    background: #F5F7F9;
+    border-radius: 4px;
+    max-height: 380px;
+    overflow-y: scroll;
+  }
+  .disMain_h {
+    color: #999;
+  }
+  .isDot{
+    position: relative;
+  }
+  .isDot:after{
+    content: '';
+    position: absolute;
+    left: -8px;
+    top:0;
+    height: 8px;
+    width: 8px;
+    background: red;
+    border-radius: 50%;
+  }
+</style>

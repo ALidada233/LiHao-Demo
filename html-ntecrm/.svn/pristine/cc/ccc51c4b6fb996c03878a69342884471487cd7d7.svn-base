@@ -1,0 +1,21 @@
+import Vue from 'vue'
+import axios from 'axios';
+import { MessageBox } from 'element-ui';
+import requestUrl from '@/util/http.js'
+//本地环境
+var api;
+if(process.env.NODE_ENV=="development"){
+    api="/nte-crm"
+}else{  //测试环境
+    api=requestUrl;
+}
+//保存个人信息
+export const updateOperator=(params,callback)=>{
+  axios({
+      url:api+"/updateOperator",
+      method:'post',
+      data: params
+  }).then(res=>{
+     callback(res.data)
+  })
+}

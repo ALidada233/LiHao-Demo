@@ -1,0 +1,925 @@
+<template>
+  <div class="offerList">
+    <div class="offerContent">
+      <div style="padding-bottom:20px;font-size:18px;display:flex;justify-content: space-between;">
+        <span>{{offerStatus?'编辑报价':'新增报价'}}</span>
+        <i
+          class="iconfont"
+          style="cursor:default;margin-right:5px;"
+          @click="$emit('closeOffer');"
+        >&#xe633;</i>
+      </div>
+      <el-collapse v-model="activeName">
+        <el-collapse-item :name="1">
+          <!-- 选中商品 -->
+          <template slot="title">
+            <span style="position: absolute;left: 0;">选择商品</span>
+          </template>
+          <sel-goods @emitGoodsList="emitGoodsHandle"></sel-goods>
+        </el-collapse-item>
+        <el-collapse-item :name="2">
+          <template slot="title">
+            <span style="position: absolute;left: 0;">编辑报价</span>
+          </template>
+          <div style="width:100%;">
+            <el-table
+              ref="multipleTable"
+              class="offerPrice"
+              :data="offerList"
+              :header-cell-style="{'background-color':'#EFEDF0'}"
+              style="width: 100%;"
+              @selection-change="handleSelectionChange"
+            >
+              <el-table-column type="selection" width="55"></el-table-column>
+              <el-table-column label="操作" width="250">
+                <template slot-scope="props">
+                  <el-button
+                    size="mini"
+                    round
+                    type="primary"
+                    icon="el-icon-edit"
+                    @click="offerContentHandle(props.row.modelId,props.row)"
+                  ></el-button>
+                  <el-button
+                    type="danger"
+                    icon="el-icon-delete"
+                    size="mini"
+                    round
+                    @click="delOfferOption(props.$index)"
+                  ></el-button>
+                  <el-button
+                    type="success"
+                    size="mini"
+                    round
+                    @click="addAccessory(props.row.modelId,props.row)"
+                  >添加辅件</el-button>
+                </template>
+              </el-table-column>
+              <el-table-column prop="id" label="ID" align="center" width="80"></el-table-column>
+              <el-table-column prop="title" label="商品名称" align="center" width="120">
+                <template slot-scope="scope">
+                  <span>{{scope.row.title}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="库存" width="80">
+                <template slot-scope="scope">
+                  <span style="color:#409EFF;">{{scope.row.stock}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column v-if="offerStatus" label="上次库存报价" width="120">
+                <template slot-scope="scope">
+                  <span
+                    v-if="scope.row.hasOwnProperty('recordStock')"
+                  >库存： {{scope.row.hasOwnProperty('recordStock')?scope.row.recordStock.yStock:''}}</span>
+                  <br />
+                  <span
+                    v-if="scope.row.hasOwnProperty('recordStock')"
+                  >非库存：{{scope.row.hasOwnProperty('recordStock')?scope.row.recordStock.nStock:''}}</span>
+                  <br />
+                </template>
+              </el-table-column>
+              <el-table-column align="center" label="编辑状态">
+                <template slot-scope="scope">
+                  <i v-if="scope.row.completeStatus" class="el-icon-check"></i>
+                  <i v-else class="el-icon-close"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="报价" align="center">
+                <template slot-scope="scope">
+                  <span>￥{{scope.row.offer}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="标准价" align="center">
+                <template slot-scope="scope">
+                  <span>￥{{scope.row.standardPrice}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="总数量" align="center">
+                <template slot-scope="scope">
+                  <span v-html="ComputationalValue(scope.row,1)"></span>
+                </template>
+              </el-table-column>
+              <el-table-column label="总报价" align="center">
+                <template slot-scope="scope">
+                  ￥
+                  <span v-html="ComputationalValue(scope.row,2)"></span>
+                </template>
+              </el-table-column>
+              <el-table-column label="总标准价" align="center">
+                <template slot-scope="scope">
+                  ￥
+                  <span v-html="ComputationalValue(scope.row,3)"></span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="goodsImg" label="商品图片" align="center" width="180">
+                <template slot-scope="scope">
+                  <img style="height:50px;" :src="scope.row.goodsImg" />
+                </template>
+              </el-table-column>
+
+              <el-table-column prop="range" label="量程">
+                <template slot-scope="scope">
+                  <span @click="editRange(scope.row)">
+                    {{scope.row.range}}
+                    <i
+                      class="el-icon-edit"
+                      style="cursor: default;color:#409EFF;"
+                    ></i>
+                  </span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="accuracy" label="精度"></el-table-column>
+              <el-table-column prop="outputSignal" label="输出信号"></el-table-column>
+            </el-table>
+
+            <!-- 折扣申请日志 -->
+            <div style="text-align: center;margin-top: 20px;" v-show="followAppStatus">
+              <div style="padding:20px 0;text-align:center;">折扣申请日志</div>
+              <el-table
+                class="followAppList"
+                :data="followAppList"
+                border
+                :header-cell-style="{'background-color':'#fff'}"
+                height="350"
+              >
+                <el-table-column prop="createName" label="姓名" width="180"></el-table-column>
+                <el-table-column prop="goodsName" width="300" label="商品名称"></el-table-column>
+                <el-table-column prop="applyDiscount" label="申请折扣"></el-table-column>
+                <el-table-column prop="orgDiscount" label="销售员折扣"></el-table-column>
+                <el-table-column prop="status" label="状态">
+                  <template slot-scope="scope">
+                    <span v-if="scope.row.status==0">未确认</span>
+                    <span v-if="scope.row.status==1">同意</span>
+                    <span v-if="scope.row.status==2">拒绝</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="reason" label="申请说明"></el-table-column>
+                <el-table-column prop="createTime" width="180" label="创建时间"></el-table-column>
+              </el-table>
+            </div>
+            <!-- 跟进信息 -->
+            <div style="text-align: center;margin-top: 20px;" v-show="followDemandStatus">
+              <div style="padding:20px 0;text-align:center;">跟进信息</div>
+              <el-table
+                class="followDemandList"
+                :data="followDemandList"
+                border
+                :header-cell-style="{'background-color':'#fff'}"
+                height="350"
+              >
+                <el-table-column prop="createId" align="center" label="创建ID" width="80"></el-table-column>
+                <el-table-column prop="createName" label="姓名" width="180"></el-table-column>
+
+                <el-table-column prop="status" label="状态">
+                  <template slot-scope="scope">
+                    <span v-if="scope.row.status==1">创建</span>
+                    <span v-if="scope.row.status==2">确认</span>
+                    <span v-if="scope.row.status==3">报价</span>
+                    <span v-if="scope.row.status==4">生成合同</span>
+                    <span v-if="scope.row.status==5">生成订单</span>
+                    <span v-if="scope.row.status==6">完成</span>
+                    <span v-if="scope.row.status==7">作废报价</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="remark" width="350" label="备注"></el-table-column>
+                <el-table-column prop="createTime" label="创建时间"></el-table-column>
+              </el-table>
+            </div>
+          </div>
+        </el-collapse-item>
+      </el-collapse>
+
+      <div style="text-align: right;margin-top: 20px;">
+        <el-button type="primary" size="small" @click="followAppStatusHandle()">折扣申请日志</el-button>
+        <el-button type="primary" size="small" @click="followDemandStatusHandle()">跟进信息</el-button>
+        <!-- <el-button type="primary" size="small" @click="applicationHandle">申请低折扣</el-button> -->
+        <el-button type="primary" size="small" @click="sureHandle">确定</el-button>
+      </div>
+
+      <!-- 辅件 -->
+      <transition name="el-fade-in-linear">
+        <accessory
+          v-show="accessoryVisible"
+          class="accessoryVisible"
+          @closeDialog="closeAccessoryVisible"
+          @transmitAssistList="transmitAssistList"
+          :accPartsList="accPartsList"
+          :accessoryEditList="accessoryEditList"
+          :modelId="modelId"
+          :demandId="demandId"
+          :offerEditId="offerEditId"
+        ></accessory>
+      </transition>
+      <!-- 添加商品属性 -->
+      <add-attributes
+        :rangeVisible="rangeVisible"
+        @closeRangeHandle="rangeVisible=false;goodsNo=null;"
+        :goodsNo="goodsNo"
+      ></add-attributes>
+      <!-- 编辑报价详情 -->
+      <transition name="fade-transform" mode="out-in">
+        <offer-info
+          :offerContentVisible="offerContentVisible"
+          @closeOfferInfo="offerContentVisible=false"
+          @editOfferInfo="editOfferInfo"
+          :detailOfferPriceList="detailOfferPriceList"
+          :offerStatus="offerStatus"
+          :demandId="demandId"
+        ></offer-info>
+      </transition>
+      <!-- 支付方式 -->
+      <el-dialog title="支付方式" :visible.sync="paymentVisible" :append-to-body="true" width="50%">
+        <span style="display:inline-block;text-align:right;width:180px;">支付方式：</span>
+        <el-select v-model="moneyStatus" placeholder="请选择支付方式">
+          <el-option :value="1" label="预付全款">预付全款</el-option>
+          <el-option :value="2" label="30%预付款">30%预付款，70%款到发货</el-option>
+          <el-option :value="3" label="50%预付款">50%预付款 ，50%款到发货</el-option>
+          <el-option :value="4" label="货到付款">货到付款</el-option>
+          <el-option :value="7" label="款到发货">款到发货</el-option>
+          <el-option :value="5" label="月结">月结</el-option>
+          <el-option :value="6" label="其它">其它</el-option>
+        </el-select>
+        <div style="margin-top:15px;">
+          <span style="display:inline-block;text-align:right;width:180px;">补录时间：</span>
+          <el-date-picker
+            v-model="createTime"
+            type="datetime"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            :picker-options="pickerOptions"
+            placeholder="补录时间"
+          ></el-date-picker>
+          <span style="font-size:11px;color:#e4393c;">不填写默认为新增报价</span>
+        </div>
+        <div style="margin-top:15px;">
+          <span style="display:inline-block;text-align:right;width:180px;">是否报备：</span>
+          <el-radio-group v-model="isReport">
+            <el-radio :label="0">否</el-radio>
+            <el-radio :label="1">是</el-radio>
+          </el-radio-group>
+        </div>
+        <div style="margin-top:15px;" v-if="isReport==1">
+          <span style="display:inline-block;text-align:right;width:180px;">终端：</span>
+          <el-input
+            style="width: 25%;margin-top: 20px;"
+            placeholder="请输入报备终端"
+            size="medium"
+            v-model="terminal"
+            clearable
+          ></el-input>
+        </div>
+        <div style="margin-top:15px;" v-if="isReport==1">
+          <span style="display:inline-block;text-align:right;width:180px;">报备截止时间：</span>
+          <el-date-picker
+            v-model="reportTime"
+            type="date"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            placeholder="选择报备截止日期"
+          ></el-date-picker>
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="paymentVisible = false;">取 消</el-button>
+          <el-button type="primary" @click="quotedPriceHandle()">确 定</el-button>
+        </span>
+      </el-dialog>
+      <!-- 申请低折扣 -->
+      <discount-application
+        :lowVisible="lowVisible"
+        :demandId="demandId"
+        :discountsApplication="discountsApplication"
+        @closeLowHandle="closeLowHandle"
+      ></discount-application>
+    </div>
+  </div>
+</template>
+<script>
+import {
+  saveDemandStatus,
+  getGoodsCategory,
+  getDemand,
+  getDemandOptLogList,
+  getOptApplyDiscount,
+  saveDemandOffer,
+  getOptApplyiscount,
+  saveDiscountApply,
+  getOfferInfo
+} from "util/req/customer/demand";
+import {
+  getDemadDiscountList //获取折扣申请信息
+} from "util/req/offerList/index";
+export default {
+  name: "offer",
+  props: {
+    offerVisible: {
+      type: Boolean
+    },
+    offerStatus: {
+      type: Boolean
+    },
+    demandId: {
+      type: null
+    },
+    editOfferList: {
+      type: Array,
+      default: []
+    },
+    offerEditId: {},
+    followDemandList: {
+      type: Array,
+      default: []
+    },
+    isReportP: {},
+    reportTimeP: {
+      type: String,
+      default: ""
+    },
+    terminalP: {
+      type: String,
+      default: ""
+    },
+    moneyStatusP: {}
+  },
+  data() {
+    return {
+      goodsList: [],
+      activeName: 1,
+      moneyStatus: null, //支付方式的值
+      createTime: null,
+      isReport: 0, //是否报备
+      reportTime: null, //报备截止时间
+      terminal: null, //报备终端
+      paymentVisible: false, //支付方式弹框
+      accessoryVisible: false, //组件弹框
+      rangeVisible: false, //添加参数弹框
+      lowVisible: false, //申请折扣弹框
+      goodsNo: null, //选中商品编码
+      accessoryEditList: [], //传递给辅件的数据
+      multipleSelection: [], //选中的列表
+      discountsApplication: {}, //传递·的申请折扣内容
+      followAppList: [], //申请折扣的跟进记录
+      accPartsList: [], //传递到辅件的所有列表选择内容
+      modelId: null, //传递给辅件的商品ID
+      offerList: [], //报价列表
+      getDiscount: null, //获取的设定折扣率
+      detailOfferPriceList: {
+        //报价编辑的详情
+        offer: 0
+      },
+      followAppStatus: false,
+      followDemandStatus: false,
+      offerContentVisible: false, //报价弹框
+      completedEditList: [], //已编辑列表
+      pickerOptions: {
+        disabledDate(time) {
+          return time.getTime() >= Date.now() + 8.64e6;
+        }
+      }
+    };
+  },
+  watch: {
+    isReportP(status) {
+      if (status) {
+        this.isReport = this.isReportP; //是否报备
+        this.reportTime = this.reportTimeP; //报备截止时间
+        this.moneyStatus = this.moneyStatusP; //付款方式
+        this.terminal = this.terminalP; //报备终端
+      }
+    },
+    offerVisible(status) {
+      if (status == false) {
+        //关闭清空报价内容
+        this.offerList = [];
+        this.goodsList = [];
+        this.completedEditList = []; //关闭清空已编辑的产品内容
+        this.demandId = null; //清空需求ID
+        this.followAppList = [];
+        this.followDemandList = [];
+        this.followAppStatus = false;
+        this.followDemandStatus = false;
+        this.createTime = null;
+      }
+    },
+    paymentVisible(status) {
+      //支付弹框
+      if (status == false) {
+        this.moneyStatus = null;
+        this.createTime = null;
+        this.isReport = 0;
+        this.reportTime = null;
+        this.terminal = null;
+      }
+    },
+    offerStatus: {
+      handler(status) {
+        if (status) {
+          this.offerList = this.editOfferList;
+          this.activeName = 2;
+        }
+      },
+      immediate: true
+    }
+  },
+  methods: {
+    followAppStatusHandle(status) {
+      this.followAppStatus = !this.followAppStatus;
+      this.followDemandStatus = false;
+      if (this.followAppStatus) {
+        this.getDemadDiscountList();
+      }
+    },
+    followDemandStatusHandle() {
+      this.followDemandStatus = !this.followDemandStatus;
+      this.followAppStatus = false;
+    },
+    handleSelectionChange(val) {
+      //选中报价内容
+      this.multipleSelection = val;
+    },
+    offerContentHandle(modelId, row) {
+      //筛选出可编辑内容数据
+      getOptApplyDiscount(
+        {
+          demandId: this.demandId,
+          modelNo: row.modelNo,
+          goodsNo: row.goodsNo
+        },
+        res => {
+          //获取折扣
+          this.getDiscount = res.data.disCount;
+          this.offerContentVisible = true;
+          var newArr = this.offerList.filter(item => {
+            return item.modelId == modelId;
+          });
+          this.detailOfferPriceList = JSON.parse(JSON.stringify(newArr[0]));
+          this.$set(this.detailOfferPriceList, "discount", res.data.disCount);
+          for (var i = 0; i < this.offerList.length; i++) {
+            if (this.offerList[i].modelId == modelId) {
+              this.$set(this.offerList[i], "discount", res.data.disCount);
+            }
+          }
+        }
+      );
+    },
+    delOfferOption(index) {
+      //根据id删除选中的内容
+      this.offerList.splice(index, 1);
+    },
+    sureHandle() {
+      //判断选中的内容是否有效
+      if (this.multipleSelection.length == 0) {
+        this.$alert("您没有勾选的内容", "报价提醒", {
+          confirmButtonText: "确定"
+        });
+        return;
+      }
+      var notReadyStatusArr = this.multipleSelection.filter(item => {
+        return item.completeStatus != true;
+      });
+      if (notReadyStatusArr.length > 0) {
+        this.$alert("请完善勾选的内容", "报价提醒", {
+          confirmButtonText: "确定"
+        });
+        return;
+      }
+      //是否存在辅件，又没添加的情况
+      var noSelpartList = this.multipleSelection.filter(row => {
+        var allPartsList = [];
+        if (row.partList.length > 0) {
+          allPartsList = JSON.parse(JSON.stringify(row.partList));
+        }
+        if (row.hasOwnProperty("allPartsList") && row.allPartsList.length > 0) {
+          allPartsList = JSON.parse(JSON.stringify(row.allPartsList));
+        }
+        //储存好的辅件内容
+        var editPartsList = row.hasOwnProperty("editPartsList")
+          ? (this.accessoryEditList = row.editPartsList.offerGoodsList)
+          : [];
+        return allPartsList.length > 0 && editPartsList == 0;
+      });
+      if (noSelpartList.length > 0) {
+        var HL = "";
+        noSelpartList.forEach(item => {
+          HL +=
+            "<span>商品：" +
+            item.title +
+            "-" +
+            item.range +
+            "-" +
+            item.accuracy +
+            "-" +
+            item.outputSignal +
+            "</span>" +
+            "没有添加关联辅件" +
+            "<br>";
+        });
+        this.$confirm(HL, "提示", {
+          dangerouslyUseHTMLString: true,
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        })
+          .then(() => {
+            this.paymentVisible = true;
+          })
+          .catch(() => {});
+      } else {
+        this.paymentVisible = true;
+      }
+    },
+    ComputationalValue(row, state) {
+      //计算总报价3，标准间3，数量1
+      if (state == 1) {
+        var num = 0;
+        if (row.hasOwnProperty("editPartsList")) {
+          for (let i = 0; i < row.editPartsList.offerGoodsList.length; i++) {
+            num += Number(row.editPartsList.offerGoodsList[i].quantity);
+          }
+        }
+        num = num + Number(row.quantity);
+        return num || 0;
+      } else if (state == 2) {
+        var price = 0;
+        if (row.hasOwnProperty("editPartsList")) {
+          for (let i = 0; i < row.editPartsList.offerGoodsList.length; i++) {
+            price += this.times(
+              Number(row.editPartsList.offerGoodsList[i].offer),
+              Number(row.editPartsList.offerGoodsList[i].quantity)
+            );
+          }
+        }
+        price = price + this.times(Number(row.offer), Number(row.quantity));
+        return price || 0;
+      } else if (state == 3) {
+        var price = 0;
+        if (row.hasOwnProperty("editPartsList")) {
+          for (let i = 0; i < row.editPartsList.offerGoodsList.length; i++) {
+            price +=
+              Number(row.editPartsList.offerGoodsList[i].goodsOffer) *
+              Number(row.editPartsList.offerGoodsList[i].quantity);
+          }
+        }
+        price = price + Number(row.goodsOffer) * Number(row.quantity);
+        return price || 0;
+      }
+    },
+    editRange(row) {
+      //修改量程参数
+      this.rangeVisible = true;
+      this.goodsNo = JSON.parse(JSON.stringify(row.goodsNo));
+    },
+    quotedPriceHandle() {
+      //打断没有选中支付方式
+      if (!this.moneyStatus) {
+        this.$message({
+          type: "info",
+          message: "请选择支付方式！"
+        });
+        return;
+      }
+      //打断选中报备没有选取有效期
+      if (this.isReport == 1 && !this.reportTime) {
+        this.$message({
+          type: "info",
+          message: "请输入报备有效期！"
+        });
+        return;
+      }
+      this.$confirm("您确定申请报价！", "报价提醒", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          var totalOffer = 0,
+            discount = 0,
+            standardPrice = 0,
+            quantity = 0,
+            finalDiscount = 0,
+            paramsList = [],
+            partsTotalOffer = 0,
+            partsQuantity = 0,
+            partsStandardPrice = 0;
+          var goodsInfo = "";
+          for (var i = 0; i < this.multipleSelection.length; i++) {
+            totalOffer += this.times(
+              Number(this.multipleSelection[i].offer),
+              Number(this.multipleSelection[i].quantity)
+            ); //总报价
+            standardPrice +=
+              Number(this.multipleSelection[i].standardPrice) *
+              Number(this.multipleSelection[i].quantity); //总标准价
+            //辅件的计算
+            if (
+              this.multipleSelection[i].hasOwnProperty("editPartsList") &&
+              this.multipleSelection[i].editPartsList.offerGoodsList.length > 0
+            ) {
+              var calcuate = this.multipleSelection[i].editPartsList
+                .offerGoodsList;
+              if (calcuate != null && calcuate.length > 0) {
+                for (var k = 0; k < calcuate.length; k++) {
+                  totalOffer +=
+                    Number(calcuate[k].offer) * Number(calcuate[k].quantity);
+                  standardPrice +=
+                    Number(calcuate[k].goodsOffer) *
+                    Number(calcuate[k].quantity);
+                  partsQuantity += Number(calcuate[k].quantity);
+                }
+              }
+            }
+            discount = Number(this.multipleSelection[i].discount); //折扣率
+            quantity += Number(this.multipleSelection[i].quantity); //总数量
+            paramsList.push({
+              goodsModelId: this.multipleSelection[i].modelId,
+              goodsNo: this.multipleSelection[i].goodsNo, // 商品编号
+              // goodsInfo:
+              //   this.multipleSelection[i].title +
+              //   "—" +
+              //   this.multipleSelection[i].range +
+              //   "—" +
+              //   this.multipleSelection[i].accuracy +
+              //   "—" +
+              //   this.multipleSelection[i].outputSignal, // 商品信息（名称，品牌，类别，型号）
+              goodsInfo: this.multipleSelection[i].goodsInfo,
+              modelNo: this.multipleSelection[i].modelNo, // 产品编号
+              offer: Number(this.multipleSelection[i].offer), // 商品报价
+              goodsOffer: Number(this.multipleSelection[i].standardPrice), // 商品标准价
+              quantity: Number(this.multipleSelection[i].quantity), // 数量
+              stock: Number(this.multipleSelection[i].stock), //库存
+              discount: Number(this.multipleSelection[i].discount), // 业务员折扣率
+              finalDiscount:
+                Math.round(
+                  Number(this.multipleSelection[i].finalDiscount) * 100
+                ) / 100, // 最终折扣
+              deliveryStart: this.multipleSelection[i].deliveryStart,
+              deliveryEnd: this.multipleSelection[i].deliveryEnd,
+              remark: this.multipleSelection[i].remark,
+              goodsModel: {
+                goodsNo: this.multipleSelection[i].goodsNo,
+                range: this.multipleSelection[i].range,
+                accuracy: this.multipleSelection[i].accuracy,
+                outputSignal: this.multipleSelection[i].outputSignal,
+                price: this.multipleSelection[i].price
+              },
+              partsList: this.multipleSelection[i].hasOwnProperty(
+                "editPartsList"
+              )
+                ? this.multipleSelection[i].editPartsList.offerGoodsList
+                : {}
+            });
+          }
+          var params = {
+            id: this.offerEditId || {},
+            demandId: Number(this.demandId),
+            totalOffer: totalOffer, //总报价
+            goodsOffer: standardPrice, //总标准价
+            quantity: quantity + partsQuantity, //总数量
+            discount: discount, //业务员折扣率
+            finalDiscount:
+              Math.round((totalOffer / standardPrice) * 100 * 100) / 100, //最终折扣率
+            moneyStatus: this.moneyStatus, //支付方式
+            offerGoodsList: this.cptstock(paramsList),
+            createTime: this.createTime,
+            isReport: this.isReport,
+            reportTime: this.reportTime,
+            terminal: this.terminal
+          };
+          saveDemandOffer(params, res => {
+            if (res.msgCode == 200) {
+              this.$message({
+                type: "success",
+                message: res.msg
+              });
+              this.$emit("closeOffer");
+            } else {
+              this.$message({
+                type: "info",
+                message: res.msg
+              });
+            }
+          });
+          this.paymentVisible = false;
+          this.offerVisible = false;
+        })
+        .catch(err => {
+          this.$message({
+            type: "info",
+            message: "已取消报价"
+          });
+          console.log(err);
+        });
+    },
+    closeAccessoryVisible() {
+      this.accessoryVisible = false;
+      this.accPartsList = [];
+      this.modelId = null;
+      this.accessoryEditList = [];
+    },
+    transmitAssistList(assistList) {
+      //辅件确认
+      //把从选取辅件的参数放回列表
+      console.log("assistList", assistList);
+      for (var i = 0; i < this.offerList.length; i++) {
+        if (this.offerList[i].modelId == assistList.linkModelId) {
+          var item = JSON.parse(JSON.stringify(this.offerList[i]));
+          item.editPartsList = assistList;
+          this.offerList.splice(i, 1, item);
+        }
+      }
+    },
+    emitGoodsHandle(arr) {
+      //由选中商品传输回来的值
+      this.activeName = 2;
+      //需要确认一下是报价列表否有存在的商品，有的情况下不能添加进去
+      if (this.offerList.length == 0) {
+        this.offerList = this.offerList.concat(arr);
+        return;
+      }
+      arr.forEach((row, idx) => {
+        var joinArr = [];
+        this.offerList.forEach((item, index) => {
+          if (item.modelId != row.modelId) {
+            joinArr.push(0);
+          } else {
+            joinArr.push(1);
+          }
+        });
+        if (!joinArr.includes(1)) {
+          this.offerList.push(row);
+        }
+      });
+    },
+    addAccessory(modelId, row) {
+      //打开辅件编写页面
+      this.modelId = modelId;
+      this.accessoryVisible = true;
+      if (row.partList.length > 0) {
+        this.accPartsList = JSON.parse(JSON.stringify(row.partList));
+      }
+      if (row.hasOwnProperty("allPartsList") && row.allPartsList.length > 0) {
+        this.accPartsList = JSON.parse(JSON.stringify(row.allPartsList));
+      }
+      //储存好的辅件内容
+      row.hasOwnProperty("editPartsList")
+        ? (this.accessoryEditList = row.editPartsList.offerGoodsList)
+        : [];
+      this.accessoryEditList.forEach(item => {
+        this.accPartsList.forEach(row => {
+          if (item.modelId == row.modelId) {
+            item.discount = row.discount;
+          }
+        });
+      });
+    },
+    editOfferInfo(offoInfoObj) {
+      //编辑报价内容返回来做处理
+      for (var s = 0; s < this.offerList.length; s++) {
+        //新增的报价商品回返回一个数据状态给this.offerList(已编辑)
+        if (this.offerList[s].modelId == offoInfoObj.modelId) {
+          this.$set(this.offerList[s], "completeStatus", true);
+          var newItem = this.offerList[s];
+          newItem.offer = offoInfoObj.offer;
+          newItem.goodsOffer = offoInfoObj.standardPrice;
+          newItem.quantity = offoInfoObj.quantity;
+          newItem.deliveryStart = offoInfoObj.deliveryStart;
+          newItem.deliveryEnd = offoInfoObj.deliveryEnd;
+          newItem.remark = offoInfoObj.remark;
+          newItem.finalDiscount = offoInfoObj.finalDiscount;
+          newItem.goodsInfo = offoInfoObj.goodsInfo;
+          this.offerList.splice(s, 1, newItem);
+        }
+      }
+      this.detailOfferPriceList = {};
+      this.offerContentVisible = false;
+    },
+    cptstock(paramsList) {
+      //拆分库存非库存(大于0拆分)
+      var newParamsList = JSON.parse(JSON.stringify(paramsList));
+      var copyArr = [];
+      newParamsList.forEach((item, index) => {
+        if (item.stock > 0) {
+          //有库存
+          if (item.quantity > item.stock) {
+            //当数量大于库存
+            let row = item;
+            let arr = [];
+            let surplus = item.quantity - item.stock;
+            row.quantity = row.stock;
+            row.type = 1;
+            arr.push(row);
+            let spsRow = JSON.parse(JSON.stringify(row));
+            spsRow.partsList = {};
+            spsRow.type = 0;
+            spsRow.quantity = surplus;
+            arr.push(spsRow);
+            copyArr = copyArr.concat(arr);
+          } else {
+            //小于或等于库存
+            item.type = 1;
+            copyArr.push(item);
+          }
+        } else {
+          item.type = 0;
+          copyArr.push(item);
+        }
+      });
+      return copyArr;
+    },
+    applicationHandle() {
+      //申请低折扣
+      if (this.multipleSelection.length == 1) {
+        this.lowVisible = true;
+        for (var i = 0; i < this.multipleSelection.length; i++) {
+          this.discountsApplication.goodsName =
+            this.multipleSelection[i].title +
+            "-" +
+            this.multipleSelection[i].range +
+            "-" +
+            this.multipleSelection[i].accuracy +
+            "-" +
+            this.multipleSelection[i].outputSignal;
+          this.discountsApplication.modelNo = this.multipleSelection[i].modelNo;
+          this.discountsApplication.goodsNo = this.multipleSelection[i].goodsNo;
+          getOptApplyDiscount(
+            {
+              demandId: this.demandId,
+              modelNo: this.multipleSelection[i].modelNo,
+              goodsNo: this.multipleSelection[i].goodsNo
+            },
+            res => {
+              this.$set(
+                this.discountsApplication,
+                "orgDiscount",
+                res.data.disCount
+              );
+            }
+          );
+        }
+      } else if (this.multipleSelection.length > 1) {
+        this.$message({
+          type: "info",
+          message: "当次申请折扣只能选中一个"
+        });
+      } else {
+        this.$message({
+          type: "info",
+          message: "请勾选内容再进行申请低折扣"
+        });
+      }
+    },
+    getDemadDiscountList() {
+      //获取申请折扣信息
+      getDemadDiscountList(
+        {
+          demandId: this.demandId
+        },
+        res => {
+          this.followAppList = res.data.disCountList;
+        }
+      );
+    },
+    closeLowHandle() {
+      //申请折扣信息新加了一条记录
+      this.lowVisible = false;
+      this.discountsApplication = {};
+    }
+  },
+  components: {
+    accessory: () => import("@/page/admin/offerList/components/accessory"),
+    offerInfo: () =>
+      import("@/page/admin/offerList/offer/components/offerInfo"),
+    selGoods: () => import("@/page/admin/offerList/offer/components/selGoods"),
+    addAttributes: () =>
+      import("@/page/admin/offerList/offer/components/addAttributes"),
+    discountApplication: () =>
+      import("@/page/admin/offerList/offer/components/discountApplication")
+  },
+  mounted() {}
+};
+</script>
+<style lang="scss" scoped>
+.offerPrice /deep/ ::-webkit-scrollbar {
+  height: 10px;
+  width: 7px;
+}
+.followAppList /deep/ ::-webkit-scrollbar {
+  height: 9px;
+  width: 7px;
+}
+.offerList /deep/ .el-dialog {
+  margin-top: 5vh !important;
+}
+.offerList /deep/ .el-collapse-item__header {
+  position: relative;
+}
+.offerContent {
+  position: relative;
+}
+.accessoryVisible {
+  position: fixed;
+  z-index: 1100;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background: rgba(0, 0, 0, 0.6);
+}
+</style>

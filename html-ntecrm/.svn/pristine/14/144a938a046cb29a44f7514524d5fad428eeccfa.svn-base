@@ -1,0 +1,1111 @@
+<template>
+  <div>
+    <div class="detail">
+      <div style="text-align:right;margin-top:20px;">
+        <i class="iconfont" style="cursor:default;" @click="$emit('closeVisible');activeTabs='first'">&#xe633;</i>
+      </div>
+      <!-- 订单信息 -->
+      <!-- <div style="width: 85%;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;">
+          <span>订单信息:</span>
+        </div>
+        <div style="display:flex;padding:10px 0px 10px 10px;flex-wrap:wrap;background: #f7f7f7;border-radius: 10px;margin: 10px 0;">
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">订单编号: <span style="color:#333">
+              {{orderDetailList.order.orderNo||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">业务员: <span style="color:#333">
+              {{orderDetailList.order.saleName||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">创建时间: <span style="color:#333">
+              {{orderDetailList.order.createTime||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">更新时间: <span style="color:#333">
+              {{orderDetailList.order.updateTime||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">订单状态:
+            <span style="color:#333" v-if="orderDetailList.order.orderStatus==0">待确认</span>
+            <span style="color:#333" v-if="orderDetailList.order.orderStatus==1">已确认</span>
+            <span style="color:#333" v-if="orderDetailList.order.orderStatus==2">退货中</span>
+            <span style="color:#333" v-if="orderDetailList.order.orderStatus==3">已退货</span>
+            <span style="color:#333" v-if="orderDetailList.order.orderStatus==4">退款</span>
+            <span style="color:#333" v-if="orderDetailList.order.orderStatus==5">无效</span>
+          </span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">支付状态:
+            <span style="color:#333" v-if="orderDetailList.order.payStatus==0">未支付</span>
+            <span style="color:#333" v-if="orderDetailList.order.payStatus==1">已预付</span>
+            <span style="color:#333" v-if="orderDetailList.order.payStatus==2">已支付</span>
+          </span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">发货状态:
+            <span style="color:#333" v-if="orderDetailList.order.shippingStatus==0">未到货</span>
+            <span style="color:#333" v-if="orderDetailList.order.shippingStatus==1">到货未发货</span>
+            <span style="color:#333" v-if="orderDetailList.order.shippingStatus==2">已发货</span>
+            <span style="color:#333" v-if="orderDetailList.order.shippingStatus==3">确认收货</span>
+          </span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">付款方式:
+            <span style="color:#333" v-if="orderDetailList.order.moneyStatus==1">预付全款</span>
+            <span style="color:#333" v-if="orderDetailList.order.moneyStatus==2">30%预付款<span><br>70%款到发货</span></span>
+            <span style="color:#333" v-if="orderDetailList.order.moneyStatus==3">50%预付款<span><br>50%款到发货</span></span>
+            <span style="color:#333" v-if="orderDetailList.order.moneyStatus==4">货到付款</span>
+            <span style="color:#333" v-if="orderDetailList.order.moneyStatus==7">款到发货</span>
+            <span style="color:#333" v-if="orderDetailList.order.moneyStatus==5">月结</span>
+            <span style="color:#333" v-if="orderDetailList.order.moneyStatus==6">其它</span>
+          </span>
+
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">应付金额: <span style="color:#333">
+              {{'￥'+orderDetailList.order.copeMoney||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">预付金额: <span style="color:#333">
+              {{'￥'+orderDetailList.order.preMoney||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">待付金额: <span style="color:#333">
+              {{'￥'+orderDetailList.order.waitMoney||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">总金额: <span style="color:#333">
+              {{'￥'+orderDetailList.order.totalMoney||'无'}}</span></span>
+        </div>
+      </div> -->
+      <!-- 客户信息 -->
+      <!-- <div style="width: 85%;margin:0 auto;">
+        <div style="">客户信息:</div>
+        <div style="display:flex;padding:10px 0px 10px 10px;background: #f7f7f7;border-radius: 10px;margin: 10px 0;">
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">客户名称: <span style="color:#333">
+              {{orderDetailList.order.conName||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">客户公司: <span style="color:#333">
+              {{orderDetailList.order.custCompanyName||'无'}}</span></span>
+          <span style="color:#999;width:25%;padding:10px 0;text-align:left;">联系方式: <span style="color:#333">
+              {{orderDetailList.order.telePhone||'无'}}</span></span>
+        </div>
+      </div> -->
+      <!-- 商品信息 -->
+      <!-- <div style="width: 85%;margin:0 auto;">
+        <div style="">商品信息:</div>
+        <div style="background: #f7f7f7;border-radius: 10px;margin: 10px 0;padding:10px 0px 10px 10px;">
+          <div style="display:flex;flex-wrap:wrap;" v-for="(item,index) in orderDetailList.orderGoodsList" :key="index">
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">类型: <span style="color:#333">
+                {{item.describe||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">参数: <span style="color:#333">
+                {{item.goodsInfo||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">备注: <span style="color:#333">
+                {{item.remark||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">名称: <span style="color:#333">
+                {{item.title||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">数量: <span style="color:#333">
+                {{item.quantity||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">品牌: <span style="color:#333">
+                {{item.brandName||'无'}}</span></span>
+          </div>
+        </div>
+      </div> -->
+      <!-- 报价 -->
+      <!-- <div style="width: 85%;margin:0 auto;">
+        <div style="">报价信息:</div>
+        <div style="background: #f7f7f7;border-radius: 10px;margin: 10px 0;padding:10px 0px 10px 10px;">
+          <div style="display:flex;" v-for="(item,index) in orderDetailList.orderGoodsList" :key="index">
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">商品折扣: <span style="color:#333">
+                {{item.discount+'%'||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">最终折扣: <span style="color:#333">
+                {{item.finalDiscount+'%'||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">标准价: <span style="color:#333">
+                {{'￥'+item.goodsOffer||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">报价: <span style="color:#333">
+                {{'￥'+item.offer||'无'}}</span></span>
+          </div>
+        </div>
+      </div> -->
+
+      <el-collapse v-model="activeNames">
+        <el-collapse-item title="订单信息:" name="1">
+            <div style="display:flex;flex-wrap:wrap;border-radius: 10px;">
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">订单编号: <span style="color:#333">
+                {{orderDetailList.order.orderNo||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">业务员: <span style="color:#333">
+                {{orderDetailList.order.saleName||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">创建时间: <span style="color:#333">
+                {{orderDetailList.order.createTime||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">更新时间: <span style="color:#333">
+                {{orderDetailList.order.updateTime||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">订单状态:
+              <span style="color:#333" v-if="orderDetailList.order.orderStatus==0">待确认</span>
+              <span style="color:#333" v-if="orderDetailList.order.orderStatus==1">已确认</span>
+              <span style="color:#333" v-if="orderDetailList.order.orderStatus==2">退货中</span>
+              <span style="color:#333" v-if="orderDetailList.order.orderStatus==3">已退货</span>
+              <span style="color:#333" v-if="orderDetailList.order.orderStatus==4">退款</span>
+              <span style="color:#333" v-if="orderDetailList.order.orderStatus==5">无效</span>
+            </span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">支付状态:
+              <span style="color:#333" v-if="orderDetailList.order.payStatus==0">未支付</span>
+              <span style="color:#333" v-if="orderDetailList.order.payStatus==1">已预付</span>
+              <span style="color:#333" v-if="orderDetailList.order.payStatus==2">已支付</span>
+            </span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">发货状态:
+              <span style="color:#333" v-if="orderDetailList.order.shippingStatus==0">未到货</span>
+              <span style="color:#333" v-if="orderDetailList.order.shippingStatus==1">到货未发货</span>
+              <span style="color:#333" v-if="orderDetailList.order.shippingStatus==2">已发货</span>
+              <span style="color:#333" v-if="orderDetailList.order.shippingStatus==3">确认收货</span>
+            </span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">付款方式:
+              <span style="color:#333" v-if="orderDetailList.order.moneyStatus==1">预付全款</span>
+              <span style="color:#333" v-if="orderDetailList.order.moneyStatus==2">30%预付款<span><br>70%款到发货</span></span>
+              <span style="color:#333" v-if="orderDetailList.order.moneyStatus==3">50%预付款<span><br>50%款到发货</span></span>
+              <span style="color:#333" v-if="orderDetailList.order.moneyStatus==4">货到付款</span>
+              <span style="color:#333" v-if="orderDetailList.order.moneyStatus==7">款到发货</span>
+              <span style="color:#333" v-if="orderDetailList.order.moneyStatus==5">月结</span>
+              <span style="color:#333" v-if="orderDetailList.order.moneyStatus==6">其它</span>
+            </span>
+
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">应付金额: <span style="color:#333">
+                {{'￥'+orderDetailList.order.copeMoney||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">预付金额: <span style="color:#333">
+                {{'￥'+orderDetailList.order.preMoney||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">待付金额: <span style="color:#333">
+                {{'￥'+orderDetailList.order.waitMoney||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">总金额: <span style="color:#333">
+                {{'￥'+orderDetailList.order.totalMoney||'无'}}</span></span>
+          </div>
+        </el-collapse-item>
+        <el-collapse-item title="客户信息:" name="2">
+          <div style="display:flex;border-radius: 10px;margin: 10px 0;">
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">客户名称: <span style="color:#333">
+                {{orderDetailList.order.conName||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">客户公司: <span style="color:#333">
+                {{orderDetailList.order.custCompanyName||'无'}}</span></span>
+            <span style="color:#999;width:25%;padding:10px 0;text-align:left;">联系方式: <span style="color:#333">
+                {{orderDetailList.order.telePhone||'无'}}</span></span>
+          </div>
+        </el-collapse-item>
+        <el-collapse-item title="商品信息:" name="3">
+          <div style="border-radius: 10px;">
+            <div style="display:flex;flex-wrap:wrap;" v-for="(item,index) in orderDetailList.orderGoodsList" :key="index">
+              <span style="color:#999;width:25%;padding:10px 0;text-align:left;">类型: <span style="color:#333">
+                  {{item.describe||'无'}}</span></span>
+              <span style="color:#999;width:25%;padding:10px 0;text-align:left;">参数: <span style="color:#333">
+                  {{item.goodsInfo||'无'}}</span></span>
+              <span style="color:#999;width:25%;padding:10px 0;text-align:left;">备注: <span style="color:#333">
+                  {{item.remark||'无'}}</span></span>
+              <span style="color:#999;width:25%;padding:10px 0;text-align:left;">名称: <span style="color:#333">
+                  {{item.title||'无'}}</span></span>
+              <span style="color:#999;width:25%;padding:10px 0;text-align:left;">数量: <span style="color:#333">
+                  {{item.quantity||'无'}}</span></span>
+              <span style="color:#999;width:25%;padding:10px 0;text-align:left;">品牌: <span style="color:#333">
+                  {{item.brandName||'无'}}</span></span>
+            </div>
+          </div>
+        </el-collapse-item>
+        <el-collapse-item title="报价信息:" name="4">
+          <div style="border-radius: 10px;">
+            <div style="display:flex;" v-for="(item,index) in orderDetailList.orderGoodsList" :key="index">
+              <span style="color:#999;width:25%;padding:10px 0;text-align:left;">商品折扣: <span style="color:#333">
+                  {{item.discount+'%'||'无'}}</span></span>
+              <span style="color:#999;width:25%;padding:10px 0;text-align:left;">最终折扣: <span style="color:#333">
+                  {{item.finalDiscount+'%'||'无'}}</span></span>
+              <span style="color:#999;width:25%;padding:10px 0;text-align:left;">标准价: <span style="color:#333">
+                  {{'￥'+item.goodsOffer||'无'}}</span></span>
+              <span style="color:#999;width:25%;padding:10px 0;text-align:left;">报价: <span style="color:#333">
+                  {{'￥'+item.offer||'无'}}</span></span>
+            </div>
+          </div>
+        </el-collapse-item>
+      </el-collapse>
+
+
+      <div class="tab_content">
+        <el-tabs v-model="activeTabs" type="card" @tab-click="tabsHandle" tab-position="top">
+          <el-tab-pane label="财务" name="first" style="width: 100%;">
+            <div>
+              <!-- 财务-付款方式 -->
+              <div>
+                <div style="display:flex;justify-content:space-between;">
+                  <span>财务:</span>
+                  <!-- <span v-if="roleId == 42 || roleId == 37 || roleId == 36|| roleId == 39">
+                    <span style="color:#409EFF;cursor:default;" v-show="moneyStatusSty" @click="moneyStatusSty=false">编辑</span>
+                    <span style="cursor:default;" v-show="!moneyStatusSty" >
+                      <span style="margin-right:10px;" @click.self="resetHandle();moneyStatusSty=true">取消</span>
+                      <span style="color:#409EFF;" @click="sendOrder(3,null)">保存</span>
+                    </span>
+                  </span> -->
+                  <el-button v-if="roleId == 42 || roleId == 37 || roleId == 36|| roleId == 39" type="primary" icon="el-icon-plus" size="small" @click="financeVisible = true;"></el-button>
+                </div>
+                  <el-table :data="orderPayLog" height="500" width="100%;" :header-cell-style="{'background-color':'#EFEDF0'}" style="margin-top:20px;">
+                    <el-table-column width="100" prop="money" label="支付金额" align="center"></el-table-column>
+                    <el-table-column width="100" label="支付类型" align="center">
+                      <template slot-scope="scope">
+                        <span v-if="scope.row.type==1">预付</span>
+                        <span v-if="scope.row.type==2">尾款</span>
+                      </template>
+                    </el-table-column>
+                    <el-table-column prop="tradeNo" label="流水号"></el-table-column>
+                    <el-table-column prop="remark" label="备注"></el-table-column>
+                    <el-table-column width="160" prop="payTime" label="支付时间" align="center"></el-table-column>
+                  </el-table>
+                <!-- </div> -->
+              </div>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="采购" name="second" style="width:100%;">
+            <!-- 采购 -->
+            <div>
+              <div style="display:flex;justify-content:space-between;">
+                <span>采购:</span>
+                <span v-if="roleId == 40|| roleId == 39">
+                  <span style="color:#409EFF;cursor:default;" v-show="arrivalTimeSty" @click="arrivalTimeSty=false">编辑</span>
+                  <span style="cursor:default;"  v-show="!arrivalTimeSty" >
+                    <span style="margin-right:10px;" @click.self="resetHandle();arrivalTimeSty=true">取消</span>
+                    <span style="color:#409EFF;" @click="sendOrder(1,null)">保存</span>
+                  </span>
+                </span>
+              </div>
+              <div style="padding:20px;background: #f7f7f7;border-radius: 10px;margin: 10px 0;">
+                <el-form ref="form" :model="form" label-width="80px" style="display:flex;flex-wrap:wrap;">
+                  <el-form-item label="预到货时间" label-width="100px">
+                    <el-date-picker v-model="orderDetailList.order.preArrivalTime" :disabled="arrivalTimeSty" type="datetime"
+                      value-format="yyyy-MM-dd HH:mm:ss" placeholder="请输入到货时间">
+                    </el-date-picker>
+                  </el-form-item>
+                  <el-form-item label="到货时间">
+                    <el-date-picker v-model="orderDetailList.order.arrivalTime" :disabled="arrivalTimeSty" type="datetime"
+                      value-format="yyyy-MM-dd HH:mm:ss" placeholder="请输入到货时间">
+                    </el-date-picker>
+                  </el-form-item>
+                </el-form>
+              </div>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="销售" name="third" style="width: 100%;">
+            <!-- 发货 -->
+            <div>
+              <div style="display:flex;justify-content:space-between;">
+                <span>发货:</span>
+                <span v-if="roleId == 38 || roleId == 37 || roleId == 36|| roleId == 39 ||roleId == 43">
+                  <span style="color:#409EFF;cursor:default;font-size: 13px;margin-right: 10px;" v-if="orderDetailList.order.invoiceFile.length>0" @click="sendListVisible=true;">预览发货单</span>
+                  <span style="color:#409EFF;cursor:default;font-size: 13px;margin-right: 10px;" @click="cancelVisible=true;$root.BackToTop()">作废</span>
+                  <span style="color:#409EFF;cursor:default;font-size: 13px;margin-right: 10px;" @click="shippingVisible=true;$root.BackToTop()">发货</span>
+                  <span style="color:#409EFF;cursor:default;" v-show="OtherSty" @click="OtherSty=false">编辑</span>
+                  <span style="cursor:default;" v-show="!OtherSty">
+                    <span style="margin-right:10px;" @click.self="resetHandle();OtherSty=true">取消</span>
+                    <span style="color:#409EFF;" @click="sendOrder(2,0)">保存</span>
+                  </span>
+                </span>
+              </div>
+              <div style="padding:20px;background: #f7f7f7;border-radius: 10px;margin: 10px 0;">
+                <el-form ref="form" :model="form" label-width="80px" :disabled="OtherSty" style="display:flex;flex-wrap:wrap;">
+                  <el-form-item label="订单状态" style="width:33.33%;">
+                    <el-select v-model="orderDetailList.order.orderStatus" :disabled="OtherSty" placeholder="订单状态">
+                      <el-option :value="1" label="确认">确认</el-option>
+                      <el-option :value="2" label="退货中">退货中</el-option>
+                      <el-option :value="3" label="已退货">已退货</el-option>
+                      <el-option :value="4" label="退款">退款</el-option>
+                      <el-option :value="5" label="无效">无效</el-option>
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item label="发货状态" style="width:33.33%;">
+                    <el-select v-model="orderDetailList.order.shippingStatus" :disabled="OtherSty" placeholder="发货状态">
+                      <el-option :value="0" label="未到货">未到货</el-option>
+                      <el-option :value="1" label="到货未发货">到货未发货</el-option>
+                      <el-option :value="2" label="已发货">已发货</el-option>
+                      <el-option :value="3" label="确认收货">确认收货</el-option>
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item label="发货时间" style="width:33.33%">
+                    <el-date-picker v-model="orderDetailList.order.sendTime" :disabled="OtherSty" type="datetime"
+                      value-format="yyyy-MM-dd HH:mm:ss" placeholder="请输入发货时间">
+                    </el-date-picker>
+                  </el-form-item>
+                  <el-form-item label="送达时间">
+                    <el-date-picker v-model="orderDetailList.order.deliveryTime" :disabled="OtherSty" type="datetime"
+                      value-format="yyyy-MM-dd HH:mm:ss" placeholder="请输入货期">
+                    </el-date-picker>
+                  </el-form-item>
+                  <el-form-item label="签收时间" style="width:33.33%">
+                    <el-date-picker v-model="orderDetailList.order.signForTime" :disabled="OtherSty" type="datetime"
+                      value-format="yyyy-MM-dd HH:mm:ss" placeholder="请输入签收时间">
+                    </el-date-picker>
+                  </el-form-item>
+                  <!-- <el-form-item label="调试要求" style="width:33.33%">
+                    <el-input type="textarea" :rows="2" label="内容" :disabled="OtherSty" placeholder="请输入调试要求" v-model="orderDetailList.order.debugRequirement">
+                    </el-input>
+                  </el-form-item> -->
+                </el-form>
+              </div>
+            </div>
+            <!-- 发票 -->
+            <div>
+              <div style="display:flex;justify-content:space-between;">
+                <span>发票:</span>
+                <!-- <span v-if="roleId == 38 || roleId == 37 || roleId == 36|| roleId == 39 ||roleId == 43">
+                  <span style="color:#409EFF;cursor:default;" v-show="billSty" @click="billSty=false">编辑</span>
+                  <span style="cursor:default;"  v-show="!billSty" >
+                    <span style="margin-right:10px;" @click.self="resetHandle();billSty=true">取消</span>
+                    <span style="color:#409EFF;" @click="sendOrder(2,1)">保存</span>
+                  </span>
+                </span> -->
+                <el-button v-if="roleId == 38 || roleId == 37 || roleId == 36|| roleId == 39 ||roleId == 43" type="primary" icon="el-icon-plus" size="small" @click="invoiceVisible = true;invoiceStatus=false;"></el-button>
+              </div>
+              <!-- <div style="padding:20px;background: #f7f7f7;border-radius: 10px;margin: 10px 0;">
+                <el-form ref="form" :model="form" label-width="80px" :disabled="billSty" style="display:flex;flex-wrap:wrap;">
+                  <el-form-item label="收票人" style="width:33.33%">
+                    <el-input type="text" placeholder="请输入收票人" :disabled="billSty" v-model="orderDetailList.order.billReceiptName">
+                    </el-input>
+                  </el-form-item>
+                  <el-form-item label="手机号码" style="width:33.33%">
+                    <el-input type="text" placeholder="请输入手机号码" :disabled="billSty" v-model="orderDetailList.order.billReceiptPhone">
+                    </el-input>
+                  </el-form-item>
+                  <el-form-item label="发票地址" style="width:33.33%">
+                    <el-input type="textarea" :rows="2" label="内容" :disabled="billSty" placeholder="请输入发票地址" v-model="orderDetailList.order.billAddress">
+                    </el-input>
+                  </el-form-item>
+                  <el-form-item label="物流公司" style="width:33.33%">
+                    <el-input type="textarea" :rows="2" placeholder="请输入物流公司" :disabled="billSty" v-model="orderDetailList.order.billLogBank">
+                    </el-input>
+                  </el-form-item>
+                  <el-form-item label="物流单号" style="width:33.33%">
+                    <el-input type="textarea" :rows="2" placeholder="请输入物流单号" :disabled="billSty" v-model="orderDetailList.order.billLogNo">
+                    </el-input>
+                  </el-form-item>
+                  <el-form-item label="邮政编码" style="width:33.33%">
+                    <el-input type="text" placeholder="请输入邮政编码" :disabled="billSty" v-model="orderDetailList.order.billPostNo">
+                    </el-input>
+                  </el-form-item>
+                  <el-form-item label="寄出时间" style="width:33.33%">
+                    <el-date-picker v-model="orderDetailList.order.sendBillTime" :disabled="billSty" type="datetime"
+                      value-format="yyyy-MM-dd HH:mm:ss" placeholder="请输入寄出时间">
+                    </el-date-picker>
+                  </el-form-item>
+                  <el-form-item label="发票状态" style="width:33.33%">
+                    <el-radio-group v-model="orderDetailList.order.invoice" :disabled="billSty">
+                      <el-radio :label="0">不开发票</el-radio>
+                      <el-radio :label="1">开票</el-radio>
+                    </el-radio-group>
+                  </el-form-item>
+                  <el-form-item label="是否寄出" style="width:33.33%" :disabled="billSty">
+                    <el-radio-group v-model="orderDetailList.order.isSendBill">
+                      <el-radio :label="0">否</el-radio>
+                      <el-radio :label="1">是</el-radio>
+                    </el-radio-group>
+                  </el-form-item>
+                </el-form>
+              </div> -->
+              <el-table :data="orderInvoice" height="500" width="100%;" :header-cell-style="{'background-color':'#EFEDF0'}" style="margin-top:20px;">
+                <el-table-column width="80"  label="操作" align="center">
+                  <template slot-scope="scope">
+                    <el-button type="primary"  size="mini" round icon="el-icon-edit" @click="selInvoiceRow(scope.row)"></el-button>
+                  </template>
+                </el-table-column>
+                <el-table-column width="100" prop="orderNo" label="订单编号" align="center"></el-table-column>
+                <el-table-column prop="billMoney" label="发票金额"></el-table-column>
+                <el-table-column prop="billReceiptName" label="收票人姓名"></el-table-column>
+                <el-table-column width="120" prop="billReceiptPhone" label="收票人手机号"></el-table-column>
+                <el-table-column width="120" prop="billPostNo" label="收票人邮政编码"></el-table-column>
+                <el-table-column prop="file" label="发票文件">
+                  <template slot-scope="scope">
+                    <span style="color:#66b1ff;cursor:default;" v-if="scope.row.file" @click="invoiceFileVisible=true;invoiceFile=scope.row.file;">预览</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="billAddress" label="收发票地址"></el-table-column>
+                <el-table-column width="120" prop="billLogBank" label="收票物流公司"></el-table-column>
+                <el-table-column width="150" prop="billLogNo" label="收票物流单号"></el-table-column>
+                <el-table-column prop="remark" label="备注"></el-table-column>
+              </el-table>
+            </div>
+            <!-- 物流   -->
+            <!-- <div>
+              <div style="display:flex;justify-content:space-between;">
+                <span>物流:</span>
+                <span v-if="roleId == 38 || roleId == 37 || roleId == 36|| roleId == 39 ||roleId == 43">
+                  <span style="color:#409EFF;cursor:default;" v-show="wlSty" @click="wlSty=false">编辑</span>
+                  <span style="cursor:default;" v-show="!wlSty" >
+                    <span style="margin-right:10px;" @click.self="resetHandle();wlSty=true">取消</span>
+                    <span style="color:#409EFF;" @click="sendOrder(2,2)">保存</span>
+                  </span>
+                </span>
+              </div>
+              <div style="padding:20px;background: #f7f7f7;border-radius: 10px;margin: 10px 0;">
+                <el-form ref="form" :model="form" label-width="80px" :disabled="wlSty" style="display:flex;flex-wrap:wrap;">
+                  <el-form-item label="收货人" style="width:33.33%">
+                    <el-input type="text" placeholder="请输入收货人" :disabled="wlSty" v-model="orderDetailList.order.receiptName">
+                    </el-input>
+                  </el-form-item>
+                  <el-form-item label="手机号码" style="width:33.33%">
+                    <el-input type="text" placeholder="请输入手机号码" :disabled="wlSty" v-model="orderDetailList.order.receiptPhone">
+                    </el-input>
+                  </el-form-item>
+                  <el-form-item label="收货地址" style="width:33.33%">
+                    <el-input type="textarea" :rows="2" label="内容" :disabled="wlSty" placeholder="请输入发票地址" v-model="orderDetailList.order.address">
+                    </el-input>
+                  </el-form-item>
+                  <el-form-item label="物流公司" style="width:33.33%">
+                    <el-input type="text" placeholder="请输入物流公司" :disabled="wlSty" v-model="orderDetailList.order.logBank">
+                    </el-input>
+                  </el-form-item>
+                  <el-form-item label="物流单号" style="width:33.33%">
+                    <el-input type="text" :rows="2" :disabled="wlSty" placeholder="请输入物流单号" v-model="orderDetailList.order.logNo">
+                    </el-input>
+                  </el-form-item>
+                  <el-form-item label="邮政编码" style="width:33.33%">
+                    <el-input type="text" :rows="2" :disabled="wlSty" placeholder="请输入邮政编码" v-model="orderDetailList.order.postNo">
+                    </el-input>
+                  </el-form-item>
+                </el-form>
+              </div>
+            </div> -->
+            
+          </el-tab-pane>
+          <el-tab-pane label="售后" name="fourth">
+            <discuss :id="orderDetailList.order.id" :activeTabs="activeTabs=='fourth'?3:activeTabs" :type="3"></discuss>
+          </el-tab-pane>
+          <el-tab-pane label="调试" name="five">
+            <discuss :id="orderDetailList.order.id" :activeTabs="activeTabs=='five'?2:activeTabs" :type="2"></discuss>
+          </el-tab-pane>
+          <el-tab-pane label="日志" name="six" style="width: 100%;">
+            <el-table :data="orderOptLog" height="500" width="100%;" :header-cell-style="{'background-color':'#EFEDF0'}">
+              <el-table-column width="60" prop="id" label="ID" align="center"></el-table-column>
+              <el-table-column width="100" prop="createName" label="姓名" align="center"></el-table-column>
+              <el-table-column width="60" label="状态" align="center">
+                <template slot-scope="scope">
+                  <span v-if="scope.row.status==0">无效</span>
+                  <span v-if="scope.row.status==1">创建</span>
+                  <span v-if="scope.row.status==2">确认</span>
+                  <span v-if="scope.row.status==3">合同更换</span>
+                  <span v-if="scope.row.status==4">修改</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="remark" label="备注"></el-table-column>
+              <el-table-column width="160" prop="createTime" label="操作时间" align="center"></el-table-column>
+            </el-table>
+          </el-tab-pane>
+        </el-tabs>
+      </div>
+      <!-- 发货单 -->
+      <transition name="fade-transform">
+        <shipping-list 
+        @closeVisible="shippingVisible=false;queryOrderDetail()"
+        class="shippingVisible"
+        v-if="shippingVisible" 
+        :orderDetailList="orderDetailList">
+        </shipping-list>
+      </transition>
+      <!-- 作废 -->
+      <transition name="fade-transform">
+        <cancal
+        @closeVisible="cancelVisible=false;queryOrderDetail()"
+        class="cancelVisible"
+        v-if="cancelVisible" 
+        :orderDetailList="orderDetailList">
+        </cancal>
+      </transition>
+      <!-- 预览发货单 -->
+      <el-dialog
+        title="发货单"
+        :visible.sync="sendListVisible"
+        width="80%"
+        class="selFile"
+        :append-to-body="true"
+        >
+        <div>
+          <el-select v-model="selFile" placeholder="请选择发货单" 
+          v-if="orderDetailList.order.invoiceFile && orderDetailList.order.invoiceFile.length>1">
+            <el-option
+              v-for="(item,index) in orderDetailList.order.invoiceFile"
+              :key="index"
+              :label="index+1"
+              :value="item">
+            </el-option>
+          </el-select>
+          <object v-if="orderDetailList.order.invoiceFile.length==1" :data="orderDetailList.order.invoiceFile" width="100%" height="550px" internalinstanceid="130"></object>
+          <object v-else :data="selFile" width="100%" height="550px" internalinstanceid="130"></object>
+        </div>
+      </el-dialog>
+      <!-- 财务新增支付记录 -->
+      <el-dialog
+        title="新增支付记录"
+        :visible.sync="financeVisible"
+        width="30%"
+        style="min-width:410px;"
+        class="selFile"
+        :append-to-body="true"
+        >
+        <el-form ref="finance" :model="financeForm" label-width="80px" :rules="rules" style="padding:0 20px;">
+          <el-form-item label="支付金额" prop="money">
+            <el-input v-model="financeForm.money" style="width:80%"></el-input>
+          </el-form-item>
+          <el-form-item label="流水号" prop="tradeNo">
+            <el-input v-model="financeForm.tradeNo" style="width:80%"></el-input>
+          </el-form-item>
+          <el-form-item label="支付类型" >
+            <el-radio-group v-model="financeForm.type">
+              <el-radio :label="1">预付</el-radio>
+              <el-radio :label="2">尾款</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="支付时间" prop="payTime">
+            <el-date-picker v-model="financeForm.payTime" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" size="medium"  style="width:80%">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="备注">
+            <el-input type="textarea" v-model="financeForm.remark"  style="width:80%"></el-input>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="financeVisible = false">取 消</el-button>
+          <el-button type="primary" @click="financeSubmit">确 定</el-button>
+        </span>
+      </el-dialog>
+      <!-- 新增发票 -->
+      <el-dialog
+        :title="invoiceStatus?'编辑发票':'新增发票'"
+        :visible.sync="invoiceVisible"
+        width="80%"
+        style="min-width:410px;"
+        class="invoice"
+        :append-to-body="true"
+        >
+        <el-form ref="invoice" :model="orderInvoiceForm" label-width="130px" :rules="rules" style="padding:0 20px;display:flex;">
+          <div style="width:50%;">
+            <el-form-item label="收票人姓名" prop="billReceiptName">
+              <el-input v-model="orderInvoiceForm.billReceiptName" style="width:80%"></el-input>
+            </el-form-item>
+            <el-form-item label="收票人手机号" prop="billReceiptPhone">
+              <el-input v-model="orderInvoiceForm.billReceiptPhone" style="width:80%"></el-input>
+            </el-form-item>
+            <el-form-item label="发票金额" prop="billMoney">
+              <el-input v-model="orderInvoiceForm.billMoney" style="width:80%"></el-input>
+            </el-form-item>
+            <el-form-item label="收票人邮政编码">
+              <el-input v-model="orderInvoiceForm.billPostNo" style="width:80%"></el-input>
+            </el-form-item>
+            <el-form-item label="收票物流单号">
+              <el-input v-model="orderInvoiceForm.billLogNo" style="width:80%"></el-input>
+            </el-form-item>
+            <el-form-item label="收发票地址">
+              <el-input v-model="orderInvoiceForm.billAddress" style="width:80%"></el-input>
+            </el-form-item>
+          </div>
+          <div style="width:50%;">
+            <el-form-item label="收票物流公司">
+              <el-input v-model="orderInvoiceForm.billLogBank" style="width:80%"></el-input>
+            </el-form-item>
+            <el-form-item label="发票状态" v-if="invoiceStatus">
+              <el-radio-group v-model="orderInvoiceForm.status">
+                <el-radio :label="0">作废</el-radio>
+                <el-radio :label="1">已开票</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="是否发出发票" v-if="invoiceStatus">
+              <el-radio-group v-model="orderInvoiceForm.isSendBill">
+                <el-radio :label="0">否</el-radio>
+                <el-radio :label="1">是</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="备注">
+              <el-input type="textarea" v-model="orderInvoiceForm.remark"  style="width:80%"></el-input>
+            </el-form-item>
+            <el-form-item label="上传文件类型">
+                <el-select v-model="fileStatus" placeholder="请选择">
+                  <el-option label="图片" :value="1"></el-option>
+                  <el-option label="文件" :value="2"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="上传图片" v-if="fileStatus==1">
+                <el-upload class="upload-demo" action="/nte-crm/uploadImage" :on-preview="handlePreview" :on-remove="handleRemoveImage"
+                  :before-remove="beforeRemove" :limit="1" accept=".jpeg,.png,.jpg" :on-success="successUploadImage"
+                  :on-exceed="handleExceed" :file-list="fileList">
+                  <el-button size="small" type="primary" style="vertical-align: top;">点击上传</el-button>
+                  <div slot="tip" style="width:20%;"  class="el-upload__tip"></div>
+                </el-upload>
+                <div>
+                  <img v-if="fileList.length>0"  style="width:50%;" :src="fileList[0].url">
+                </div>
+              </el-form-item>
+              <el-form-item label="上传文件"  style="position: relative;" v-else >
+                <el-upload class="upload-demo" action="/nte-crm/uploadFile" :on-preview="handlePreview" :on-remove="handleRemoveFile"
+                  :before-remove="beforeRemove" :limit="1" accept=".pdf" :on-success="successUploadFile" :on-exceed="handleExceed"
+                  :file-list="fileListPdf">
+                  <el-button size="small" type="primary" style="vertical-align: top;">点击上传</el-button>
+                  <div slot="tip" class="el-upload__tip"></div>
+                </el-upload>
+              </el-form-item>
+          </div>
+          
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="invoiceVisible = false">取 消</el-button>
+          <el-button type="primary" @click="invoiceSubmit">确 定</el-button>
+        </span>
+      </el-dialog>
+      <!-- 预览发票文件 -->
+      <el-dialog
+        title="发票"
+        :visible.sync="invoiceFileVisible"
+        width="80%"
+        class="selFile"
+        :before-close="invoiceFileVisibleClose"
+        :append-to-body="true"
+        >
+        <div>
+          <object v-if="invoiceFile&&invoiceFile.indexOf('pdf')>-1" :data="invoiceFile" width="100%" height="550px" internalinstanceid="130"></object>
+          <img v-else :src="invoiceFile" style="width:100%;" alt="">
+        </div>
+      </el-dialog>
+    </div>
+  </div>
+
+</template>
+<script>
+  import {
+    queryOrderDetail,
+    updateOrder,
+    updateOrderFinance,
+    saveOrderInvoice
+  } from "util/req/order/index"
+  export default {
+    name: "detail",
+    props: {
+      detailVisible: {
+        typeL: Boolean
+      },
+      orderRowList: {
+        type: Object
+      },
+      rowId: {
+      }
+    },
+    data() {
+      return {
+        loading: true,
+        activeNames:['1'],
+        orderDetailList: {
+          order: {
+            conName: null,
+            custCompanyName: null,
+            telePhone: null,
+            invoiceFile:[]
+          },
+          orderGoodsList: []
+        },
+        rules: {
+          money: [{
+            required: true,
+            trigger: 'blur',
+            message: "支付金额不能为空"
+          },
+          { 
+            pattern:/^[1-9]\d*(\.\d+)?$/,
+             message:"只能输入大于0的金额"
+          }],
+          tradeNo:{
+            required: true,
+            trigger: 'blur',
+            message: "流水号不能为空"
+          },
+          payTime: {
+            required: true,
+            trigger: 'blur',
+            message: "支付时间不能为空"
+          },
+          remark:{
+            required: true,
+            trigger: 'blur',
+            message: "说明不能为空"
+          },
+          billMoney:[{
+            required: true,
+            trigger: 'blur',
+            message: "金额不能为空"
+          },
+          { 
+            pattern:/^[1-9]\d*(\.\d+)?$/,
+             message:"只能输入大于0的金额"
+          }],
+          billReceiptName:{
+            required: true,
+            trigger: 'blur',
+            message: "收票人姓名不能为空"
+          },
+          billReceiptPhone:[{
+            required: true,
+            trigger: 'blur',
+            message: "收票人手机号不能为空"
+          },
+          {
+            trigger: 'blur',
+            pattern: /^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/,
+            message: "请输入正确的格式"
+          }],
+          file:{
+            required: true,
+            trigger: 'blur',
+            message: " "
+          }
+        },
+        recordList: null,
+        form: null,
+        moneyStatusSty: true,
+        arrivalTimeSty: true,
+        billSty: true,
+        wlSty: true,
+        OtherSty: true,
+        orderOptLog: [],
+        orderPayLog:[], //支付记录
+        roleId: JSON.parse(sessionStorage.getItem('userDto')).roleId || null,
+        activeTabs: 'first',
+        technologyList: {
+          afterSaleList: [],
+          debugList: []
+        },
+        shippingVisible: false, //发货单页面
+        cancelVisible:false,     //作废页面
+        sendListVisible:false,     //发货单预览
+        financeVisible:false, //新增财务订单
+        invoiceVisible:false, //新增发票
+        invoiceStatus:false,  //发票处于的状态（新增，编辑）
+        invoiceFileVisible:false,//预览发票文件
+        invoiceFile:null,//预览发票文件
+        financeForm:{       //新增财务数据
+          type:1
+        },
+        orderInvoice:[],    //新增发票数据
+        orderInvoiceForm:{       //新增发票数据
+        },
+        fileStatus:1, //选中上传文件类型
+        fileList: [], //上传图片
+        fileListPdf: [], //上传pnf   
+        goodsImg:null,
+        file:null,  //上传成功返回路径
+        selFile:null      //选中的发货单
+      }
+    },
+    watch:{
+      'rowId': function () {
+        this.queryOrderDetail()
+      },
+      invoiceVisible(status){
+        if(!status){
+          this.orderInvoiceForm={};
+          this.fileStatus=1 //选中上传文件类型
+          this.fileList= [] //上传图片
+          this.fileListPdf= [] //上传pnf   
+          this.goodsImg=null
+          this.file=null  //上传成功返回路径
+        }
+      },
+      financeVisible(status){
+        if(!status){
+          this.financeForm={
+            type:1
+          }
+        }
+      }
+    },
+    methods: {
+      tabsHandle(){
+
+      },
+      invoiceFileVisibleClose(){
+        this.invoiceFileVisible=false;
+      },
+      handleRemoveFile(file, fileList) {
+        this.file = null;
+      },
+      handleRemoveImage(file, fileList) {
+        this.goodsImg = null;
+      },
+      handlePreview(file) {
+        //console.log(file);
+      },
+      handleExceed(files, fileList) {
+        this.$message.warning('当前只允许传输一个文件');
+      },
+      beforeRemove(file, fileList) {
+        return this.$confirm(`确定移除 ${ file.name }？`);
+      },
+      successUploadImage(response, file, fileList) {
+        this.fileList=[{name:response.data.url,url:response.data.url}];
+        this.goodsImg = response.data.url;
+        this.file= response.data.url;
+      },
+      successUploadFile(response, file, fileList) {
+        this.fileListPdf=[{name:response.data.url,url:response.data.url}];
+        this.file = response.data.url;
+      },
+      validateNum(text){ //验证
+        var reg=/^(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)|0)$/;
+        var pattern=new RegExp(reg);
+        if(!pattern.test(text)){
+          this.$message('请输入正确的金额');
+        }
+        return pattern.test(text)
+      },
+      resetHandle() {
+        this.recovery();
+        this.orderDetailList = this.recordList;
+        //this.activeTabs="first";
+      },
+      recovery() {
+        this.moneyStatusSty = true;
+        this.arrivalTimeSty = true;
+        this.billSty = true;
+        this.wlSty = true;
+        this.OtherSty = true;
+      },
+      sendOrder(updateType, type) {
+        var parmas = {};
+        parmas.id = this.rowId;
+        if (updateType == 2) { //销售人员
+          parmas.updateType = 2
+          if (type == 0) { //发货
+            parmas.type = 0;
+            // parmas.debugRequirement = this.orderDetailList.order.debugRequirement //调试要求,
+            parmas.shippingStatus = this.orderDetailList.order.shippingStatus //0未到货1到货未发货2已发货3确认收货
+            parmas.signForTime = this.orderDetailList.order.signForTime //签收时间
+            parmas.sendTime = this.orderDetailList.order.sendTime //发货时间
+            parmas.deliveryTime = this.orderDetailList.order.deliveryTime //货期
+            parmas.orderStatus= this.orderDetailList.order.orderStatus //订单状态
+
+          } else if (type == 1) { //发票
+            parmas.type = 1;
+            parmas.invoice = this.orderDetailList.order.invoice //发票状态0不开发票1开发票
+            parmas.billAddress = this.orderDetailList.order.billAddress //收发票地址
+            parmas.billLogBank = this.orderDetailList.order.billLogBank //收票物流公司
+            parmas.billLogNo = this.orderDetailList.order.billLogNo //收票物流单号
+            parmas.billReceiptName = this.orderDetailList.order.billReceiptName //收票人姓名
+            parmas.billReceiptPhone = this.orderDetailList.order.billReceiptPhone //收票人手机号
+            parmas.billPostNo = this.orderDetailList.order.billPostNo //收票人邮政编码
+            parmas.isSendBill = this.orderDetailList.order.isSendBill //是否寄出发票0否1是
+            parmas.sendBillTime = this.orderDetailList.order.sendBillTime //发票寄出时间
+          } else if (type == 2) {
+            // parmas.type = 2;
+            // parmas.address = this.orderDetailList.order.address //收货地址
+            // parmas.receiptName = this.orderDetailList.order.receiptName //收货人姓名
+            // parmas.receiptPhone = this.orderDetailList.order.receiptPhone //收货人手机
+            // parmas.postNo = this.orderDetailList.order.postNo //邮政编码
+            // parmas.logBank = this.orderDetailList.order.logBank //物流公司
+            // parmas.logNo = this.orderDetailList.order.logNo //物流单号
+          }
+        } else if (updateType == 1) { //采购
+          parmas.updateType = 1;
+          parmas.preArrivalTime = this.orderDetailList.order.preArrivalTime; //预交货日期，
+          parmas.arrivalTime = this.orderDetailList.order.arrivalTime; //到货日期
+        } else if (updateType == 3) { //财务(42)总助（37）超级管理员（36）
+          parmas.updateType = 3;
+          parmas.payTime = this.orderDetailList.order.payTime; //支付时间
+          parmas.prePayTime = this.orderDetailList.order.prePayTime; //预付时间
+          parmas.freightMoney = this.orderDetailList.order.freightMoney; //运费
+          parmas.payMoney = this.orderDetailList.order.payMoney; //支付金额（尾款）
+          parmas.preMoney = this.orderDetailList.order.preMoney; //待付金额
+          parmas.preTradeNo = this.orderDetailList.order.preTradeNo; //预付流水号
+          parmas.payStatus = this.orderDetailList.order.payStatus; //支付状态
+          // parmas.moneyStatus = this.orderDetailList.order.moneyStatus; //金额状态
+          if(this.validateNum(parmas.payMoney)&&this.validateNum(parmas.preMoney)){
+            if((parmas.payMoney+parmas.preMoney)<=this.orderDetailList.order.totalMoney){
+                this.$message({
+                  message: '警告：支付的总金额不正确',
+                  type: 'warning'
+                });
+                return 
+            }
+          }else{
+            return
+          }
+        } else {
+          return false
+        }
+        updateOrder(parmas, (res) => {
+          if (res.msgCode == 200) {
+            this.$message({
+              message: res.msg,
+              type: 'success'
+            });
+            const loading = this.$loading({
+              lock: true,
+              target: '.detail',
+              text: '重载中',
+              spinner: 'el-icon-loading',
+              background: 'rgba(255, 255, 255, 0.9)'
+            });
+            new Promise((resolve, reject) => {
+              queryOrderDetail({
+                id: this.rowId
+              }, (res) => {
+                resolve(res)
+              })
+            }).then((res) => {
+              if(res.data.order.invoiceFile){
+                res.data.order.invoiceFile=res.data.order.invoiceFile.split(',')
+              }else{
+                res.data.order.invoiceFile=[]
+              }
+              this.orderDetailList = res.data;
+              this.orderOptLog = JSON.parse(JSON.stringify(res.data.orderOptLog));
+              this.recordList = JSON.parse(JSON.stringify(res.data));
+              this.orderPayLog=JSON.parse(JSON.stringify(res.data.orderPayLog));
+              this.orderInvoice=JSON.parse(JSON.stringify(res.data.orderInvoice));
+              this.technologyList.afterSaleList = res.data.afterSaleList||JSON.parse(JSON.stringify(res.data.afterSaleList));
+              this.technologyList.debugList = JSON.parse(JSON.stringify(res.data.debugList));
+              this.recovery();
+              loading.close();
+            }).catch((err) => {
+              this.$message({
+                message: err,
+                type: 'warning'
+              });
+            })
+          } else {
+            this.$message({
+              message: res.msg,
+              type: 'warning'
+            });
+          }
+        })
+      },
+      queryOrderDetail(){
+          const loading = this.$loading({
+            lock: true,
+            target: '.detail',
+            text: '重载中',
+            spinner: 'el-icon-loading',
+            background: 'rgba(255, 255, 255, 0.9)'
+          });
+         queryOrderDetail({
+          id: this.rowId
+        }, (res) => {
+          if(res.msgCode==200){
+            if(res.data.order.invoiceFile){
+              res.data.order.invoiceFile=res.data.order.invoiceFile.split(',')
+            }else{
+              res.data.order.invoiceFile=[]
+            }
+            this.orderDetailList = res.data;
+            this.orderOptLog = JSON.parse(JSON.stringify(res.data.orderOptLog));
+            this.recordList = JSON.parse(JSON.stringify(res.data));
+            this.orderPayLog=JSON.parse(JSON.stringify(res.data.orderPayLog));
+            this.orderInvoice=JSON.parse(JSON.stringify(res.data.orderInvoice));
+            this.technologyList.afterSaleList = JSON.parse(JSON.stringify(res.data.afterSaleList));
+            this.technologyList.debugList = JSON.parse(JSON.stringify(res.data.debugList));
+          }
+           loading.close();
+        })
+      },
+      financeSubmit(){  //财务表单提交
+        this.$refs.finance.validate(valid=>{
+          if(valid){
+            var parmas=Object.assign({orderId:this.rowId},this.financeForm);
+            updateOrderFinance(parmas,res=>{
+                if(res.msgCode==200){
+                  this.$message({
+                    message: res.msg,
+                    type: 'success'
+                  });
+                  this.financeVisible=false;
+                  this.queryOrderDetail();
+                }else{
+                  this.$message({
+                    message: res.msg,
+                    type: 'warning'
+                  });
+                }
+            })
+          }
+        })
+      },
+      selInvoiceRow(row){
+        this.invoiceStatus=true;
+        this.invoiceVisible=true;
+        this.orderInvoiceForm=row;
+        if(row.file){
+          if(row.file.indexOf('pdf')>-1){
+            this.fileListPdf=[{name:row.file,url:row.file}];
+            this.fileStatus=2;
+          }else{
+            this.fileList=[{name:row.file,url:row.file}]
+            this.fileStatus=1;
+          }
+          this.file=row.file;
+        }
+      },
+      invoiceSubmit(){
+        if(!this.file){
+          this.$message({
+            message:'发票文件不能为空' ,
+            type: 'warning'
+          });
+          return
+        }
+        this.$refs.invoice.validate(valid=>{
+          if(valid){
+            var parmas={
+              orderId:this.orderRowList.id,
+              file:this.file
+            }
+            var newParmas=Object.assign(this.orderInvoiceForm,parmas);
+            if(this.invoiceStatus){
+            }
+            saveOrderInvoice(newParmas,res=>{
+                if(res.msgCode==200){
+                  this.$message({
+                    message: res.msg,
+                    type: 'success'
+                  });
+                  this.invoiceVisible=false;
+                  this.queryOrderDetail();
+                }else{
+                  this.$message({
+                    message: res.msg,
+                    type: 'warning'
+                  });
+                }
+            })
+          }
+        })
+      }
+    },
+    components: {
+      discuss: () => import('@/page/admin/order/components/discuss'),
+      shippingList: () => import('@/page/admin/order/components/shippingList'),
+      cancal:()=>import('@/page/admin/order/components/cancel')
+    }
+  }
+
+</script>
+<style lang="scss" scoped>
+  .tab_content {
+    margin-top: 20px;
+  }
+  .fade-transform-leave-active,
+  .fade-transform-enter-active {
+    transition: all .2s;
+  }
+
+  .fade-transform-enter {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+
+  .fade-transform-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  .detail {
+    position: relative;
+  }
+  .shippingVisible {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2000;
+    background-color: #fff;
+    min-height: 100%;
+    width: 100%;
+  }
+  .cancelVisible{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2000;
+    background-color: #fff;
+    min-height: 100%;
+    width: 100%;
+  }
+  .selFile /deep/ .el-dialog {
+    margin-top: 10px!important;
+  }
+  .invoice /deep/ .el-dialog {
+    margin-top: 2vh!important;
+  }
+  .detail /deep/ .el-collapse-item__content{
+    padding-bottom: 10px!important;
+  }
+</style>

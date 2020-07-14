@@ -1,0 +1,652 @@
+【3.0接口信息】
+    1.订单详情 getOrderDetail 
+　　　   参数：id 订单ID
+        新增返回参数：
+            debugList 调试列表 
+            afterSaleList 售后列表
+            technical｛
+                debuggingUnRead 调试未读
+                afterSaleUnRead 售后未读
+            ｝
+
+            orderPayLog 支付记录列表
+            orderInvoice 发票列表
+            orderShipping 发货单列表
+
+    2.修改订单信息 updateOrder
+        (1)公共参数：id 订单ID updateType 　0确认1采购修改2销售修改3财务修改
+
+        (2)财务参数：
+        　　payTime 支付时间，
+        　　prePayTime 预付时间，
+        　　freightMoney 运费，
+        　　preMoney 预付金额，
+            payMoney 支付金额（尾款），
+        　　preTradeNo 预付流水号，
+        　　payStatus 支付状态 0未支付1已预付2已支付
+
+        (3)采购参数：
+            preArrivalTime 预到货日期，
+        　　arrivalTime，到货日期
+
+        (4)销售参数：
+            type  0 其它
+            debugRequirement 调试要求,
+            shippingStatus 0未到货1到货未发货2已发货3确认收货
+            signForTime 签收时间,
+            sendTime 发货时间，
+            deliveryTime 要求送达时间
+            orderStatus 0待确认1确认2退货中3已退货4退款5无效6待申请确认
+
+            type 1发票
+            invoice 发票状态0不开发票1开发票,
+            billAddress 收发票地址,
+            billLogBank 收票物流公司, 
+            billLogNo 收票物流单号,
+            billReceiptName 收票人姓名,
+            billReceiptPhone 收票人手机号, 
+            billPostNo 收票人邮政编码,
+            isSendBill 是否寄出发票0否 1 是,
+            sendBillTime 发票寄出时间
+            
+            type 2物流
+            address 收货地址,
+            receiptName 收货人姓名,
+            receiptPhone 收货人手机,
+            postNo 邮政编码,
+            logBank 物流公司,
+            logNo 物流单号
+
+            type 3发货单文件上传
+            invoiceFile 发货单文件
+
+        (5)确认参数： 
+            金额状态 1预付全款 2 30%预付款70%款到发货 3 50%预付款50%款到发货 4货到付款 5月结 6其它 7款到发货
+            金额状态为1，2，3，6 输入预付金额，支付时间 ; 其它4 ，5，7 没有新增参数
+            createTime 补录时间
+            orderStatus 订单状态 1确认5无效
+            remark 备注说明
+            订单确认【1 2 3 6 参数】：
+            preMoney 预付金额
+            payStatus 支付状态1已预付
+            prePayTime 预付时间
+            
+2019-02-14
+    1.客户数据置顶 checkCustIsTop
+        参数：id 客户id，isTop 0否1是
+    2.客户需求置顶 checkDemandIsTop
+        参数：id 客户id，isTop 0否1是
+    
+2019-02-15 
+    1.申请确认订单 applyConfirmOrder
+        参数：id 订单ID，remark 说明
+    14:00:00
+
+    2.新增客户& 修改客户 operCustomer
+        新增参数：beId 贸易商关联ID（多选）
+
+    3.客户数据回显 editCustomer
+        新增返回参数：beCustDtoList 关联的贸易商列表
+        traderList 贸易商列表
+
+    4.获取历史报价商品信息 getOfferGoodList
+        参数：offerId 报价ID
+
+    5.新增申请折扣 saveDiscountApply
+        新增参数：orgMoney 原价 
+        applyMoney 申请价格 
+        applyDiscount 申请折扣率=申请价格/原价  不录入折扣率，自动算出
+
+    6.新增,修改报价 saveDemandOffer
+        新增参数：moneyOther 付款方式为其它时，填写自定义付款方式
+        
+    17:15:00
+2019-02-18
+    1.获取全部贸易商列表 getTraderList 无参数
+2019-02-19
+    1.查询技术支持列表 queryTechnicalSupportList 
+        参数：pId 0 type 类型1售前2调试3售后  status状态0处理中1已完成  keys搜索参数 page页数 pageSize一页显示个数
+    2.新增、回复技术支持 insertTechnicalSupport 
+        公共参数：
+            beId 关联ID 
+            optFile 文件信息 
+            type 类型1售前2调试3售后
+            remark 内容
+            isShield 是否屏蔽技术0否1是（采购,如果上级是屏蔽的，回复自动默认屏蔽）
+        新增参数： 
+            isTop 是否置顶
+            isSMS 是否通知 
+            buyerId 采购ID（多选|隔开）
+            technicalId 技术支持ID（多选|隔开）
+        回复参数：
+            pId 回复ID
+           
+    3.修改技术支持 updateTechnicalSupport
+        已完成参数：
+            id  支持ID 
+            status状态1已完成
+        置顶参数：
+            id  支持ID 
+            isTop 置顶0否1是
+        已读参数：
+            batch 批次batch 
+
+    4.获取技术支持详情列表 getTechnicalSupportByDto （需求信息详情请求该接口，beId传需求ID，type传1）
+        参数：  
+            beId 关联ID  
+            type 类型1售前2调试3售后
+        返回參數：{
+            id;
+            pId; 回复ID
+            beId; 关联ID
+            type; 类型1售前2调试3售后
+            department; 部门0有关部门1业务部2技术部3采购部
+            isTop; 是否置顶0否1是
+            optFile; 操作文件
+            status; 状态0未读1待处理2处理中3已完成
+            createName; 操作人姓名
+            pName;  回复谁
+            buyerId; 采购ID
+            technicalId; 技术支持ID
+            createTime; 创建时间
+            remark; 内容
+        }
+    
+    5.获取技术工作台信息 getTechnicalSupportIndex
+        参数：无
+        返回参数：preSaleUnRead 售前未读，debuggingUnRead 调试未读，afterSaleUnRead 售后未读
+    
+    6.需求列表 queryDemandList，订单列表 queryOrderList
+        新增返回参数：technicalNum 技术支持未读条数  
+
+2019-02-20
+
+    1.新增、回复技术支持 
+        新增采购屏蔽参数
+    
+2019-02-28
+    1.上传发货单 insertOrderInvoiceFile（作废）
+    参数：id 订单ID，invoiceFile发货单文件，invoiceGoodsId发货商品ID（逗号隔开）
+
+    2.作废发货单商品 desertedOrderInvoiceGoods（作废）
+    参数：id 订单ID，invoiceGoodsId发货商品ID（一个）
+
+2019-03-01
+    1.上传商品型号 saveGoodsModel
+    公共参数：goodsNo 商品编号，stock 库存，price 价格，indexId 1新增编辑商品2新增编辑辅件
+    新增：辅件参数：partNo 辅件编码
+         商品参数：range 量程，accuracy 精度，output_signal 输出信号，bePartNo 辅件型号编码（逗号隔开）
+    修改参数：id 模型ID ，modelNo, range 量程，accuracy 精度，output_signal 输出信号，bePartNo 辅件型号编码（逗号隔开）
+
+    2.刪除、更换商品辅件 optGoodsPart
+        删除参数：modelNo 型号No ，partNo 辅件No，state 传"del"
+        修改参数：modelNo 型号No ，partNo 辅件No，state 传"upd"， updPartNo 新的辅件No
+    3.新增商品 saveGoods 新增参数：type 类型 1面价、2底价、3建议销售价 对应折扣：自定义，100%以上，90%以上   
+2019-03-04
+
+    1.查询品牌列表（分页）queryBrandList 
+        参数：page页数
+             pageSizet条数 
+             brandName 品牌名称
+             isShow 是否显示0否1是
+             charCode 字符编码 大写ABC
+
+    2.查询全部品牌列表 getBrandList
+        参数：isShow 是否显示0否1是
+
+    3.校验品牌名称 checkBrandName
+        参数：brandName 品牌名称
+    
+    4.新增品牌 saveBrand
+        修改参数：id 品牌id
+            brandName 品牌名称
+            sort 排序  0-999
+            isShow 是否显示0否1是
+            charCode 字符编码 大写ABC
+            isTop 是否置顶0否1是
+            discount 品牌折扣率 0-100
+
+        新增参数：brandName 品牌名称
+            sort 排序 0-999
+            isShow 是否显示0否1是
+            charCode 字符编码 大写ABC
+            isTop 是否置顶0否1是
+            discount 品牌折扣率 0-100
+
+        列表快捷显示开关和置顶开关参数：
+            id 品牌id
+            isShow 是否显示0否1是
+            isTop 是否置顶0否1是
+
+2019-03-08
+        1.querySupplierList  查询供应商列表（分頁）
+        参数：page页数
+            pageSizet条数 
+        查询条件参数：keys
+
+        2.checkSupplierName 验证供应商名称
+        参数：name 名称
+
+        3.checkSupplierConPhone 验证供应商手机
+        参数：phone 手机
+
+        4.delSupplierContact 删除供应商联系人
+        参数：conId 联系人ID
+
+        5.saveSupplier 新增供应商&修改供应商
+        新增参数：{
+            name 供应商名称
+            address 联系地址
+            nature 供应商性质1原厂家2代理商3分销商
+            openName 开户名称
+            taxpayerNo 纳税人识别号
+            openBankAddress 开户地址
+            openBankTel 开户电话
+            openBank 开户行
+            openBankNo 开户银行账号
+            website 网站
+            fax 传真
+            usedArea 使用领域
+            evaluation 供应商评价
+            isTop 是否置顶0否1是
+            conList:[{  //联系人列表
+                conName   联系人姓名
+                telePhone   手机号码
+                landLine  座机电话
+                mailBox   邮箱
+                QQ QQ
+                weChat 微信
+                post  岗位
+                sex  性别1男2女
+                contAddress  联系人地址 
+            }]
+            brandList:[{ //品牌列表
+                brandId 关联品牌ID
+                isMain 是否主营0否1是
+            }]
+        },
+        修改参数：{
+            id  供应商ID
+            name 供应商名称
+            address 联系地址
+            nature 供应商性质 1原厂家2代理商3分销商
+            openName 开户名称
+            taxpayerNo 纳税人识别号
+            openBankAddress 开户地址
+            openBankTel 开户电话
+            openBank 开户行
+            openBankNo 开户银行账号
+            website 网站
+            fax 传真
+            usedArea 使用领域
+            evaluation 供应商评价
+            isTop 是否置顶0否1是
+            conList:[{  //联系人列表
+                id  联系人列表ID 新增传空，修改传ID
+                conName   联系人姓名
+                telePhone   手机号码
+                landLine  座机电话
+                mailBox   邮箱
+                QQ QQ
+                weChat 微信
+                post  岗位
+                sex  性别1男2女
+                contAddress  联系人地址 
+            }]
+            brandList:[{ //品牌列表
+                id  品牌列表ID 新增传空，修改传ID
+                brandId 关联品牌ID
+                isMain 是否主营0否1是
+            }]
+        }
+
+        6.delSupplier 删除供应商
+        参数：code 供应商code
+
+        7.delSupplierBrand 删除供应商关联品牌
+        参数：id 关联品牌ID
+
+        8.editSupplier 供应商回显数据
+        参数：id 供应商ID，新增传空，编辑传ID
+
+        9.checkSupplierIsTop 是否置頂
+        參數：id 供應商Id，isTop 0否1是
+        
+2019-03-11
+    1.indexCount 首页数据接口：
+        返回参数：
+            placardList 公告列表 
+            notebook 记事本 
+            statistical 统计数据
+
+    2.getPlacard 公告列表 
+
+    3.getNotebook 记事本 
+
+    4.saveSystemMsg 新增/修改公告或记事本
+        新增参数： 
+            type 类型0记事本1公告 
+            remark 内容
+        修改参数：
+            id 列表ID 
+            type 类型0记事本1公告 
+            remark 内容
+2019-03-13
+    1.queryCategoryList  获取分类多级列表
+    
+    2.checkCategoryName 验证分类名称
+    参数：catName 分类名称
+
+    3.saveCategory 新增修改分类
+    新增参数：
+        catName 分类名称
+        parentId 父级ID，一级传0其它传上级catId
+        sortOrder 排序0-999
+        isShow 是否显示0否1是
+    
+    修改参数：
+        catId 分类ID
+        catName 分类名称
+        parentId 父级ID，一级传0其它传上级catId
+        sortOrder 排序0-999
+        isShow 是否显示0否1是
+
+    4.saveCategory 是否显示
+    参数:
+        catId 分类ID
+        isShow 是否显示0否1是
+
+2019-03-14
+
+    1.applyConfirmOrder 申请确认/无效订单
+    参数：
+        id 订单ID
+        orderStatus 0申请确认5无效
+        remark 备注 无效必填
+
+    2.confirmOrder 确认/无效订单
+    参数：【金额状态 1预付全款 2 30%预付款70%款到发货 3 50%预付款50%款到发货 4货到付款 5月结 6其它 7款到发货
+    金额状态为1，2，3，6 输入预付金额，支付时间 ; 其它4 ，5，7 没有新增参数】
+
+        orderStatus 订单状态 1确认5无效
+        remark 备注说明(无效)
+
+        订单确认【1 2 3 6 参数】：
+        createTime 补录时间
+        money 支付金额
+        tradeNo 流水号
+        payTime 支付时间
+
+    3.queryPurchaseOrderList 查询采购订单列表（分页）
+    参数：
+        page页数
+        pageSizet条数 
+
+        keys 搜索key
+        createTimeStart 创建开始时间
+        createTimeEnd 创建结束时间
+        updateTimeStart 修改开始时间
+        updateTimeEnd 修改结束时间
+
+    4.updatePurchaseOrder 更改采购订单
+    参数：
+        id
+        arrivalTime 到货日期
+        preArrivalTime 预到货日期
+        invoiceTime 票到日期
+        payType 付款方式
+        payInfo 付款情况
+        contractNo 采购合同号
+        file 文件
+        invoiceNo 发票号
+        price 采购价格
+        rate 汇率
+        currency 货币类型
+        supplierId 供应商
+        brandId 品牌
+        status 状态0待处理1完成2作废
+        remark 备注
+        isTecSupport 是否技术支持0否1是
+        indexStr 辅件采购单ID(多个|隔开)
+
+    5.updateOrderFinance 財務更改订单
+    参数：
+        orderId 订单ID
+        type 支付类型1预付2尾款
+        money 支付金额
+        tradeNo 流水号
+        payTime 支付时间
+        remark 备注
+    
+    6.queryOrderInvoiceList 查询訂單发票列表（分页）
+    参数：
+        page页数
+        pageSizet条数 
+    
+    7.saveOrderInvoice 订单发票操作
+    新增参数：
+        orderId 订单ID
+        bill_money 发票金额
+        billAddress 收发票地址
+        billLogBank 收票物流公司
+        billLogNo 收票物流单号
+        billReceiptName 收票人姓名
+        billReceiptPhone 收票人手机号
+        billPostNo 收票人邮政编码
+        file 发票文件
+        remark 备注
+
+    修改参数：
+        id 发票ID
+        orderId 订单ID
+        status 发票状态0作废2已开票
+        isSendBill 是否已经发出发票 0否 1 是
+        bill_money 发票金额
+
+        billTax 税额 
+        billAmount 不含税金额 
+        billNo 发票号 
+        invoiceTime 开票日期
+        
+        billAddress 收发票地址
+        billLogBank 收票物流公司
+        billLogNo 收票物流单号
+        billReceiptName 收票人姓名
+        billReceiptPhone 收票人手机号
+        billPostNo 收票人邮政编码
+        file 发票文件
+        remark 备注
+    
+    8.queryOrderShippingList  查询发货单列表（分页）
+    参数：
+        page页数
+        pageSizet条数 
+    
+    9.saveOrderShipping 操作发货单
+    上传发货单：
+        orderNo 订单编号
+        contractNo 合同编号
+        address 收货地址
+        receiptName 收货人姓名
+        receiptPhone 收货人手机号
+        logBank 发货物流公司
+        logNo 发货物流单号
+        sendTime 发货时间
+        goodsId 发货关联订单商品
+        file 发货单文件
+
+    修改发货单：
+        id 发货单ID
+        contractNo 合同编号
+        status 发货状态0未到货1到货未发货2已发货3确认收货4作废
+        address 收货地址
+        receiptName 收货人姓名
+        receiptPhone 收货人手机号
+        postNo 收货人邮政编码
+        logBank 发货物流公司
+        logNo 发货物流单号
+        signForName 签收人
+        signForTime 签收时间
+        sendTime 发货时间
+        goodsId 发货关联订单商品
+        file 发货单文件
+    作废发货单：
+        id 发货单id
+        del_flag 0删除
+
+    10.订单详情新增返回参数
+
+    2019-03-19
+
+    1.queryOrderPayList 订单支付记录
+    参数：
+        page页数
+        pageSizet条数 
+    
+    2019-03-20
+    1..getShippingGoods 获取发货单商品列表
+    参数：
+        orderId 订单ID
+        goodsId 关联报价商品ID(多个逗号隔开)
+    
+    2019-03-21
+    1.getSupplierList 供应商列表
+    
+    2.getSupplierBrandById 根据品牌ID查供应商/供应商ID查品牌列表
+      参数：
+        brandId 品牌ID
+        supplierId 供应商ID
+        
+    2019-03-22
+
+    1.queryInquiryList 查询询价列表（分页）
+    参数：
+        page页数
+        pageSizet条数 
+
+    2.saveInquiry 询价单
+    新增参数：
+        saleId 销售员ID
+        demandCode 需求编号
+        demandModel 需求型号
+        supplierId 供应商ID
+        brandId 品牌ID
+        status 询价状态0待报价1已报价2已采纳3作废
+        changeModel 替换型号
+        file 文件
+        enquiryTime 询价日期
+        expirationTime 报价日期
+        deliveryTime 目标货期
+        currency 币种1RMB 人民币2USD 美元3GBP 英镑4EUR 欧元
+        rate 汇率
+        price 单价
+        reamrk 备注
+
+    修改参数：
+        id 询价ID
+        demandModel 需求型号
+        supplierId 供应商ID
+        brandId 品牌ID
+        status 询价状态0待报价1已报价2已采纳3作废
+        changeModel 替换型号
+        file 文件
+        enquiryTime 询价日期
+        expirationTime 报价日期
+        deliveryTime 目标货期
+        currency 币种1RMB 人民币2USD 美元3GBP 英镑4EUR 欧元
+        rate 汇率
+        price 单价
+        reamrk 备注
+
+    2019-03-26
+
+    1.getGoodsList 商品列表接口（报价搜索）
+     搜索商品参数：
+        title 商品名称
+        range 量程
+        accuracy 精度
+        outputSignal 输出信号
+        bePartNo 辅件编码（多个逗号隔开）
+        isParts 传0
+    
+    辅件列表：indexStr 辅件编码（多个逗号隔开）
+
+    2. 报价接口添加一个参数：type 报价类型0非库存1库存
+    
+    2019-03-28
+    1.updatePurchaseOrder 转技术支持
+    参数：
+        id
+        preArrivalTime 预到货日期
+        isTecSupport 是否技术支持0否1是
+        indexStr 辅件采购单ID(多个|隔开)
+    2019-04-02
+
+    1.修改需求联系人 saveDemand
+    参数：id 需求ID
+        conId 联系人ID
+        remark 备注
+        optType 'upd'
+    
+    2019-04-12
+    1.查询订单提成列表（分页）  queryOrderCommissionList
+    参数：
+        page页数
+        pageSizet条数 
+    查询参数：
+        keys 关键字
+        createTimeStart 创建开始时间
+        createTimeEnd 创建结束时间
+        updateTimeStart 修改开始时间
+        updateTimeEnd 修改结束时间
+      
+    2.查询订单提成列表  getOrderCommissionList
+    参数：
+        orderId 订单Id
+    返回参数：
+    [{
+        orderId 订单ID
+        offerGoodsId 报价商品ID
+        orderNo 订单编码
+        taxDifference 含税差额
+        difference 不含税差额
+        taxRate 税率
+        excludingTaxRate 税率计算值
+        rate 提成率
+        amount 提成额
+        businessFee 商务费
+        status 1创建2申请商务费3同意4拒绝5完成
+        goodsNo 商品编码
+        modelNo 型号编码
+        goodsInfo 商品详情
+        type 是否库存报价
+        quantity 数量
+        brandName 品牌名称
+        brandId 品牌ID
+        custBelong 客户属性
+        custId 客户ID
+        custCompanyName 公司名称
+        saleName 销售人姓名
+        createTime 创建时间
+        updateTime 修改时间
+    }]
+    3.saveOrderCommission 
+    申请商务费用参数：
+        id 提成ID
+        businessFee 商务费
+        status 2
+        remark 备注
+    
+    财务操作：
+        status 3同意5完成
+        id 提成ID
+        orderId 订单ID
+        offerGoodsId 报价商品ID
+        taxRate 税率
+        excludingTaxRate 税率计算值
+        businessFee 商务费
+        rate 提成率
+        remark 备注
+
+        status 4拒绝
+        remark 

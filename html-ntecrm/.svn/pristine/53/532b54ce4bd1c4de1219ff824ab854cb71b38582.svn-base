@@ -1,0 +1,35 @@
+<template>
+	<div>
+		<nav-title></nav-title>
+		<router-view class="content-shadow"></router-view>
+	</div>
+</template>
+<script type="text/javascript">
+import navTitle from "@/components/common/navTitle"
+import home from "@/page/admin/home/index"
+	export default{
+		name:"Main",
+		data(){
+			return{
+				
+			}
+		},
+		watch:{
+		  
+		},
+		mounted(){
+		
+		},
+		components:{
+			navTitle,
+			home
+		}
+
+	}
+</script>
+
+<style lang="scss" scoped>
+.content-shadow{
+	box-shadow: 0px 0px 10px #eee;
+}
+</style>

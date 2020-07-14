@@ -1,0 +1,63 @@
+import Vue from 'vue'
+import md5 from 'js-md5';
+import axios from 'axios';
+import { MessageBox } from 'element-ui';
+import requestUrl from '@/util/http.js'
+
+//本地环境
+var api;
+if(process.env.NODE_ENV=="development"){
+    api="/nte-crm"
+}else{  //测试环境
+    api=requestUrl;
+}
+
+//登录
+export const LoginFn=(user,psd,callback)=>{
+	var c_user=htmlEncodeByRegExp(user);
+	var c_psd=htmlEncodeByRegExp(psd);
+	c_psd=md5(c_psd);//e10adc3949ba59abbe56e057f20f883e 
+	axios.get(api+"/toLogin.do?name="+c_user+"&pwd="+c_psd).then((res)=>{
+    	var data=res.data;
+    	if(data.msgCode==200){
+    		sessionStorage.setItem("c_user",user)
+    		sessionStorage.setItem("c_token",md5(c_user));
+            sessionStorage.setItem("resourceList",JSON.stringify(data.data.resourceList));
+            sessionStorage.setItem("userDto",JSON.stringify(data.data.userDto)); 
+            var configSet=data.data.configSet;
+            var buyer=configSet.filter(item=>{
+                return item.skey=="buyer_department"
+            })
+            var technical=configSet.filter(item=>{
+                return item.skey=="technical_department"
+            })
+            var newArr=buyer.concat(technical);
+            console.log('newArr',newArr)
+            for(var i=0;i<newArr.length;i++){
+                if(newArr[i].sval==data.data.userDto.roleId){
+                    sessionStorage.setItem(newArr[i].skey,data.data.userDto.id)
+                }
+            }
+    	}
+    	callback(data)
+    })
+}
+
+//退出登录exit
+export const exit=(callback)=>{
+  axios.get(api+"/exit.do").then((res)=>{
+      callback(res)
+    })
+}
+
+export const htmlEncodeByRegExp=(str)=>{  
+   var s = "";
+   if(str.length == 0) return "";
+   s = str.replace(/&/g,"&amp;");
+   s = s.replace(/</g,"&lt;");
+   s = s.replace(/>/g,"&gt;");
+   s = s.replace(/ /g,"&nbsp;");
+   s = s.replace(/\'/g,"&#39;");
+   s = s.replace(/\"/g,"&quot;");
+   return s;  
+}

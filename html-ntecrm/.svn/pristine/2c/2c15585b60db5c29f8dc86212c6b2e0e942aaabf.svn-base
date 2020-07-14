@@ -1,0 +1,30 @@
+import Vue from 'vue'
+import axios from 'axios';
+import requestUrl from '@/util/http.js'
+//本地环境
+var api;
+if(process.env.NODE_ENV=="development"){
+    api="/nte-crm"
+}else{  //测试环境
+    api=requestUrl;
+}
+// 采购单询价（分页）
+export const savePurchaseInquiry=(params,callback)=>{
+    axios({
+        url:api+"/savePurchaseInquiry ",
+        method:'post',
+        data: params
+    }).then(res=>{
+        callback(res.data)
+    })
+}
+//  查询采购订单询价列表（分页）
+export const queryPurchaseInquiry=(params,callback)=>{
+  axios({
+      url:api+"/queryPurchaseInquiry ",
+      method:'post',
+      data: params
+  }).then(res=>{
+      callback(res.data)
+  })
+}

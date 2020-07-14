@@ -1,0 +1,390 @@
+<template>
+  <div class="followDialog" id="followDialog" ref="followDialog">
+    <div style="width:100%">
+      <div style="box-sizing:border-box;padding-bottom:10px;">
+        <div style="text-align:right;">
+          <i class="iconfont" style="cursor:default;"  @click="closeVisible()">&#xe633;</i>
+        </div>
+        <span>客户信息</span>
+        <div style="background:#95B8DE;padding:20px;margin-top: 5px;">
+          <span style="margin-left:0px;">公司：<span style="color:#fff;"> {{selectFollowList.companyName}}</span></span>
+          <span style="margin-left:15px;">联系人：<span style="color:#fff;"> {{selectFollowList.contacts}}</span></span>
+          <span v-if="selectFollowList.phone" style="margin-left:15px;">联系人电话：<span style="color:#fff;">
+              {{selectFollowList.phone}}</span></span>
+          <span style="margin-left:15px;">更新时间：<span style="color:#fff;"> {{selectFollowList.updateTime}}</span></span>
+        </div>
+      </div>
+      <div style="padding-bottom:10px;box-sizing:border-box;" v-if="selectFollowList.type==1">
+        <span style="">客户需求</span>
+        <div style="width:100%;background:#EEF5E1;margin-top:5px;" v-for="(item,index) in selectFollowList.demandInfos"
+          :key="index">
+          <span v-for="(item,index) in item" :key="index" style="text-indent:20px;margin-right:30px;display:inline-block;text-align:center;padding:10px 0;color:#66b1ff;">{{item}}</span>
+        </div>
+      </div>
+      <div style="padding-bottom:10px;box-sizing:border-box;" v-if="selectFollowList.type==2">
+        <span style="">客户需求</span>
+        <div style="width:100%;background:#EEF5E1;margin-top:10px;padding:20px;box-sizing:border-box;color:#66b1ff;">
+          {{selectFollowList.demandContent}}
+        </div>
+      </div>
+      <div v-if="isShow">
+        <div style="padding-bottom:10px;box-sizing:border-box;" v-if="buyerArr.length>0 || technicalArr.length>0">
+          <span style="margin-right:50px;">已申请协助：</span>
+          <span v-if="buyerArr">协助采购人：
+            <span style="color:#999;margin-right:10px;" v-for="item in buyerArr" :key="item.id">{{item.code}}</span>
+          </span>
+          <span v-if="technicalArr">协助技术人：
+            <span style="color:#999;margin-right:10px;" v-for="item in technicalArr" :key="item.id">{{item.code}}</span>
+          </span>
+        </div>
+      </div>
+      <div style="text-align:right;margin-bottom: 10px;">
+        <el-button type="primary" size="small" @click="recordVisible=true">添加跟进记录</el-button>
+      </div>
+      <el-table v-loading="loadingFllow"  :row-style="rowClass" :data="dataList"  border :height="showMore?'450':'250'">
+        <el-table-column prop="createName" label="创建人" align="center" width="100">
+        </el-table-column>
+        <el-table-column label="类型" align="center" width="100">
+          <template slot-scope="scope">
+            <span v-if="scope.row.type==0">系统</span>
+            <span v-if="scope.row.type==1">业务员</span>
+            <span v-if="scope.row.type==2">采购部</span>
+            <span v-if="scope.row.type==3">技术部</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="status" align="center" width="100" label="状态">
+          <!--  1创建2确认3报价4生成合同5生成订单6完成7作废报价 -->
+          <template slot-scope="scope">
+            <span v-if="scope.row.status==1">创建</span>
+            <span v-if="scope.row.status==2">创建</span>
+            <span v-if="scope.row.status==3">报价</span>
+            <span v-if="scope.row.status==4">报价单</span>
+            <span v-if="scope.row.status==5">合同单</span>
+            <span v-if="scope.row.status==6">已成单</span>
+            <span v-if="scope.row.status==7">作废</span>
+            <span v-if="scope.row.status==8">折扣申请</span>
+             <span v-if="scope.row.status==9">回滚</span>
+          </template>
+        </el-table-column>
+        <el-table-column width="50" align="center" label="附件">
+          <template slot-scope="scope">
+            <span style="cursor:pointer;color:#409EFF;" v-if="scope.row.optFile" @click="previewFileVisible=true;previewFile=scope.row.optFile;">预览</span>
+            <span v-else></span>
+          </template>
+        </el-table-column>
+        <el-table-column width="50" align="center" label="置顶">
+          <template slot-scope="scope">
+            <span v-if="scope.row.isTop==1">是</span>
+            <span v-else></span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="createTime" width="180" align="center" label="时间">
+        </el-table-column>
+        <el-table-column  label="内容记录">
+          <template slot-scope="scope">
+            <div v-if="scope.row.pContext">
+              <span style="color:#409EFF;">{{scope.row.createName}} <span style="color:#999;"> 回复：</span></span>
+              <span style="color:#67C23A;">{{scope.row.pName}}</span>
+              <span style="color:#999;">({{scope.row.pContext.slice(0,9)}}<span v-if="scope.row.pContext.length>10">...</span>)</span>
+              <br>
+              <span>{{scope.row.remark}}</span>
+            </div>
+            <span  v-else>{{scope.row.remark}}</span>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div> 
+    <div style="padding:15px 0;display:flex;justify-content: space-between;">
+     <span>售前支持信息</span> 
+     <i class="iconfont switch-guide" v-if="showMore" @click="showMore=!showMore">&#xe67a;</i>
+     <i class="iconfont switch-guide" v-else @click="showMore=!showMore">&#xe60b;</i>
+     <div style="text-align:right;margin-bottom: 10px;">
+        <el-button type="primary" size="small" @click="addSupHandle">新增支持</el-button>
+      </div>
+    </div>
+    <discuss
+      ref="discuss"
+      :activeTabs="1"
+      :id="selectFollowList.id"
+      :type="1"
+    >
+    </discuss>
+    <div style="text-align: right;margin-top: 20px;margin-bottom:10px;border-top: 1px solid #eee;padding-top: 10px;">
+
+      <!-- <el-button type="primary" size="small" v-if="isShow" @click="skillVisible=true">申请协助</el-button> -->
+      <!-- <el-button type="primary" size="small" @click="addSupHandle">新增支持</el-button>
+      <el-button type="primary" size="small" @click="recordVisible=true">添加跟进记录</el-button>
+      <el-button size="small" @click="closeVisible()">关闭</el-button> -->
+    </div>
+    <!-- 添加记录 -->
+    <append-record :recordVisible="recordVisible" @closeVisible="recordVisible=false;replyId=null;getDemandOptLogList();"
+      :followListId="followListId" :id="replyId">
+    </append-record>
+    <!-- 技术支持 -->
+    <el-dialog title="技术支持" :visible.sync="skillVisible" width="50%" :append-to-body="true" @close="handleClose">
+      <div>
+        <div>
+          <span style="display:inline-block;width:120px;text-align:right;">采购 &nbsp;&nbsp;</span>
+          <el-select v-model="buyerIds" multiple clearable placeholder="请选择采购">
+            <el-option v-for="(item,index) in buyerList" :key="index" :label="item.code" :value="item.id"></el-option>
+          </el-select>
+        </div>
+        <div style="margin-top:20px;">
+          <span style="display:inline-block;width:120px;text-align:right;">技术支持 &nbsp;&nbsp;</span>
+          <el-select v-model="technicalIds" multiple clearable placeholder="请选择技术">
+            <el-option v-for="(item,index) in technicalList" :key="index" :label="item.code" :value="item.id"></el-option>
+          </el-select>
+        </div>
+        <div style="margin-top:20px;">
+          <span style="display:inline-block;width:120px;text-align:right;">短信通知 &nbsp;&nbsp;</span>
+          <el-switch
+            v-model="isSMS"
+            active-color="#13ce66"
+            inactive-color="#ff4949">
+          </el-switch>
+        </div>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="skillVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitHandle">确 定</el-button>
+      </span>
+    </el-dialog>
+
+    <preview-file
+    title="附件预览"
+    :previewFileVisible="previewFileVisible"
+    @closePreviewFile="previewFileVisible=false"
+    :previewFileUrl="previewFile"
+    >
+    </preview-file>
+  </div>
+
+</template>
+
+<script type="text/javascript">
+  import {
+    demandAssistance,
+    getBuyerTechnical
+  } from "util/req/offerList/index";
+  import {
+    getDemandOptLogList
+  } from "util/req/customer/demand";
+  import {
+    getTechnicalSupportByDto,
+  } from "util/req/TechnicalSupport/index";
+  import discuss from '@/page/admin/offerList/components/discuss';
+  export default {
+    name: 'addFollow',
+    props: {
+      toggleFollowVisible: {
+        type: Boolean,
+        default: false
+      },
+      getDemandDataList: {
+
+      },
+      followListId: {
+
+      },
+      selectFollowList: {
+        type: Object
+      }
+    },
+    data() {
+      return {
+        loadingFllow: false,
+        remarkText: null, //新增跟进记录文本信息
+        dataList: this.getDemandDataList || null,
+        recordVisible: false, //添加记录弹框
+        skillVisible: false,
+        region: [],
+        buyerIds: [], //采购ID
+        technicalIds: [], //技术ID
+        buyerList: [],
+        technicalList: [],
+        buyerArr: [],
+        technicalArr: [],
+        previewFileVisible:false,
+        previewFile:null,
+        replyId:null,
+        isShow:true,
+        isSMS:false,
+        showMore:this.selectFollowList.indexId==0?true: false  //展示下拉图标
+      }
+    },
+    watch: {
+      getDemandDataList: function (val) {
+        this.dataList = val;
+      }
+    },
+    methods: {
+      rowClass({ row, rowIndex}) {
+          if(row.isTop==1){
+            return {
+              "background-color": "#ddd"
+              }
+          }
+      },
+      closeVisible() { //关闭弹框
+        this.showMore=false;
+        this.$emit('closeVisible')
+      },
+      handleClose() {
+        this.skillVisible = false;
+        this.isSMS=false;
+      },
+      submitHandle() { //提交技术支持
+        if (this.buyerIds.length == 0 && this.technicalIds.length == 0) {
+          this.$message({
+            message: '提交内容不能为空!',
+            type: 'warning'
+          });
+          return
+        }
+        var parmas = {
+          buyerIds: this.buyerIds.join("|") || "",
+          technicalIds: this.technicalIds.join("|") || "",
+          demandId: this.selectFollowList.id,
+          isSMS:this.isSMS?1:0
+        }
+        demandAssistance(parmas, res => {
+          if (res.msgCode == 200) {
+            this.$message({
+              type: 'success',
+              message: '申请协助成功'
+            });
+            this.handleClose();
+            this.buyerArr = this.filterBuyerHandle(this.buyerIds)||[];
+            this.technicalArr = this.filterTechnicalHandle(this.technicalIds)||[];
+            this.getDemandOptLogList();
+          } else {
+            this.$message({
+              type: 'info',
+              message: '申请协助失败'
+            });
+          }
+        })
+      },
+      getBuyerTechnical() {
+        getBuyerTechnical((res) => {
+          this.buyerList = res.data.buyerList;
+          this.technicalList = res.data.technicalList;
+          this.buyerArr = this.filterBuyerHandle()||[];
+          this.technicalArr = this.filterTechnicalHandle()||[];
+        })
+      },
+      filterBuyerHandle(val) {
+        if (this.selectFollowList.buyerIds) {
+          if (!val) {
+            var arr = this.selectFollowList.buyerIds.split('|');
+          } else {
+            var arr = val
+          }
+          var newArr = []
+          for (var s = 0; s < this.buyerList.length; s++) {
+            for (var i = 0; i < arr.length; i++) {
+              if (this.buyerList[s].id == Number(arr[i])) {
+                newArr.push(this.buyerList[s])
+              }
+            }
+          }
+          return newArr;
+        }
+      },
+      filterTechnicalHandle(val) {
+        if (this.selectFollowList.technicalIds) {
+          if (!val) {
+            var arr = this.selectFollowList.technicalIds.split('|');
+          } else {
+            var arr = val
+          }
+          var newArr = []
+          for (var s = 0; s < this.technicalList.length; s++) {
+            for (var i = 0; i < arr.length; i++) {
+              if (this.technicalList[s].id == Number(arr[i])) {
+                newArr.push(this.technicalList[s])
+              }
+            }
+          }
+          return newArr;
+        }
+      },
+      getDemandOptLogList() {     //获取跟进记录
+        var params = {
+          demandId: this.followListId
+        }
+        console.log(this.followListId);
+        this.loadingFllow = true;
+        getDemandOptLogList(params, res => {
+          this.dataList = res.data.list;
+          setTimeout(() => {
+            this.loadingFllow = false;
+          }, 100)
+        })
+      },
+      replyMsg(id){
+        this.recordVisible=true;
+        this.replyId=id;
+      },
+      addSupHandle(){ //新增技术支持
+        this.$refs['discuss'].getBuyerTechnical();
+      },
+      getTechnicalSupportByDto(){   //获取评论信息
+        this.$refs['discuss'].getTechnicalSupportByDto();
+      }
+
+    },
+    components: {
+      appendRecord: () => import('@/page/admin/offerList/components/appendRecord'),
+      previewFile:()=>import('@/page/admin/offerList/components/previewFile'),
+      discuss
+    },
+    mounted() {
+      this.getBuyerTechnical();
+      if(sessionStorage.getItem("buyer_department")||sessionStorage.getItem("technical_department")){
+            this.isShow=false;
+      }
+    }
+  }
+
+</script>
+
+<style scoped>
+  .followDialog{
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  .switch-guide {
+    position: relative;
+    top:-50px;
+    cursor: default;
+    color: #409EFF;
+    font-size: 20px;
+    -webkit-animation: webSwipeTipAfter 1.5s infinite ease-in-out;
+    animation: webSwipeTipAfter 1.5s infinite ease-in-out
+}
+
+@-webkit-keyframes webSwipeTipAfter {
+    0% {
+        opacity: 1
+    }
+
+    to {
+        -webkit-transform: translate3d(0,50%,0);
+        transform: translate3d(0,-100%,0);
+        opacity: 0
+    }
+}
+
+@keyframes webSwipeTipAfter {
+    0% {
+        opacity: 1
+    }
+    to {
+        -webkit-transform: translate3d(0,50%,0);
+        transform: translate3d(0,50%,0);
+        opacity: 0
+    }
+}
+</style>

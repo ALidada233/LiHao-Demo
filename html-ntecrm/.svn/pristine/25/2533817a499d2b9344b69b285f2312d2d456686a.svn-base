@@ -1,0 +1,48 @@
+【3.0接口信息】
+    1.订单详情 getOrderDetail 
+　　　   参数：id 订单ID
+    2.修改订单信息 updateOrder
+        (1)公共参数：id 订单ID updateType 　0确认无效1采购修改2销售修改3财务修改
+        (2)财务参数：
+        　　payTime支付时间，
+        　　prePayTime预付时间，
+        　　freightMoney 运费，
+        　　waitMoney待付金额，
+        　　preMoney预付金额，
+        　　preTradeNo 预付流水号，
+        　　payStatus支付状态 0未支付1已预付2已支付
+        　　moneyStatus金额状态1预付全款 2 30%预付款，70%款到发货  3 50%预付款 ，50%款到发货 4货到付款 5月结 6其它 7款到发货
+        (3)采购参数：
+        　　deliveryTime 预交货日期，
+        　　arrivalTime，到货日期
+        (4)销售参数：
+            type  0 其它
+            debugRequirement 调试要求,
+            shippingStatus 0未到货1到货未发货2已发货3确认收货
+            signForTime 签收时间,
+            sendTime 发货时间
+
+            type 1发票
+            invoice发票状态0不开发票1开发票,
+            billAddress 收发票地址,
+            billLogBank 收票物流公司, 
+            billLogNo 收票物流单号,
+            billReceiptName 收票人姓名,
+            billReceiptPhone 收票人手机号, 
+            billPostNo 收票人邮政编码,
+            isSendBill  是否寄出发票0否 1 是,
+            sendBillTime 发票寄出时间
+
+            type 2物流
+            address 收货地址,
+            receiptName  收货人姓名,
+            receiptPhone 收货人手机,
+            postNo 邮政编码,
+            logBank 物流公司,
+            logNo 物流单号
+2019-02-14
+    1.客户数据置顶 checkCustIsTop
+        参数：id 客户id，isTop 0否1是
+    2.客户需求置顶 checkDemandIsTop
+        参数：id 客户id，isTop 0否1是
+2019-02-15

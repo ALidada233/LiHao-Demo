@@ -1,0 +1,210 @@
+<template>
+  <div class="operator">
+    <div>
+      <!-- <el-button type="primary" size="medium" @click="editHandle(false)">新增</el-button> -->
+    </div>
+    <div class="operatorTable">
+      <el-table
+        :data="dataList"
+        style="width: 100%"
+        :border="true"
+        align="center"
+        v-loading="loading"
+      >
+        <el-table-column label="操作" align="center" width="100">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              round
+              type="primary"
+              icon="el-icon-edit"
+              @click="editRole(scope.row,true)"
+            ></el-button>
+          </template>
+        </el-table-column>
+        <el-table-column prop="id" label="ID" align="center" width="100"></el-table-column>
+        <el-table-column prop="skey" align="center" label="唯一值（key）" width="180"></el-table-column>
+        <el-table-column prop="sname" label="名称" align="center" width="180"></el-table-column>
+        <el-table-column prop="sval" align="center" label="唯一值"></el-table-column>
+        <el-table-column prop="rematk" align="center" label="描述"></el-table-column>
+      </el-table>
+    </div>
+
+    <!--分页-->
+    <div class="clearPa edit">
+      <!-- 分页 -->
+      <div class="block" style="float: right;margin-top:10px;">
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page.sync="currentPage"
+          :page-sizes="[5, 10, 15, 30]"
+          :page-size="pageSize"
+          layout="sizes, prev, pager, next"
+          :total="pageCount"
+        ></el-pagination>
+      </div>
+    </div>
+
+    <!--新增&编辑-->
+    <transition name="el-fade-in-linear">
+      <system-edit
+        v-show="editShow"
+        :editState="editState"
+        :editList="editList"
+        @changeEdit="closeEdit"
+      ></system-edit>
+    </transition>
+    <!--授权-->
+    <!-- <transition name="el-fade-in-linear">
+			<accredit
+				v-show="accreditShow"
+				@changeAccredit="closeAccredit"
+			></accredit>
+    </transition>-->
+  </div>
+</template>
+<script type="text/javascript">
+import systemEdit from "@/page/admin/system/components/systemEdit";
+// import accredit from "@/page/admin/role/components/accredit"
+import { querySystemConfigPage } from "util/req/system/index";
+export default {
+  name: "system",
+  data() {
+    return {
+      value: "",
+      dataList: [
+        {
+          dscribe: null,
+          name: null
+        }
+      ],
+      loading: false, //表格数据加载样式
+      currentId: null,
+      editButton: true, //编辑按钮状态
+      editShow: false,
+      editState: false, //编辑&新增状态
+      accreditShow: false, //授权状态
+      loading: false,
+      currentPage: 1,
+      pageSize: 10,
+      pageCount: null,
+      editList: null
+    };
+  },
+  watch: {
+    currentId(val) {
+      //表格数据选中处理
+      if (val != null) {
+        this.editButton = false;
+      } else {
+        this.editButton = true;
+      }
+    }
+  },
+  methods: {
+    changeSelect(id) {
+      if (this.currentId != id) {
+        this.currentId = id;
+        this.dataList.map(item => {
+          if (this.currentId != item.id) {
+            item.selected = false;
+          } else {
+            item.selected = true;
+          }
+          return item;
+        });
+      } else if (this.currentId == id) {
+        this.currentId = null;
+        this.dataList.map(item => {
+          item.selected = false;
+          return item;
+        });
+      }
+    },
+    closeEdit(state) {
+      this.editShow = state;
+      this.querySystemConfigPage();
+    },
+    editHandle(state) {
+      console.log(state);
+      this.editShow = true;
+      if (state) {
+        this.editState = true;
+      } else {
+        this.editState = false;
+      }
+    },
+    closeAccredit(state) {
+      this.accreditShow = state;
+    },
+    handleSizeChange(pageSize) {
+      //数据条数改变时
+      this.loading = true;
+      this.pageSize = pageSize;
+      this.currentPage = 1;
+      this.querySystemConfigPage();
+    },
+    handleCurrentChange(currentPage) {
+      //选取分页
+      this.loading = true;
+      this.querySystemConfigPage();
+    },
+    querySystemConfigPage() {
+      //查询角色管理列表
+      var parmas = {
+        pageSize: this.pageSize,
+        page: this.currentPage
+      };
+      querySystemConfigPage(parmas, res => {
+        this.loading = true;
+        if (res.msgCode == 200) {
+          console.log(res);
+          this.dataList = res.data.list;
+          this.pageCount = res.data.pageCount;
+          setTimeout(() => {
+            this.loading = false;
+          }, 200);
+        } else {
+          setTimeout(() => {
+            this.loading = false;
+          }, 200);
+        }
+      });
+    },
+    editRole(row, state) {
+      //编辑角色
+      this.editShow = true;
+      if (state) {
+        this.editState = true;
+        this.editList = JSON.parse(JSON.stringify(row));
+        console.log(this.editList);
+      } else {
+        this.editState = false;
+      }
+    }
+  },
+  components: {
+    systemEdit
+    // accredit
+  },
+  mounted() {
+    this.querySystemConfigPage();
+  }
+};
+</script>
+<style lang=scss scoped>
+.operator {
+  background-color: #fff;
+  border-radius: 4px;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.operatorTable {
+  margin-top: 30px;
+}
+.operatorTable /deep/ th {
+  background-color: #efedf0 !important;
+}
+</style>

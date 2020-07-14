@@ -1,0 +1,157 @@
+<template>
+	<div class="jurisdiction">
+        <el-button type="primary" icon="el-icon-plus" size="small" style="margin-bottom:20px;" @click="addAfter"></el-button>
+		<el-tree
+            :data="dataList"
+            node-key="id"
+            default-expand-all
+            :expand-on-click-node="false">
+            <span class="custom-tree-node" slot-scope="{ node, data }">
+                <span>{{ node.label }}</span>
+                <span> 功能 </span>
+                <span>
+                <el-button
+                    type="text"
+                    size="mini"
+                    icon="el-icon-plus"
+                    @click="() => append(data)">
+                    菜单
+                </el-button>
+                <el-button
+                    type="text"
+                    size="mini"
+                    icon="el-icon-plus"
+                    @click="() => append(data)">
+                    功能
+                </el-button>
+                <el-button
+                    type="text"
+                    size="mini"
+                    icon="el-icon-delete"
+                    @click="() => remove(node, data)">
+                    删除
+                </el-button>
+                </span>
+            </span>
+        </el-tree>
+        <!-- 添加树形 -->
+        <el-dialog
+            title="添加树形"
+            :visible.sync="dialogVisible"
+            width="50%"
+            :before-close="handleClose">
+            <el-form ref="form" :model="form" label-width="80px">
+                <el-form-item label="名称">
+                    <el-input v-model="form.name"></el-input>
+                </el-form-item>
+                
+                <el-form-item label="排序">
+                    <el-input v-model="form.sort"></el-input>
+                </el-form-item>
+                <el-form-item label="类型">
+                    <el-radio-group v-model="form.type">
+                    <el-radio label="菜单" :value="1"></el-radio>
+                    <el-radio label="功能" :value="2"></el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="地址" v-if="form.type==1">
+                    <el-select v-model="form.url" placeholder="请选择菜单">
+                        <el-option label="区域一" value="shanghai"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="地址" v-if="form.type==2">
+                    <el-select v-model="form.url" placeholder="请选择功能">
+                        <el-option label="区域一" value="shanghai"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="描述">
+                    <el-input type="textarea" v-model="form.dscribe "></el-input>
+                </el-form-item>
+                
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+            </span>
+        </el-dialog>
+	</div>
+</template>
+<script type="text/javascript">
+    import {getRoleResourceList,addResource} from "util/req/jurisdiction/index"
+	export default{
+		name:'jurisdiction',
+		data() { 
+            return {
+                dataList: [{
+                    id: 1,
+                    label: '一级 1',
+                    children: [{
+                    }]
+                }],
+                form:{},
+                dialogVisible:false,
+            }
+        },
+		methods:{
+            handleClose(){
+                this.dialogVisible=false;
+            },
+			append(data) {
+                const newChild = { id: id++, label: 'testtest', children: [] };
+                if (!data.children) {
+                this.$set(data, 'children', []);
+                }
+                data.children.push(newChild);
+                console.log(this.dataList)
+            },
+
+            remove(node, data) {
+                const parent = node.parent;
+                const children = parent.data.children || parent.data;
+                const index = children.findIndex(d => d.id === data.id);
+                children.splice(index, 1);
+            },
+            addAfter(){
+                var params={
+                    id: 1,
+                    label: '一级 1',
+                    children:[]
+                }
+                this.dialogVisible = true
+                this.dataList.push(params)
+            },
+            getRoleResourceList(){
+                var params={
+                    roleId:JSON.parse(sessionStorage.getItem("userDto")).roleId
+                }
+                getRoleResourceList(params,res=>{
+                    console.log(res)
+                })
+            }
+		},
+		components:{
+
+
+		},
+		mounted(){
+			this.getRoleResourceList()
+		}
+	}
+</script>
+<style lang=scss scoped>
+.jurisdiction{
+	background-color:#fff;
+	border-radius:4px;
+	width:100%;
+	padding:20px;
+	box-sizing:border-box;
+}
+.custom-tree-node {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    padding-right: 8px;
+}
+</style>

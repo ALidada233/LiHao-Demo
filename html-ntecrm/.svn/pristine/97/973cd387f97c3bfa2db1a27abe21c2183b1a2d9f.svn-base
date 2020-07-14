@@ -1,0 +1,126 @@
+<template>
+	<div class="infoContent">
+		<h2>修改管理员信息</h2>
+		<div style="width:700px;margin:50px auto 0;">
+			<el-form :model="form" ref="operatorEdit" :rules="rules" style="height:400px;">
+				<div>
+				    <el-form-item label="姓名" prop="name" :label-width="formLabelWidth" style="margin-top:10px;">
+				      <el-input  v-model="form.name" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+				    </el-form-item>
+				    <el-form-item label="密码" prop="password"  :label-width="formLabelWidth" style="margin-top:10px;position:relative;">				 
+				    	  <el-input
+					          :type="passwordType"
+					          v-model="form.password"
+					          placeholder="请输入密码"
+					          name="password"
+					          style="width: 80%;"
+					          auto-complete="on"
+					          @keyup.enter.native="" />
+				          <span class="show-pwd">
+				         	 <i class="iconfont" @click="showPwd">&#xe679;</i>
+				          </span>			      
+				    </el-form-item>
+				    
+
+				    <el-form-item label="描述" :label-width="formLabelWidth" style="margin-top:10px;">
+				      <el-input v-model="form.remark" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+				    </el-form-item>
+				   	<div class="primary" style="margin:0 auto;width:120px;line-height: 45px;text-align: center;color: #fff;background-color: #409EFF;border-color: #409EFF;border-radius: 4px;cursor: pointer;" @click="submitHandle">确认修改</div>
+				</div> 
+			</el-form>
+
+		</div>
+	</div>
+</template>
+<script type="text/javascript">
+import {updateOperator} from "util/req/info/index";
+import {getTable} from "util/req/operator/index";
+import md5 from 'js-md5';
+	export default{
+		name:"info",
+		data(){
+			return{
+				form:this.editList||{				//表单信息
+		        	name:null,
+		        	password:null,
+		        	remark:null
+		        },
+		        formLabelWidth: '120px',
+		        rules:{   
+		        	name:{ required: true, trigger: 'blur', message:"名字不能为空"},
+		        	password:{ required: true, trigger: 'blur', message:"密码不能为空"},
+		        	remark:{required: true,trigger: 'blur',message:"描述不能为空"}
+		        },
+		        passwordType: 'password'
+			}
+		},
+		methods:{
+			closeDialog(){
+				this.$emit("changeEdit",false)
+			},
+		    submitHandle(){
+		    	this.$refs['operatorEdit'].validate(valid=>{
+					if(valid){
+							getTable({code:this.$store.state.loginStatu.c_user},res=>{
+								
+								var params={	
+									id:res.data[0].id,
+									password:md5(this.form.password),
+									name:this.form.name,
+						        	remark:this.form.remark
+								};
+								updateOperator(params,res=>{
+									if(res.msgCode=="200"){
+										this.$message({
+								            type: 'success',
+								            message: '修改管理员成功'
+								        });
+								       this.$router.replace("/");
+									}else{
+										this.$message({
+								            type: 'info',
+								            message: '修改管理员失败'
+								        });
+									}
+								})
+							})		
+					}else{
+						
+					}
+				})
+		    },
+		    showPwd() {
+		      if (this.passwordType === 'password') {
+		        this.passwordType = ''
+		      } else {
+		        this.passwordType = 'password'
+		      }
+		    }
+		}
+		
+	}
+</script>
+
+<style lang="scss" scoped>
+
+.infoContent{
+	background-color:#fff;
+	border-radius:4px;
+	width:100%;
+	padding:20px;
+	box-sizing:border-box;
+	height:100%;
+}
+.show-pwd{
+	position: absolute;
+    right: 125px;
+    top: 7px;
+    font-size: 16px;
+    color: #889aa4;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+</style>

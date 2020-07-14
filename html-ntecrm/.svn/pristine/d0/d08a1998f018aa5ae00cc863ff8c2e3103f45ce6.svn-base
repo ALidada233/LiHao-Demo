@@ -1,0 +1,295 @@
+<template>
+	<div class="operator">
+		<div>
+			<!-- 角色名
+			<el-input
+			  style="width: 20%;"
+			  placeholder="请输入姓名"
+			  size="medium"
+			  v-model="input10"
+			  clearable>
+			</el-input>
+			
+			<el-button type="primary" size="medium">查询</el-button> -->
+			<el-button type="primary" size="medium" @click="editHandle(false)" icon="el-icon-plus"></el-button>
+		</div>
+		<div class="operatorTable">
+			<el-table
+		      :data="dataList"
+		      style="width: 100%"
+			  :border="true"
+			  v-loading="loading"
+		      >
+			  <el-table-column
+		        label="操作"
+		        width="130">
+		        <template slot-scope="scope">
+		        	<el-button size="mini" round type="primary" icon="el-icon-edit" @click="editRole(scope.row,true)"></el-button>
+					<el-button v-tip.top.dark="'权限设置'" type="info" icon="el-icon-setting"  size="mini" round @click="getRoleResourceList(scope.row.id);"></el-button>
+		        </template>
+		      </el-table-column>
+		      <el-table-column
+		       	prop="id"
+		        label="ID"
+		        width="100"> 
+		      </el-table-column>
+		      <el-table-column
+		        prop="name"
+		        label="角色名"
+		        width="180">
+		      </el-table-column>
+		      <el-table-column
+		        prop="dscribe"
+		        label="描述">
+		      </el-table-column>
+		      
+		    </el-table>
+		</div>
+		
+		<!--分页-->
+		<div class="clearPa edit">
+			<!-- <div style="float:left;padding-top: 8px;">
+				<span style="color: #999;font-size: 11px;"><span v-if="editButton">未选中</span><span v-else> 已选</span></span>
+				<el-button size="small" type="primary"  :disabled="editButton" @click="editHandle(true)"><i class="el-icon-edit-outline"></i>编辑</el-button>
+				
+				<el-button size="small" type="primary"  :disabled="editButton" @click="accreditShow=true"><i class="iconfont" style="font-size: 11px;">&#xe62a;</i> 授权</el-button>
+			</div> -->
+
+			<!-- 分页 -->
+			<div class="block" style="float: right;margin-top:10px;">
+			   <el-pagination
+			      @size-change="handleSizeChange"
+			      @current-change="handleCurrentChange"
+			      :current-page.sync="currentPage"
+			      :page-sizes="[5, 10, 15, 30]"
+			      :page-size="pageSize"
+			      layout="sizes, prev, pager, next"
+			      :total="pageCount">
+			    </el-pagination>
+			</div>
+		</div>
+		
+		<!--新增&编辑-->
+		<transition name="el-fade-in-linear">
+			<role-edit 
+				v-show="editShow"
+				:editState="editState"
+				:editList="editList"
+				@changeEdit="closeEdit"
+			></role-edit>
+		</transition>
+		<!-- 权限设置 -->
+		<el-dialog
+			title="权限设置"
+			:visible.sync="permissionVisible"
+			width="50%"
+			:check-strictly="true"
+			:before-close="handleClose">
+			<el-tree
+				:data="treeList"
+				show-checkbox
+				ref="tree"
+				v-loading="Vloading"
+				node-key="id"
+				:default-expand-all="true"
+				:default-checked-keys="checkedKeys"
+				:props="prop">
+			</el-tree>
+
+			<span slot="footer" class="dialog-footer">
+				<el-button @click="permissionVisible = false">取 消</el-button>
+				<el-button type="primary" @click="getCheckedKeys()">确 定</el-button>
+			</span>
+		</el-dialog>
+	</div>
+</template>
+<script type="text/javascript">
+import roleEdit from "@/page/admin/role/components/roleEdit"
+import accredit from "@/page/admin/role/components/accredit"
+import {queryRolePage} from "util/req/role/index"
+import {getRoleResourceList,addRoleResource} from "util/req/jurisdiction/index"
+	export default{
+		name:'role',
+		data(){
+			return{
+				input10:'',
+		        value: '',
+		        dataList: [{
+		        	dscribe:null,
+		        	name:null
+		          }],
+		        loading: false,		//表格数据加载样式
+		        currentId:null,
+		        editButton:true,	 //编辑按钮状态
+		        editShow:false,
+		        editState:false,	//编辑&新增状态
+		        accreditShow:false,	//授权状态
+		        loading:false,
+		        currentPage:1,
+		        pageSize:10,
+		        pageCount:null,
+				editList:null,
+				permissionVisible:false,
+				prop:{
+                    label:'name',
+                    id:'pid',
+                    type:'type',
+                    url:'url',
+                    children:'children',
+                    dscribe:'dscribe'
+				},
+				treeList:[],
+				Vloading:false,
+				checkedKeys:[],
+				keyRow:[],
+				roleId:null 	//选中的roleId
+			}
+		},
+		watch: {
+			currentId(val){     //表格数据选中处理
+				if(val!=null){
+					this.editButton=false
+				}else{
+					this.editButton=true
+				}
+			}
+		},
+		methods:{
+			handleClose(){
+				this.permissionVisible=false;
+				this.treeList=[];
+				this.roleId=null;
+				this.checkedKeys=[];
+			},
+			changeSelect(id){
+				if(this.currentId!=id){
+		      		this.currentId=id;
+			      	this.dataList.map((item)=>{
+			      		if(this.currentId!=item.id){
+			      			item.selected=false;
+			      		}else{
+			      			item.selected=true;
+			      		}
+			      		return item
+			      	})
+			    }else if(this.currentId==id){
+			      	this.currentId=null;
+			      	this.dataList.map((item)=>{		      		
+			      		item.selected=false;
+			      		return item
+			      	})
+			    }
+			},
+			closeEdit(state){
+				this.editShow=state;
+				this.queryRolePage();
+			},
+			editHandle(state){
+				console.log(state);
+				this.editShow=true;
+				if(state){
+					this.editState=true
+				}else{
+					this.editState=false
+				}
+			},
+			closeAccredit(state){
+				this.accreditShow=state
+			},
+			handleSizeChange(pageSize){	//数据条数改变时
+		      	this.loading=true;
+		      	this.pageSize=pageSize;
+		      	this.currentPage=1;
+		      	this.queryRolePage();
+		    },
+		    handleCurrentChange(currentPage){	//选取分页
+		      	this.loading=true;
+		      	this.queryRolePage();
+		    },
+			queryRolePage(){	//查询角色管理列表
+				var parmas={
+					pageSize:this.pageSize,
+					page:this.currentPage
+				};
+				queryRolePage(parmas,res=>{
+					this.loading=true;
+					if(res.msgCode=="200"){
+						console.log(res);
+						res=res.data;
+						this.dataList=res.list;
+						this.pageCount=res.pageCount;
+						setTimeout(()=>{
+							this.loading=false;
+						},200)
+					}else{
+						setTimeout(()=>{
+							this.loading=false;
+						},200)
+					}
+				})
+			},
+			editRole(row,state){			//编辑角色
+				this.editShow=true;
+				if(state){
+					this.editState=true;
+					this.editList=JSON.parse(JSON.stringify(row));
+				}else{
+					this.editState=false
+				}				
+			},
+			getRoleResourceList(id){
+				this.roleId=id;
+				this.permissionVisible=true;
+				this.Vloading=true;
+				getRoleResourceList({roleId:id},res=>{
+					this.treeList=res.data.resourceList;
+					this.checkedKeys=res.data.roleResouceList;
+					setTimeout(()=>{this.Vloading=false;},200)
+				})
+			},
+			getCheckedKeys(){
+				console.log(this.$refs.tree.getCheckedKeys());
+				var params={
+					resIds:this.$refs.tree.getCheckedKeys().join(","),
+					roleId:this.roleId
+				}
+				addRoleResource(params,res=>{
+					if(res.msgCode==200){
+						this.$message({
+							type: 'success',
+							message: res.msg
+						});
+						this.handleClose();
+					}else{
+						this.$message({
+							type: 'info',
+							message: res.msg
+						});
+					}
+				})
+			}
+		},
+		components:{
+			roleEdit,
+			accredit
+		},
+		mounted(){
+			this.queryRolePage();
+		}
+	}
+</script>
+<style lang=scss scoped>
+.operator{
+	background-color:#fff;
+	border-radius:4px;
+	width:100%;
+	padding:20px;
+	box-sizing:border-box;
+}
+.operatorTable{
+	margin-top:30px;
+}
+.operatorTable /deep/ th{
+	background-color:#EFEDF0!important;
+}
+</style>

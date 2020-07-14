@@ -1,0 +1,438 @@
+<template>
+	<div class="content">
+		<!-- <div style="margin-top: 10px;">
+			<i class="iconfont" style="margin-left: 10px;">&#xe616;</i>
+			<el-button type="primary" size="small" @click="$emit('closeContractDialog')">关闭</el-button>
+		</div> -->
+            <div class="htmlModel" id="subOutputRank-print" style="-webkit-transform:scale(0.65);background: #fff;margin-top: -180px;">
+                <div class="clear" style="padding-top:50px;">
+                    <div style="float:left;width:60%;font-size:13px;line-height:25px;">
+                        <img style="width:500px;" v-if="content.custBelong==2" src="@/assets/contract/image000.jpeg" alt="">
+												<img style="width:500px;" v-if="content.custBelong==1" src="@/assets/contract/image002.png" alt="">
+                    </div>
+                    <div style="float:left;width:40%;line-height:25px;">
+												<p style="font-size:22px;font-weight:500;" v-if="content.custBelong==2">深圳耐特恩科技有限公司</p>
+												<p style="font-size:22px;font-weight:500;" v-if="content.custBelong==1">深圳必优传感科技有限公司</p>
+												<p style="font-size: 17px;line-height: 28px;" v-if="content.custBelong==1">BUYSENSOR TECHNOLOGY CO.,LTD </p>
+												<p style="font-size: 17px;line-height: 28px;" v-if="content.custBelong==2">NEW TRANSFORM TECHNOLOGY CO.,LTD  </p>
+												<p style="font-size: 17px;line-height: 28px;">深圳市宝安42区兴华一路华创达商务大厦D栋303</p>
+												<p style="font-size: 17px;line-height: 28px;" v-if="content.custBelong==1">TEL:0755-23320851 &nbsp; FAX:0755-23320851-8018</p>
+												<p style="font-size: 17px;line-height: 28px;" v-if="content.custBelong==2">TEL:0755-82908211 &nbsp; FAX:0755-82959939-802</p>
+												<p style="font-size: 17px;line-height: 28px;" v-if="content.custBelong==1">WEBSITE：http://www.buysensor.com</p>
+												<p style="font-size: 17px;line-height: 28px;" v-if="content.custBelong==2">WEBSITE：http://www.sensorstech.com</p>
+										</div>
+                </div>
+								<div style="margin-top:35px;" class="clear">
+										<div style="float:left;width:60%;font-size:18px;line-height:33px;padding:10px 20px;box-sizing: border-box;color: #999;margin-top: 30px;">
+											  <p style="color:#333;font-weight:500;"><span>BUYER需方：</span>{{content.companyName}}</p>
+												<p style="color:#333;font-weight:500;"><span>CONTACT联系人：</span>{{content.contacts}} {{content.phone}}</p>
+												<p style="color:#333;font-weight:500;"><span>EMAIL邮箱：</span>{{content.email}}</p>
+												<p style="color:#333;font-weight:500;"><span>ADD.地址：</span></p>
+										</div>
+										<div style="float:right;width:40%;font-size:18px;line-height:33px;position:relative;top:-37px;">
+												<p style="color:#333;font-weight:500;color: #FF0000;font-size:35px;margin-bottom:10px;">QUOTATION 报价单</p>
+												<p style="color:#333;font-weight:500;"><span>NO.报价单编号：</span>{{content.offerCode}}</p>
+												<p style="color:#333;font-weight:500;" v-if="createTime"><span>DATE日期：{{createTime}}</span></p>
+												<p style="color:#333;font-weight:500;" v-else><span>DATE日期：{{times}}</span></p>
+												<p style="color:#333;font-weight:500;"><span>CONTACT联系人：</span>{{content.saleName}}  {{content.salePhone}}</p>
+												<p style="color:#333;font-weight:500;"><span>EMAIL邮箱：</span>{{content.saleEmail}}</p>
+										</div>
+								</div>
+								<div style="margin-top:25px;border:1px solid #000;" class="clear">
+											<p style="border-bottom:1px solid #000;padding:10px;font-size:17px;" class="clear"><span class="left" style="margin-left:100px;">WARRANTY质保：交付起1年内</span><span class="right" style="margin-right:100px;">SHIPMENT运输：国内快递供方承担</span></p>
+											<div style="min-height:400px;">
+													<table style="width:100%;">
+														<thead>
+															<th>序号</th>
+															<th>产品型号</th>
+															<th>描述备注</th>
+															<th>货期（周）</th>
+															<th>数量</th>
+															<th>单价（元）</th>
+															<th>合计（元）</th>
+														</thead>
+														<tr v-for="(item,index) in content.offerGoodsList" :key="index">
+															<td width="80">{{index+1}}</td>
+															<td width="200">{{item.goodsInfo.split("—")[0]}}
+																<span v-if="item.goodsInfo.split('—')[1]">-</span>
+																{{item.goodsInfo.split("—")[1]}}
+															</td>
+															<td width="200" style="word-break: break-all;">{{item.remark}}</td>
+															<td width="120">{{item.deliveryStart}}-{{item.deliveryEnd}}周</td>
+															<td width="120">{{item.quantity}}</td>
+															<td width="120" v-html="currency(item.offer,'￥',2)"></td>
+															<td width="120" v-html="currency(item.offer*item.quantity,'￥',2)"></td>
+														</tr> 
+													</table>
+											</div>
+											
+											<p style="padding:15px 5px;border-bottom:1px solid #000;font-size: 17px;">是否附带技术协议：否□  是□（技术协议编号：&nbsp;&nbsp;&nbsp;&nbsp;）  </p>
+											<p style="padding:15px 5px;border-bottom:1px solid #000;min-height:50px;word-wrap: break-word;font-size: 17px;font-weight:500;">REMARKS备注：{{remarkText}}</p>
+											<div class="clear" style="border-bottom:1px solid #000;">
+												<p style="float:left;width:33%;min-height:60px;line-height:30px;box-sizing: border-box;">
+													<span v-if="content.custBelong==1">&nbsp;DUTY PARAGRAPH税号：<br>&nbsp;91440300MA5DKKA05N </span>
+													<span v-if="content.custBelong==2">&nbsp;DUTY PARAGRAPH税号：<br>&nbsp;91440300683779841K </span>
+												</p>
+												<p style="float:left;width:33%;min-height:60px;line-height:30px;box-sizing: border-box;">
+													<span  v-if="content.custBelong==1">&nbsp;BANK开户行：中国银行股份有限<br>&nbsp;公司深圳新城支行 </span>
+													<span  v-if="content.custBelong==2">&nbsp;BANK开户行：<br>&nbsp;宁波银行深圳分行</span>
+												</p>
+												<p style="float:left;width:33%;min-height:60px;line-height:30px;box-sizing: border-box;">
+													<span  v-if="content.custBelong==1">&nbsp;ACCOUNT账号：<br>&nbsp;771867857537</span>
+													<span  v-if="content.custBelong==2">&nbsp;ACCOUNT账号：<br>&nbsp;73010122000114715</span>
+												</p>
+											</div>
+											<div class="clear" style="font-weight:500;">
+												<p style="float:left;width:33%;border-right:1px solid #000;min-height:60px;line-height:30px;">
+													<span style="" >&nbsp;付款方式：<br>&nbsp;
+														<span v-if="content.moneyStatus==1">全额支付</span>
+														<span v-if="content.moneyStatus==2">30%预付款，70%款到发货</span>
+														<span v-if="content.moneyStatus==3">50%预付款 ，50%款到发货</span>
+														<span v-if="content.moneyStatus==4">货到付款</span>
+														<span v-if="content.moneyStatus==5">月结</span>
+														<span v-if="content.moneyStatus==6">其它</span>
+													</span>
+												</p>
+												<p style="float:left;width:33%;border-right:1px solid #000;min-height:60px;line-height:30px;">
+													<span style="" >&nbsp;TAX税率：VAT 16%<br>&nbsp;以上价格均含税</span>
+												</p>
+												<p style="float:left;width:33%;min-height:60px;line-height:30px;">
+													<span style="" ><span>&nbsp;TOTAL总计（RMB）： </span><span v-html="currency(content.totalOffer,'',2)"></span></span><br>
+													<span style="" ><span>&nbsp;大写: </span><span v-html="convertCurrency(content.totalOffer)"></span></span>
+												</p>
+											</div>
+								</div>
+								<div style="margin-top:25px;font-size:17px;line-height:30px;" class="clear">
+									<p>A.QUALITY STANDARD质量标准：原产地厂家标准，参考官方网站或技术协议；</p>
+									<p>B.PACKAGING 包装标准：包装符合长途运输条件，需防颠簸、防潮。包装物不回收，不另计价；</p>
+									<p>C.Dispute Resolution争议解决：参考《经济合同法》，供方所在地仲裁或诉讼；</p>
+									<p>D.EFFECTIVE DATE 生效日期：双方签署盖章，传真影印件确认，收到预付款起生效；</p>
+								</div>
+								<p v-if="content.custBelong==1" style="text-align:center;font-size:17px;line-height:30px;margin-top:30px;">买传感器找必优，卖传感器找必优</p>
+            </div>
+
+				<div style="margin:-150px 0 10px 350px;">
+					<el-form label-width="200px">
+						<el-form-item label="历史合同的创建时间" style="margin-bottom:10px;">
+							<el-date-picker
+							v-model="createTime"
+							type="date"
+							format="yyyy-MM-dd"
+							value-format="yyyyMMdd"
+							placeholder="选择日期">
+							</el-date-picker>
+						</el-form-item>
+						<el-form-item label="备注" style="margin-bottom:10px;">
+							<el-input
+								type="textarea"
+								style="width:50%"
+								:rows="2"
+								placeholder="请输入内容"
+								clearable
+								v-model="remarkText">
+							</el-input>
+						</el-form-item>	
+					</el-form> 
+				</div>
+		  	<div style="text-align:center;">
+				 <el-button @click="$emit('closeContractDialog');remarkText=null">关闭</el-button>
+		  		 <el-button type="primary" @click="printContent">打 印</el-button>
+		  		 <el-upload
+		  		  style="display: inline-block;margin-left: 10px;"
+				  class="upload-demo"
+				  action="/nte-crm/uploadFile"
+				  :on-preview="handlePreview"
+				  :on-remove="handleRemoveFile"
+				  :before-remove="beforeRemove"
+				  :limit="1"
+				  accept=".pdf"
+				  :on-success="successUploadFile"
+				  :on-exceed="handleExceed"
+				  :file-list="fileList">
+				  <el-button type="success">上传报价单</el-button>
+				  <div slot="tip" class="el-upload__tip"></div>
+				</el-upload>
+		  	</div>
+	</div>
+</template>
+<script type="text/javascript">
+import {getContractCode,saveOfferFile} from "util/req/offerList/index"
+	export default{
+		name:"offerNaiteen",
+		props:{
+			naiteenContent:{
+				type:Object  
+			},
+			id:{
+				type:Number
+			}
+		},
+		data(){
+			return{
+				content:{},	//合同内容
+				fileList:[],
+				weeksStart:6,
+				weeksEnd:8,
+				remarkText:null,
+				times:null,
+				createTime:null
+			}
+		},
+		watch:{
+			
+			naiteenContent(res){
+				this.content=res;	
+				//this.getContractCode();
+			},
+			weeksStart(val){
+				this.$set(this.content,'weeksStart',val)
+			},
+			weeksEnd(val){
+				this.$set(this.content,'weeksEnd',val)
+			},
+			id(){
+				this.getContractCode();
+			}
+		},
+		filters:{//局部过滤器
+
+				toChies:function(values){//形参
+					let len=values.length//统计出长度
+					let arr=[];
+					
+					let chin_list=['零','壹','贰','叁','肆','伍','陆','柒','捌','玖']//所有的数值对应的汉字
+					
+					let chin_lisp=['仟','佰','拾','亿','仟','佰','拾','万','仟','佰','拾']//进制
+					
+					for(let i=0;i<len;i++){
+						arr.push(parseInt(values[i]));		//输入的数据按下标存进去   存进去的只是数字
+						arr[i]=chin_list[arr[i]]			//是根据我们输入的输入的数字，对应着我们的chin_list这个数组
+					}//123['壹','佰','贰','拾','叁']
+					
+					for(let i=len-1,j=1;i>0;i--){//i =2	1		//倒序		为了添加进制，方便我们去观看
+						arr.splice(i,0,chin_lisp[chin_lisp.length-j++])	//j=2
+					}
+					console.log(arr)
+					
+					arr=arr.join('')
+					if(len>=1){
+						arr+='元整'
+					}
+					return arr
+				}	
+			},
+		methods:{
+			 getContractCode(){
+
+			 	getContractCode({offerId:this.content.id,status:0},res=>{
+			 		//this.content.contractCode=res.data.contractCode;
+			 		this.content.date=res.data.date;
+			 		this.times=res.data.date;
+			 		this.$set(this.content,"date",res.data.date)
+			 		//this.content.weeksStart=this.weeksStart;
+			 		//this.$set(this.content,'weeksStart',this.weeksStart)
+			 		//this.content.weeksEnd=this.weeksEnd;
+			 		//this.$set(this.content,'weeksEnd',this.weeksEnd)
+			 		console.log(this.content);
+			 	})
+			 },
+			 printContent(){
+		    	let subOutputRankPrint = document.getElementById('subOutputRank-print');
+                console.log(subOutputRankPrint.innerHTML);
+                let newContent =subOutputRankPrint.innerHTML;
+                let oldContent = document.body.innerHTML;
+                document.title=this.content.offerCode;
+                document.body.innerHTML = newContent;
+                window.print();
+			    window.location.reload();
+                document.body.innerHTML = oldContent;
+                return true;
+		    },
+		    currency(value, currency, decimals){		//价格转格式
+		    	  const digitsRE = /(\d{3})(?=\d)/g;
+		    	  value = parseFloat(value)
+				  if (!isFinite(value) || (!value && value !== 0)) return ''
+				  currency = currency != null ? currency : '$'
+				  decimals = decimals != null ? decimals : 2
+				  var stringified = Math.abs(value).toFixed(decimals)
+				  var _int = decimals
+				    ? stringified.slice(0, -1 - decimals)
+				    : stringified
+				  var i = _int.length % 3
+				  var head = i > 0
+				    ? (_int.slice(0, i) + (_int.length > 3 ? ',' : ''))
+				    : ''
+				  var _float = decimals
+				    ? stringified.slice(-1 - decimals)
+				    : ''
+				  var sign = value < 0 ? '-' : ''
+				  return sign + currency + head +_int.slice(i).replace(digitsRE, '$1,') + _float
+
+		    },
+		    convertCurrency(money) {  				//价格转中文
+			  //汉字的数字  
+			  var cnNums = new Array('零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖');  
+			  //基本单位  
+			  var cnIntRadice = new Array('', '拾', '佰', '仟');  
+			  //对应整数部分扩展单位  
+			  var cnIntUnits = new Array('', '万', '亿', '兆');  
+			  //对应小数部分单位  
+			  var cnDecUnits = new Array('角', '分', '毫', '厘');  
+			  //整数金额时后面跟的字符  
+			  var cnInteger = '整';  
+			  //整型完以后的单位  
+			  var cnIntLast = '元';  
+			  //最大处理的数字  
+			  var maxNum = 999999999999999.9999;  
+			  //金额整数部分  
+			  var integerNum;  
+			  //金额小数部分  
+			  var decimalNum;  
+			  //输出的中文金额字符串  
+			  var chineseStr = '';  
+			  //分离金额后用的数组，预定义  
+			  var parts;  
+			  if (money == '') { return ''; }  
+			  money = parseFloat(money);  
+			  if (money >= maxNum) {  
+			    //超出最大处理数字  
+			    return '';  
+			  }  
+			  if (money == 0) {  
+			    chineseStr = cnNums[0] + cnIntLast + cnInteger;  
+			    return chineseStr;  
+			  }  
+			  //转换为字符串  
+			  money = money.toString();  
+			  if (money.indexOf('.') == -1) {  
+			    integerNum = money;  
+			    decimalNum = '';  
+			  } else {  
+			    parts = money.split('.');  
+			    integerNum = parts[0];  
+			    decimalNum = parts[1].substr(0, 4);  
+			  }  
+			  //获取整型部分转换  
+			  if (parseInt(integerNum, 10) > 0) {  
+			    var zeroCount = 0;  
+			    var IntLen = integerNum.length;  
+			    for (var i = 0; i < IntLen; i++) {  
+			      var n = integerNum.substr(i, 1);  
+			      var p = IntLen - i - 1;  
+			      var q = p / 4;  
+			      var m = p % 4;  
+			      if (n == '0') {  
+			        zeroCount++;  
+			      } else {  
+			        if (zeroCount > 0) {  
+			          chineseStr += cnNums[0];  
+			        }  
+			        //归零  
+			        zeroCount = 0;  
+			        chineseStr += cnNums[parseInt(n)] + cnIntRadice[m];  
+			      }  
+			      if (m == 0 && zeroCount < 4) {  
+			        chineseStr += cnIntUnits[q];  
+			      }  
+			    }  
+			    chineseStr += cnIntLast;  
+			  }  
+			  //小数部分  
+			  if (decimalNum != '') {  
+			    var decLen = decimalNum.length;  
+			    for (var i = 0; i < decLen; i++) {  
+			      var n = decimalNum.substr(i, 1);  
+			      if (n != '0') {  
+			        chineseStr += cnNums[Number(n)] + cnDecUnits[i];  
+			      }  
+			    }  
+			  }  
+			  if (chineseStr == '') {  
+			    chineseStr += cnNums[0] + cnIntLast + cnInteger;  
+			  } else if (decimalNum == '') {  
+			    chineseStr += cnInteger;  
+			  }  
+			  return chineseStr;  
+			},
+			//图片上传
+		    handleRemoveFile(file) { 
+		        this.file=null;
+		    },
+		    handlePreview(file) {
+		        console.log(file);
+		    },
+		    handleExceed(files) {
+		        this.$message.warning('当前只允许传输一个文件');
+		    },
+		    beforeRemove(file) {
+		         return this.$confirm(`确定移除 ${ file.name }？`);
+		    },
+		    successUploadFile(response, file){
+		    	var params={
+		    		name:response.data.url,
+		    		url:response.data.url
+		    	};
+		    	this.fileList.push(params);
+		    	var res={
+		    		offerId:this.content.offerGoodsList[0].offerId,
+		    		// contractCode:this.content.contractCode,
+		    		offerFile:response.data.url
+				}
+				if(this.createTime){
+					var str=this.createTime.substring(0,4)+'-'+this.createTime.substring(4,6)+'-'+this.createTime.substring(6,8)
+					res.createTime=str
+				}
+		    	saveOfferFile(res,row=>{
+		    		if(row.msgCode==200){
+		    			this.$message({
+				            type: 'success',
+				            message: row.msg
+				        });
+				        this.$emit('closeContractDialog')
+				        this.$emit('resetTable');
+		    		}else{
+		    			this.$message({
+				            type: 'info',
+				            message: row.msg
+				        });
+					}
+					this.fileList=[];
+		    	})
+		    }
+		},
+		mounted(){
+
+		}	 
+}
+</script>
+
+<style lang="scss" scoped>
+  .content{
+		font-family:"SimSun"
+	}
+	.upload-demo{
+		position:relative;
+	} 
+	.upload-demo /deep/ .el-upload-list{
+		position:absolute;
+		top: -40px;
+	    left: -168px;
+	}
+	.clear:after{
+		content: '';
+		display: block;
+		clear:both;
+	}
+	thead th{
+		text-align: center;
+		padding: 20px;
+		font-size: 17px;
+	}
+	td{
+		text-align: center;
+		padding: 10px;
+		white-space: inherit;
+		font-size: 17px;
+	}
+
+</style>

@@ -1,0 +1,271 @@
+<template>
+	<div class="message">
+		
+		<div style="padding:20px;">
+				<el-select v-model="status" placeholder="请选择" @change="selectChange">
+				    <el-option label="未审核" :value="0"></el-option>
+				    <el-option label="同意" :value="1"></el-option>
+				    <el-option label="拒绝" :value="2"></el-option>
+				    <el-option label="全部" :value="4"></el-option>
+				</el-select>
+			    	<el-table
+			    	  v-loading="loading"
+				      :data="dataList"
+				      style="width: 100%"
+				      class="msgTable">
+				      <el-table-column
+				        label="操作"
+				        fixed
+				        width="150">
+				        <template slot-scope="scoped">
+				        	<el-button type="primary" v-if="scoped.row.status==0" :disabled="scoped.row.status!=0" round size="mini" @click="agreeHandle(scoped.row)">同意</el-button>
+				        	<el-button type="danger" v-if="scoped.row.status==0"  :disabled="scoped.row.status!=0" round size="mini" @click="refuseHandle(scoped.row)">拒绝</el-button>
+				        	
+				        </template>
+				      </el-table-column>
+				      <el-table-column
+				        prop="id"
+				        label="申请ID"
+				        width="100">
+				      </el-table-column>
+				      <el-table-column
+				        prop="demandId"
+				        label="需求ID"
+				        width="100">
+				      </el-table-column>
+				      <el-table-column
+				        prop="createName"
+				        label="申请人"
+				        width="150">
+				      </el-table-column>
+				      <el-table-column
+				        prop="status"
+				        label="申请状态"
+				        width="100">
+				        <template slot-scope="scope">
+				        	<span v-if="scope.row.status==0">待确认</span>
+				        	<span v-if="scope.row.status==1">同意</span>
+				        	<span v-if="scope.row.status==2">拒绝</span>
+				        </template>
+				      </el-table-column>
+				      <el-table-column
+				        prop="modelNo"
+				        label="型号编码"
+				        width="100">
+				      </el-table-column>
+				      <el-table-column
+				        prop="goodsName"
+				        label="商品名称"
+				        width="250">
+				        <template slot-scope="scope">
+				        	<span v-html="scope.row.goodsName"></span>
+				        </template>
+				      </el-table-column>
+				      <el-table-column
+				        prop="orgDiscount"
+				        label="原折扣率"
+				        width="50">
+				      </el-table-column>
+				      <el-table-column
+				        prop="applyDiscount"
+				        label="申请折扣"
+				        width="50">
+				      </el-table-column>
+				      <el-table-column
+				        prop="reason"
+				        label="申请备注"
+				        >
+				      </el-table-column>
+				      <el-table-column
+				        prop="updateTime"
+				        label="日期"
+				        width="180">
+				      </el-table-column>
+				    </el-table>
+					<div style="text-align: right;padding:20px 10px;">
+						<el-pagination
+					      @size-change="handleSizeChange"
+					      @current-change="handleCurrentChange"
+					      :current-page.sync="currentPage"
+					      :page-sizes="[5, 10, 20, 30]"
+					      :page-size="10"
+					      layout="sizes, prev, pager, next"
+					      :total="pageCount">
+					    </el-pagination>
+					</div>
+
+
+		</div>
+	
+	</div>
+</template>
+<script type="text/javascript">
+import {queryDiscountList,saveDiscountApply} from "util/req/discountApp/index"
+	export default{
+		name:'discountApp',
+		data(){
+			return{
+				activeName:'first',
+				dataList: [{
+		          
+		        }],
+		        loading:false,
+		        pageSize:10,
+			    page:1,
+			    currentPage: 1,
+			    pageCount:null, 		//当前页
+			    lowVisible:false,
+			    discountsApplication:{
+		        	goodsName:''
+		        },
+		        selectItem:null, 		//选中项的值
+		        status:0 				//查询值状态
+			}
+		},
+		watch:{
+			lowVisible(status){				//关闭修改折扣弹框
+				if(status==false){		
+					this.discountsApplication={};
+				}
+			},
+			status(status){
+				if(status==0){
+
+				}
+			}
+		},
+		methods:{
+			handleClick(){
+
+			},
+			handleSizeChange(pageSize){	//数据条数改变时
+		      	this.pageSize=pageSize;
+		      	this.currentPage=1;
+		      	this.queryDiscountList();
+		    },
+		    handleCurrentChange(currentPage){	//选取分页
+		      	this.currentPage=currentPage;
+		      	this.queryDiscountList();
+		    },
+			agreeHandle(row){
+				this.discountsApplication.goodsName=row.goodsName;
+				this.discountsApplication.modelNo=row.modelNo;
+				this.discountsApplication.goodsNo=row.goodsNo;
+				this.discountsApplication.orgDiscount=row.discount;
+				this.discountsApplication.demandId=row.demandId;
+				this.discountsApplication.orgDiscount=row.orgDiscount;
+				this.discountsApplication.applyDiscount=row.applyDiscount;	
+				this.discountsApplication.reason =row.reason;
+				this.discountsApplication.id=row.id;
+				this.discountsApplication.status=1;
+				this.$prompt('请输入原因(选填)', '同意', {
+		          confirmButtonText: '确定',
+		          cancelButtonText: '取消'
+		        }).then(({ value }) => {
+		        	this.discountsApplication.remark=value;
+		        	saveDiscountApply(this.discountsApplication,res=>{
+		        		if(res.msgCode==200){
+		        			this.$message({
+					            type: 'success',
+					            message: res.msg
+					        });
+					        this.queryDiscountList();
+		        		}else{
+		        			this.$message({
+					            type: 'info',
+					            message: res.msg
+					        });
+		        		}
+		        	})
+		          
+		        }).catch(() => {
+		          this.$message({
+		            type: 'info',
+		            message: '取消输入'
+		          });       
+		        });
+			},
+			refuseHandle(row){
+				this.discountsApplication.goodsName=row.goodsName;
+				this.discountsApplication.modelNo=row.modelNo;
+				this.discountsApplication.goodsNo=row.goodsNo;
+				this.discountsApplication.orgDiscount=row.discount;
+				this.discountsApplication.demandId=row.demandId;
+				this.discountsApplication.orgDiscount=row.orgDiscount;
+				this.discountsApplication.applyDiscount=row.applyDiscount;	
+				this.discountsApplication.reason =row.reason;
+				this.discountsApplication.id=row.id;
+				this.discountsApplication.status=2;
+				this.$prompt('请输入原因(选填)', '同意', {
+		          confirmButtonText: '确定',
+		          cancelButtonText: '取消'
+		        }).then(({ value }) => {
+		        	this.discountsApplication.remark=value;
+		        	saveDiscountApply(this.discountsApplication,res=>{
+		        		if(res.msgCode==200){
+		        			this.$message({
+					            type: 'success',
+					            message: res.msg
+					        });
+					        this.queryDiscountList();
+		        		}else{
+		        			this.$message({
+					            type: 'info',
+					            message: res.msg
+					        });
+		        		}
+		        	})
+		          
+		        }).catch(() => {
+		          this.$message({
+		            type: 'info',
+		            message: '取消输入'
+		          });       
+		        });
+			},
+			queryDiscountList(){	//查询列表数据
+				var params={
+					pageSize:this.pageSize,
+					page:this.currentPage,
+					status:this.status
+				}
+				this.loading=true;
+				queryDiscountList(params,res=>{
+					this.dataList=res.data.list;
+					this.pageCount=res.data.pageCount;
+					setTimeout(()=>{
+						this.loading=false;
+
+					},200)
+				})
+			},
+			selectChange(val){
+				if(val==4){
+					this.status={}
+				}
+				this.queryDiscountList()
+			}
+		},
+		mounted(){
+			this.queryDiscountList();
+		}
+	}
+</script>
+<style lang="scss" scoped>
+.message{
+	position:absolute;
+	width:100%;
+	min-height:100%;
+	left:0;
+	top:0;
+	background-color:#fff;
+	padding:20px 10px;
+}
+.item /deep/ .el-badge__content.is-fixed{
+	top:7px;
+}
+.msgTable /deep/ ::-webkit-scrollbar {
+  height:9px;
+  width: 7px;
+}
+</style>

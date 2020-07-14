@@ -1,0 +1,102 @@
+<template>
+  <div class="orderPayLog">
+    <el-button  type="primary" icon="el-icon-plus" size="small" @click="financeVisible = true;"></el-button>
+    <el-table :data="orderPayLog" v-loading="loading" ref="table" :height="tableHeight" width="100%;" :header-cell-style="{'background-color':'#EFEDF0'}" style="margin-top:20px;">
+      <el-table-column width="120" prop="orderNo" label="订单编号" align="center">
+        <template slot-scope="scope">
+          <span style="color:#409EFF;cursor:default;">{{scope.row.orderNo}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="100" prop="money" label="支付金额" align="center"></el-table-column>
+      <el-table-column width="100" label="支付类型" align="center">
+        <template slot-scope="scope">
+          <span v-if="scope.row.type==1">预付</span>
+          <span v-if="scope.row.type==2">尾款</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="tradeNo" label="流水号"></el-table-column>
+      <el-table-column prop="remark" label="备注"></el-table-column>
+      <el-table-column width="160" prop="payTime" label="支付时间" align="center"></el-table-column>
+    </el-table>
+    <div class="clearPa edit">
+      <!-- 分页 -->
+      <div class="block" style="float: right;margin-top:10px;">
+        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="currentPage"
+          :page-sizes="[5, 10, 15, 30]" :page-size="pageSize" layout="sizes, prev, pager, next, total" :total="pageCount">
+        </el-pagination>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import {queryOrderPayList} from "@/util/req/payLog/index";
+export default {
+  name:"payLog",
+  data(){
+    return{
+      tableHeight:null,
+      loading:false,
+      currentPage: 1,
+      pageSize: 10,
+      pageCount: null,
+      financeVisible:false,
+      financeForm:{
+        type:1
+      },
+      orderPayLog:[]
+    }
+  },
+  watch:{
+    financeVisible(status){
+      if(!status){
+        this.financeForm={
+          type:1
+        }
+      }
+    }
+  },
+  methods:{
+    handleSizeChange(pageSize) { //数据条数改变时
+      this.loading = true;
+      this.pageSize = pageSize;
+      this.currentPage = 1;
+      this.queryOrderPayList();
+    },
+    handleCurrentChange(currentPage) { //选取分页
+      this.loading = true;
+      this.queryOrderPayList();
+    },
+    queryOrderPayList(){      //查询列表
+      var parmas = {
+        pageSize: this.pageSize,
+        page: this.currentPage
+      };
+      this.loading = true;
+      queryOrderPayList(parmas, res => {
+        if (res.msgCode == 200) {
+          this.orderPayLog = res.data.list;
+          this.pageCount = res.data.pageCount;
+          setTimeout(() => {
+            this.loading = false;
+          }, 200)
+        } else {
+          setTimeout(() => {
+            this.loading = false;
+          }, 200)
+        }
+      })  
+    }
+  },
+  mounted(){
+    this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop-120;
+    this.queryOrderPayList();
+  }
+}
+</script>
+<style lang="scss" scoped>
+  .orderPayLog{
+    background: #fff;
+    border-radius: 4px;
+    padding: 20px;
+  }
+</style>

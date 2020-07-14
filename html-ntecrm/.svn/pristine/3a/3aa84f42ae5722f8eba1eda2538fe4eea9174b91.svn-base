@@ -1,0 +1,645 @@
+<template>
+  <div>
+
+
+    <div class="clearPa section">
+      <!--左侧边栏-->
+      <div class="left home">
+        <!--今日概况 -->
+        <h1 style="padding: 10px;background:#fff;border-top-left-radius: 10px;border-top-right-radius: 10px;">
+          <i class="iconfont" :style="{color:this.$store.state.themeColor.headerColor}">&#xe60a;</i>
+          <span style="font-size:16px;margin-right: 60px;">简报看板</span>
+          <!-- <span style="font-size: 12px;color:#666">时间：{{sumTime}} 数据</span> -->
+          <!-- <span class="right" style="font-size:12px;color:#409eff;cursor:default;line-height: 21px;">重置时间</span> -->
+          <datetime-pick @changetimeName="changetimeName" @changetime="changetime" class="right"></datetime-pick>
+        </h1>
+        <div class="home-today clearPa left"
+          style="background: #fff;padding:0 10px;border-bottom-left-radius: 10px;border-bottom-right-radius: 10px;">
+
+          <div class="left home-today-child">
+            <div class="home-today-center clearPa">
+              <div class="left" style="margin:0px 12px 0 10%;">
+                <i class="iconfont" style="font-size: 22px;background:#286DE5;">&#xe623;</i>
+              </div>
+              <div class="left">
+                <span style="color:#286DE5;font-size:18px;">{{summaryList.custTotal}} 个</span>
+                <p>当前客户总数</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="left home-today-child" style="cursor:pointer"
+            @click="$router.push({path:'/admin/customer',query:{createTimeStart:startTime,createTimeEnd:startEnd}})">
+            <div class="home-today-center clearPa">
+              <div class="left" style="margin:0px 12px 0 10%;">
+                <i class="iconfont" style="font-size: 22px;background:#15D37B;">&#xe655;</i>
+              </div>
+              <div class="left">
+                <span style="color:#15D37B;font-size:18px;">{{summaryList.custNewTotal}} 个</span>
+                <p>新增客户数</p>
+              </div>
+            </div>
+          </div>
+          <div class="left home-today-child" style="cursor:pointer;"
+            @click="$router.push({path:'/admin/offerList',query:{createTimeStart:startTime,createTimeEnd:startEnd}})">
+            <div class="home-today-center clearPa">
+              <div class="left" style="margin:0px 12px 0 10%;">
+                <i class="iconfont" style="font-size: 22px;background:#38ADFF;">&#xe715;</i>
+              </div>
+              <div class="left">
+                <span style=" color:#38ADFF;font-size:18px;">{{summaryList.offerTotal}} 个</span>
+                <p>累计报价数</p>
+              </div>
+            </div>
+          </div>
+          <div class="left home-today-child" style="cursor:pointer">
+            <div class="home-today-center clearPa">
+              <div class="left" style="margin:0px 12px 0 10%;">
+                <i class="iconfont" style="font-size: 22px;background:#9266FD;">&#xe698;</i>
+              </div>
+              <div class="left">
+                <span style="color:#9266FD;font-size:18px;">￥{{summaryList.orderOverTotal}}</span>
+                <p>累计报价金额</p>
+              </div>
+            </div>
+          </div>
+          <div class="left home-today-child" style="cursor:pointer;"
+            @click="$router.push({path:'/admin/order',query:{createTimeStart:startTime,createTimeEnd:startEnd,status:2}})">
+            <div class="home-today-center clearPa">
+              <div class="left" style="margin:0px 12px 0 10%;">
+                <i class="iconfont" style="font-size: 22px;background:#FFAC33;">&#xe607;</i>
+              </div>
+              <div class="left">
+                <span style="color:#FFAC33;font-size:18px;">{{summaryList.orderTotal}} 个</span>
+                <p>累计订单数</p>
+              </div>
+            </div>
+          </div>
+          <div class="left home-today-child" style="cursor:pointer;"
+            @click="$router.push({path:'/admin/order',query:{createTimeStart:startTime,createTimeEnd:startEnd,status:2}})">
+            <div class="home-today-center clearPa">
+              <div class="left" style="margin:0px 12px 0 10%;">
+                <i class="iconfont" style="font-size: 22px;background:#F5921D;">&#xe638;</i>
+              </div>
+              <div class="left">
+                <span style="color:#F5921D;font-size:18px;">￥{{summaryList.orderTotalMoney||0.00}}</span>
+                <p>累计订单金额</p>
+              </div>
+            </div>
+          </div>
+          <div class="left home-today-child" style="cursor:pointer"
+            @click="$router.push({path:'/admin/order',query:{createTimeStart:startTime,createTimeEnd:startEnd,status:3}})">
+            <div class="home-today-center clearPa">
+              <div class="left" style="margin:0px 12px 0 10%;">
+                <i class="iconfont" style="font-size: 22px;background:#FF3D30;">&#xe681;</i>
+              </div>
+              <div class="left">
+                <span style="color:#FF3D30;font-size:18px;">{{summaryList.orderValidTotal}}个</span>
+                <p>生效订单数</p>
+              </div>
+            </div>
+          </div>
+          <div class="left home-today-child" style="cursor:pointer"
+            @click="$router.push({path:'/admin/order',query:{createTimeStart:startTime,createTimeEnd:startEnd,status:3}})">
+            <div class="home-today-center clearPa">
+              <div class="left" style="margin:0px 12px 0 10%;">
+                <i class="iconfont" style="font-size: 22px;background:#FF3D30;">&#xe671;</i>
+              </div>
+              <div class="left">
+                <span style="color:#FF3D30;font-size:18px;">￥{{summaryList.orderValidMoney||0.00}}</span>
+                <p>有效订单金额</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="margin:10px 0;float: left;width: 100%;background:#fff;margin-bottom: 0;">
+          <div style="padding-top:10px;">
+            <i class="iconfont" :style="{color:this.$store.state.themeColor.headerColor}">&#xe60a;</i>
+            <span style="font-size:16px;margin-right: 60px;">项目报备</span>
+            <div style="float:right;margin-right:10px;">
+              <el-input
+                placeholder="请输入内容"
+                v-model="keys"
+                size="small"
+                style="width:200px;"
+                clearable>
+              </el-input>
+              <el-button size="mini" type="primary" icon="el-icon-search" @click="getReport">搜索</el-button>
+            </div>
+            
+          </div>
+          <div class="reportTable" style="padding:10px;box-size:border-box;padding-top:0;">
+            <el-table v-loading="loading" :data="dataList" :height="reportTabelHeight?500:100" :border="true" style="width: 100%;margin-top: 10px;">
+              <el-table-column label="操作人" align="center" prop="createName" width="100">
+              </el-table-column>
+              <el-table-column label="客户公司" align="center" width="210">
+                <template slot-scope="scope">
+                  <span>
+                    <el-popover placement="top-start" title="" width="150" trigger="hover" :content="scope.row.companyName">
+                      <span slot="reference" style="cursor:default;" v-html="$root.OmissionText(scope.row.companyName,10)"></span>
+                    </el-popover>
+                  </span>
+                </template>
+              </el-table-column>
+              <!-- <el-table-column label="联系人信息" align="center" width="180">
+                <template slot-scope="scope">
+                  <span>{{scope.row.contacts}}-{{scope.row.phone}}<br>{{scope.row.email}}
+                  </span>
+                </template>
+              </el-table-column> -->
+              <el-table-column label="产品信息"  width="400" align="center" prop="goods_info">
+                <template slot-scope="scope">
+                  <div>
+                    <el-popover placement="top-start" title="" width="350" trigger="hover" :content="'产品：'+scope.row.goodsInfo+(scope.row.partsInfo?'-辅件：'+scope.row.partsInfo:'')||''">
+                        <span slot="reference" style="cursor:default;" v-html="'产品：'+$root.OmissionText(scope.row.goodsInfo+(scope.row.assistInfo||''),75)"></span>
+        
+                        <div slot="reference" style="cursor:default;" v-if="scope.row.partsInfo"  v-html="'辅件：'+$root.OmissionText(scope.row.partsInfo,75)"></div>
+                    </el-popover>
+                  </div>
+                </template>
+              </el-table-column>
+              <!-- <el-table-column label="辅件" width="400" align="center">
+                <template slot-scope="scope">
+                  <span>
+                    <el-popover placement="top-start" title="" width="350" trigger="hover" :content="scope.row.partsInfo||''">
+                      <span slot="reference" style="cursor:default;" v-html="$root.OmissionText(scope.row.partsInfo,75)"></span>
+                    </el-popover>
+                  </span>
+                </template>
+              </el-table-column> -->
+              <el-table-column label="创建时间" width="180" prop="createTime">
+              </el-table-column>
+              <el-table-column label="报备有效期" width="180" prop="reportTime">
+              </el-table-column>
+            </el-table> 
+            <div style="text-align:center;font-size:22px;">
+              <i class="iconfont" style="color:#409EFF;cursor:pointer;"  @click="reportTabelHeight=!reportTabelHeight" v-if="reportTabelHeight">&#xe661;</i>
+              <i class="iconfont" style="color:#409EFF;cursor:pointer;" @click="reportTabelHeight=!reportTabelHeight" v-else>&#xe63d;</i>
+            </div>
+          </div>
+            
+        </div>
+        <!--客户数据展示-->
+        <div class="left home-today-three">
+          <h2 style="margin-top: 10px;">
+            <i class="iconfont" :style="{color:this.$store.state.themeColor.headerColor}">&#xe60a;</i>
+            <span style="font-size:16px;margin-right: 60px;">排行榜</span>
+          </h2>
+          <div style="height:400px;background:#fff;">
+            <component :is="chartArt" :id="highchartOptions[4].id" :option="highchartOptions[4].option"
+              style="margin-top:15px;height:400px;"></component>
+          </div>
+          <div style="height:400px;background:#fff;">
+            <component :is="chartArt" :id="highchartOptions[5].id" :option="highchartOptions[5].option"
+              style="margin-top:15px;height:400px;"></component>
+          </div>
+          <div style="height:400px;background:#fff;">
+            <component :is="chartArt" :id="highchartOptions[6].id" :option="highchartOptions[6].option"
+              style="margin-top:15px;height:400px;"></component>
+          </div>
+        </div>
+
+
+        <div class="left home-today-three">
+          <h2 style="margin-top: 10px;">
+            <i class="iconfont" :style="{color:this.$store.state.themeColor.headerColor}">&#xe60a;</i>
+            <span style="font-size:16px;margin-right: 60px;">新增客户区域分布图</span>
+          </h2>
+          <div style="height:400px;background:#fff;">
+            <component :is="chartArt" :id="highchartOptions[0].id" :option="highchartOptions[0].option"
+              style="margin-top:15px;height:400px;"></component>
+          </div>
+        </div>
+        <div class="left home-today-three" style="">
+          <h2 style="margin-top: 10px;">
+            <i class="iconfont" :style="{color:this.$store.state.themeColor.headerColor}">&#xe60a;</i>
+            <span style="font-size:16px;margin-right: 60px;">生效订单客户区域分布图</span>
+          </h2>
+          <div style="height:400px;background:#fff;">
+            <component :is="chartArtCurtomer" :id="highchartOptions[1].id" :option="highchartOptions[1].option"
+              style="margin-top:15px;height:400px;border-radius: 10px;"></component>
+          </div>
+        </div>
+        <div class="left home-today-one" style="">
+          <h2 style="margin-top: 10px;">
+            <i class="iconfont" :style="{color:this.$store.state.themeColor.headerColor}">&#xe60a;</i>
+            <span style="font-size:16px;margin-right: 60px;">生效订单商品类别分布图</span>
+          </h2>
+          <component :is="chartArt" :id="highchartOptions[2].id" :option="highchartOptions[2].option"
+            style="margin-top:15px;height:400px;border-radius: 10px;"></component>
+        </div>
+        <div class="left home-today-two" style="">
+          <h2 style="margin-top: 10px;">
+            <i class="iconfont" :style="{color:this.$store.state.themeColor.headerColor}">&#xe60a;</i>
+            <span style="font-size:16px;margin-right: 60px;">生效订单商品品牌分布图</span>
+          </h2>
+          <component :is="chartArt" :id="highchartOptions[3].id" :option="highchartOptions[3].option"
+            style="margin-top:15px;height:400px;border-radius: 10px;"></component>
+        </div>
+      </div>
+      <!--右侧边栏-->
+      <div class="left aside">
+        <!--遗忘提醒-->
+        <newsRolling></newsRolling>
+      </div>
+    </div>
+    <div class="clear"></div>
+  </div>
+</template>
+<script type="text/javascript">
+  import datetimePick from "@/components/common/datetimePick";
+  import {
+    optionOne,
+    optionTwo,
+    optionThree,
+    optionFour,
+    optionFive,
+    optionSix,
+    optionSeven
+  } from "@/util/chartOption/home.js";
+  import {
+    getSummary,
+    getAreaCount,
+    getReport
+  } from "@/util/req/home/index.js";
+  import {
+    formatDateTime
+  } from "@/util/fn/transTime.js";
+  import {
+    getSalesList
+  } from "util/req/customer/table";
+  export default {
+    name: "home",
+    data() {
+      return {
+        loading:false,
+        reportTabelHeight:false,
+        dialogFormVisible: false, //编辑事件切换
+        dataList:[],//报备信息
+        recordEvent: "", //编辑内容
+        keys:null,
+        highchartOptions: [{
+            id: 'chart1',
+            option: optionOne
+          },
+          {
+            id: 'chart2',
+            option: optionTwo
+          },
+          {
+            id: 'chart3',
+            option: optionThree
+          },
+          {
+            id: 'chart4',
+            option: optionFour
+          },
+          {
+            id: 'chart5',
+            option: optionFive
+          },
+          {
+            id: 'chart6',
+            option: optionSix
+          },
+          {
+            id: 'chart7',
+            option: optionSeven
+          }
+        ],
+        chartArtCurtomer: '',
+        startTime: null, //开始时间
+        startEnd: null, //结束时间	
+        year: null, //年份
+        summaryList: {}, //汇总数据		
+        sumTime: 2019, //本周 	
+        currentYear: null,
+        custAreaData: null, // 新增客户区域分布
+        orderCustAreaData: null, // 成交订单客户区域分布
+        orderCategoryData: null, //成交商品类别分布
+        orderBrandData: null, //成交商品品牌分布
+        saleData: null, //累计报价金额/累计订单金额/生效订单金额 销售排行
+        custAddData: null, //新增客户数排行
+        chartArt: '',
+        noContactCustOne: null, //一周到两周未联系客户
+        noContactCustTwo: null, //两周到一个月未联系客户
+        noContactCustThree: null, //一月到两月未联系
+        noContactCustFour: null //两个月以上未联系
+      }
+    },
+    mounted() {
+      this.getReport();//获取报备内容
+      this.getSalesList(); //获取销售员列表
+      this.$store.state.noticeStatus = false;
+      //默认为本周数据
+      var now = new Date(); //当前日期
+      var nowDayOfWeek = now.getDay(); //今天本周的第几天
+      var nowDay = now.getDate(); //当前日
+      var nowMonth = now.getMonth(); //当前月
+      var nowYear = now.getYear(); //当前年
+      nowYear += (nowYear < 2000) ? 1900 : 0; //
+      var lastMonthDate = new Date(); //上月日期
+      lastMonthDate.setDate(1);
+      lastMonthDate.setMonth(lastMonthDate.getMonth() - 1);
+      var lastYear = lastMonthDate.getYear();
+      var lastMonth = lastMonthDate.getMonth();
+      //获得本月的开始日期
+      var getMonthStartDate = new Date(nowYear, nowMonth, 1);
+      var getMonthStartDate = this.formatDate(getMonthStartDate);
+      //获得本月的结束日期
+      var getMonthEndDate = new Date(nowYear, nowMonth, this.getMonthDays(nowMonth));
+      var getMonthEndDate = this.formatDate(getMonthEndDate);
+
+      var timeS = getMonthStartDate;
+      var timeE = getMonthEndDate;
+      sessionStorage.setItem('homeSelTime', JSON.stringify({
+        timeStart: timeS,
+        timeEnd: timeE
+      }))
+      this.startTime = timeS;
+      this.startEnd = timeE;
+      //this.year=years;
+      this.getSummaryData();
+    },
+    methods: {
+      changetimeName(val) { //改变名称
+        //console.log(val);
+        this.sumTime = val;
+      },
+      changetime(val) { //时间确认改变
+        this.startTime = val.timeStart;
+        this.startEnd = val.timeEnd;
+        this.year = val.yearValue;
+        this.currentYear = this.startTime + '~' + this.startEnd;
+        this.getSummaryData();
+      },
+      getSalesList() { //获取销售员列表
+        getSalesList(res => {
+          sessionStorage.setItem('saleList', JSON.stringify(res.data.data.list));
+        })
+      },
+      getSummaryData() { //获取汇总数据
+        var params = {
+          startTime: this.startTime || {},
+          startEnd: this.startEnd || {},
+          year: this.year || {}
+        };
+        const loading = this.$loading({
+          lock: true,
+          target: '.section',
+          text: '加载中...',
+
+          background: 'rgba(255, 255, 255, 0.8)'
+        });
+
+        getSummary(params, res => {
+          //console.log(res.data);
+
+          res = res.data;
+          this.summaryList = res;
+          this.custAreaData = res.custAreaData;
+          // this.orderCustAreaData=res.orderCustAreaData;
+          this.orderCategoryData = res.orderCategoryData;
+          this.orderBrandData = res.orderBrandData;
+          this.saleData = res.saleData;
+          this.custAddData = res.custAddData;
+          this.noContactCustOne = res.noContactCustOne; //一周到两周未联系客户
+          this.noContactCustTwo = res.noContactCustTwo; //两周到一个月未联系客户
+          this.noContactCustThree = res.noContactCustThree; //一月到两月未联系
+          this.noContactCustFour = res.noContactCustFour; //两个月以上未联系
+          //optionOne.series[0].data=this.custAreaData;	//新增客户区域分布
+          optionOne.series[0].data = this.custAreaData[1];
+          optionOne.xAxis.categories = this.custAreaData[0];
+
+          optionThree.series[0].data = this.orderCategoryData;
+          optionFour.series[0].data = this.orderBrandData;
+
+          optionFive.xAxis.categories = this.saleData['saleName'];
+          optionFive.series[0].data = this.saleData['totalMoney'];
+          optionFive.series[1].data = this.saleData['validMoney'];
+
+          optionSix.xAxis.categories = res.saleOfferData['saleName'];
+          optionSix.series[0].data = res.saleOfferData['offerMoney'];
+
+          optionSeven.xAxis.categories = this.custAddData[0];
+          optionSeven.series[0].data = this.custAddData[1];
+
+          this.chartArt = "";
+          this.chartArtCurtomer = "";
+          getAreaCount(params, res => {
+            //console.log(res);
+            optionTwo.series[0].data = res.data.orderCustAreaData[1];
+            optionTwo.xAxis.categories = res.data.orderCustAreaData[0];
+            setTimeout(() => {
+              this.chartArtCurtomer = 'XChart';
+            }, 0);
+          })
+          setTimeout(() => {
+            this.chartArt = 'XChart';
+            loading.close();
+          }, 0);
+        })
+      },
+      getMonthDays(myMonth) {
+        var now = new Date(); //当前日期
+        var nowDayOfWeek = now.getDay(); //今天本周的第几天
+        var nowDay = now.getDate(); //当前日
+        var nowMonth = now.getMonth(); //当前月
+        var nowYear = now.getYear(); //当前年
+        nowYear += (nowYear < 2000) ? 1900 : 0; //
+        var monthStartDate = new Date(nowYear, myMonth, 1);
+        var monthEndDate = new Date(nowYear, myMonth + 1, 1);
+        var days = (monthEndDate - monthStartDate) / (1000 * 60 * 60 * 24);
+        return days;
+      },
+      formatDate(date) {
+        var myyear = date.getFullYear();
+        var mymonth = date.getMonth() + 1;
+        var myweekday = date.getDate();
+
+        if (mymonth < 10) {
+          mymonth = "0" + mymonth;
+        }
+        if (myweekday < 10) {
+          myweekday = "0" + myweekday;
+        }
+        return (myyear + "-" + mymonth + "-" + myweekday);
+      },
+      getOfferList(val) { //获取报价&订单数据(年)
+
+
+      },
+      //获取报备内容
+      getReport(){
+        this.loading=true;
+        var params={
+          keys:this.keys||null
+        }
+        getReport(params,res=>{
+          this.dataList=res.data;
+          setTimeout(()=>{this.loading=false;},200)
+        })
+      }
+    },
+    components: {
+      datetimePick,
+      XChart: () => import('@/components/common/chart.vue'),
+      newsRolling: () => import('@/components/common/newsRolling.vue')
+    }
+  }
+
+</script>
+<style lang="scss" scoped>
+  .section {
+    background-color: #fff;
+    border-radius: 4px;
+  }
+
+  .iconfont {
+    vertical-align: middle;
+  }
+
+  .home {
+    width: 73%;
+    background: #f7f7f7;
+  }
+
+  .home-today {
+    padding: 20px 0;
+  }
+
+  .home-today-child {
+    width: 20%;
+    min-width: 185px;
+    float: left;
+    margin: 0 30px 10px 0;
+  }
+
+  .home-today-center {
+    width: 100%;
+    border: 1px solid #eee;
+    border-radius: 7px;
+    text-align: center;
+    color: #666;
+    font-size: 11px;
+    padding: 13px 11px;
+
+  }
+
+  .home-today-center i {
+    border-radius: 5px;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    display: inline-block;
+  }
+
+  .home-today-one {
+    width: 50%;
+    box-sizing: border-box;
+  }
+
+  .home-today-two {
+    width: 50%;
+  }
+
+  .home-today-three {
+    width: 100%;
+  }
+
+  .aside {
+    width: 20%;
+    padding: 0 10px;
+    background: #f7f7f7;
+  }
+
+  .aside_one {}
+
+  .aside_one_center {
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 4px;
+  }
+
+  .aside_one_list {
+    width: 47%;
+    min-width: 115px;
+    color: #666;
+    margin: 0 5px 10px 0;
+
+  }
+
+  .aside_two {
+    margin-top: 20px;
+  }
+
+  .aside_two_center {
+    background-color: #fff;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 4px;
+    min-height: 200px;
+    max-height: 300px;
+    overflow-y: scroll;
+  }
+
+  .aside_two_list {
+    margin-bottom: 5px;
+  }
+
+  .aside_three {
+    margin-top: 20px;
+  }
+
+  .aside_three_center {
+    background-color: #fff;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 4px;
+    min-height: 200px;
+    max-height: 300px;
+  }
+
+  .home-ranking-list {
+    margin-bottom: 10px;
+  }
+
+  .home-ranking-list-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 20px;
+    margin-top: 6px;
+  }
+
+  .home-ranking-list-name {
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+    min-width: 70px;
+  }
+
+  .home-ranking-list-num {
+    font-size: 12px;
+    color: #666;
+  }
+  // .reportTable{
+  //   height: 100vh;
+  //   overflow-y: scroll;
+  // }
+  .reportTable /deep/ ::-webkit-scrollbar-thumb {
+  	  background-color: #ddd;
+      border-radius: 4px;
+  }
+  .reportTable /deep/ ::-webkit-scrollbar-button {
+  	height:10px;
+  	width:10px;
+    display:none;
+    background-color: #7a8395;
+  }
+  .reportTable /deep/ ::-webkit-scrollbar {
+  		height:7px;
+  	  width: 7px;
+  }
+</style>

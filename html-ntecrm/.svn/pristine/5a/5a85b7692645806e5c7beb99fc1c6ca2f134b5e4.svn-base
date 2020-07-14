@@ -1,0 +1,238 @@
+<template>
+  <div class="newCustomers">
+    <el-dialog class="el-dialog-content" width="85%" title="添加联系人" :visible.sync="visible" @close="closeDialog"
+      :modal-append-to-body='false'>
+      <el-form :model="form" style="height: 450px;overflow-y: scroll;" :rules="formRules" ref="linkForm">
+        <div class="left" style="width:45%">
+          <el-form-item label="联系人姓名" :label-width="formLabelWidth" prop="conName">
+            <el-input v-model="form.conName" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+          </el-form-item>
+          <el-form-item label="联系人电话" :label-width="formLabelWidth" prop="telePhone">
+            <el-input v-model="form.telePhone" @blur="checkCustPhone" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+            <br><span style="color:red">{{echoMsg}}</span>
+          </el-form-item>
+          <el-form-item label="座机电话" :label-width="formLabelWidth">
+            <el-input v-model="form.landLine" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+          </el-form-item>
+          <el-form-item label="邮箱" :label-width="formLabelWidth" prop="mailBox">
+            <el-input v-model="form.mailBox" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+          </el-form-item>
+          <el-form-item label="QQ号" :label-width="formLabelWidth">
+            <el-input v-model="form.QQ" type="number" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+          </el-form-item>
+          <el-form-item label="微信号" :label-width="formLabelWidth">
+            <el-input v-model="form.weChat" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+          </el-form-item>
+        </div>
+        <div class="left" style="width:45%">
+					<el-form-item label="发票地址" :label-width="formLabelWidth">
+            <el-input v-model="form.invoiceAddress" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+          </el-form-item>
+          <el-form-item label="收货地址" :label-width="formLabelWidth">
+            <el-input v-model="form.contAddress" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+          </el-form-item>
+          <el-form-item label="岗位" :label-width="formLabelWidth">
+            <el-input v-model="form.post" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+          </el-form-item>
+          <el-form-item label="性别" :label-width="formLabelWidth">
+            <el-radio-group v-model="form.sex">
+              <el-radio :label="1">男</el-radio>
+              <el-radio :label="2">女</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="备注" :label-width="formLabelWidth">
+            <el-input v-model="form.remark" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+          </el-form-item>
+        </div>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="confirmHandle">确 定</el-button>
+        <el-button @click="visible=false">取 消</el-button>
+      </div>
+    </el-dialog>
+  </div>
+</template>
+<script type="text/javascript">
+  import {
+    checkCustPhone
+  } from "util/req/customer/newUser";
+  export default {
+    name: "newCustomers",
+    props: {
+      dialogFormVisible: {
+        type: Boolean,
+        default: false
+      },
+      showLink: {
+        type: Object,
+        default: null
+      },
+      currrentLink: {
+        type: Number,
+        default: null
+      },
+      editSte: {
+        type: Boolean,
+        default: false
+      },
+      resultPhone: {
+        type: String,
+        default: ''
+      }
+    },
+    data() {
+      return {
+        visible: this.dialogFormVisible,
+        form: {
+          conName: null, //联系人姓名
+          telePhone: null, //联系人电话
+          landLine: null, //座机电话
+          mailBox: null, //邮箱
+          QQ: null, //QQ号
+          weChat: null, //微信号
+          // education:null,	//学历
+          post: null, //岗位
+          // duty:null,		//职责
+					// department:null,//部门
+					// importance:null,//重要程度、
+					invoiceAddress:null,//发票地址
+          contAddress:null,//收货地址
+          sex: 1, //性别
+          remark: null //备注
+        },
+        formRules: {
+          conName: {
+            required: true,
+            trigger: 'blur',
+            message: "联系人姓名不能为空"
+          },
+          mailBox: [{
+            required: false,
+            trigger: 'blur',
+            pattern: /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/,
+            message: "请输入正确的邮箱"
+          }],
+          telePhone: [
+            // { required: true, trigger: 'blur',message:"客户电话不能为空"},
+            {
+              trigger: 'blur',
+              pattern: /^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/,
+              message: "请输入正确的格式"
+            }
+          ]
+        },
+        formLabelWidth: '120px',
+        echoMsg: null, //检查客户手机输出信息
+        isPhoneTrue: true //编辑状态下是否可编辑
+      }
+    },
+    watch: {
+      'form.telePhone': function (val) {
+        console.log(this.resultPhone);
+        if (val == null || val == "" || val == this.resultPhone) {
+          return
+        }
+        this.isPhoneTrue = false;
+      },
+      dialogFormVisible() {
+        this.visible = this.dialogFormVisible
+      },
+      showLink(val) {
+        if (val != null) {
+          this.form = val;
+        }
+      },
+      currrentLink(val) { //判断是否为编辑状态，否的情况下清除表单的内容，防止上次编辑点击新增会有输入内容
+        if (val == null) {
+          this.resetLInkForm()
+        }
+      }
+
+    },
+    methods: {
+      resetLInkForm() {
+        if (this.currrentLink != null) {
+          return false
+        } //编辑状态下编辑不清空内容
+        this.form.conName = null //联系人姓名
+        this.form.telePhone = null //联系人电话
+        this.form.mailBox = null //邮箱
+        this.form.QQ = null //QQ
+        this.form.weChat = null //微信
+        // this.form.education=null	//学历
+        this.form.landLine = null
+        this.form.post = null //岗位
+        // this.form.duty=null		//职责
+        // this.form.department=null//部门
+				// this.form.importance=null//重要程度
+          // importance:null,//重要程度、
+				this.form.invoiceAddress=null
+        this.form.contAddress=null//联系人地址
+        this.form.sex = 1 //性别
+        this.form.remark = null //备注
+      },
+      closeDialog() {
+        this.resetLInkForm();
+        this.echoMsg = '';
+        this.isFirst = true;
+        this.$emit("changDialog", false)
+      },
+      confirmHandle() {
+        if (this.isPhoneTrue) {
+          this.$refs.linkForm.validate(valid => {
+            if (valid) {
+              this.visible = false;
+              //清空表格数据
+              if (this.currrentLink != null) { //不为null时，证明是回显数据
+                var params = {
+                  form: this.form,
+                  index: this.currrentLink
+                }
+                var item = JSON.parse(JSON.stringify(params));
+                this.$emit("resetLink", item);
+              } else {
+                var newItem = JSON.parse(JSON.stringify(this.form));
+                this.$emit("pushLink", newItem);
+              }
+              this.resetLInkForm();
+            }
+          })
+        } else {
+          this.$message({
+            message: '输入信息有误，不能提交！',
+            type: 'warning'
+          });
+        }
+      },
+      checkCustPhone() { //查询手机是否存在
+        if (!this.form.telePhone) {
+          return
+        }
+        if (this.form.telePhone == this.resultPhone) {
+          this.echoMsg = '';
+          this.isPhoneTrue = true;
+          return
+        }
+        checkCustPhone({
+          phone: this.form.telePhone
+        }, res => {
+          if (res.msgCode == 302) {
+            this.echoMsg = res.msg;
+            this.isPhoneTrue = false;
+          } else {
+            this.echoMsg = '';
+            this.isPhoneTrue = true;
+          }
+          console.log(this.isPhoneTrue + "==isPhoneTrue3");
+        })
+      }
+    }
+  }
+
+</script>
+<style lang='scss' scoped>
+  .el-dialog-content /deep/ .el-dialog {
+    margin-top: 5vh !important;
+  }
+
+</style>

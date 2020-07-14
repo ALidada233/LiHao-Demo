@@ -1,0 +1,524 @@
+<template>
+	<div>
+		
+	
+		<div class="clearPa section">
+			<!--左侧边栏-->
+			<div class="left home">
+				<!--今日概况 -->
+				<h1>
+					<i class="iconfont" :style="{color:this.$store.state.themeColor.headerColor}">&#xe60a;</i>
+					<span style="font-size:16px;margin-right: 60px;">简报看板</span>
+					<!-- <span style="font-size: 12px;color:#666">时间：{{sumTime}} 数据</span> -->
+					<!-- <span class="right" style="font-size:12px;color:#409eff;cursor:default;line-height: 21px;">重置时间</span> -->
+					<datetime-pick  @changetimeName="changetimeName" @changetime="changetime"  class="right"></datetime-pick>								   
+				</h1>
+				<div class="home-today clearPa left">
+
+					<!-- <div class="left home-today-child">
+						<div class="home-today-center clearPa">
+							<div class="left" style="margin:8px 12px 0 10%;">
+								<i class="iconfont" style="font-size: 20px;">&#xe623;</i>
+							</div>
+							<div class="left">
+								<span style="color:#2BC2CC;font-size:18px;">{{summaryList.userCount}} 个</span>
+								<p>当前用户总数</p>
+							</div>	
+						</div>
+					</div>	
+					<div class="left home-today-child">	
+						<div class="home-today-center clearPa">
+							<div class="left" style="margin:8px 12px 0 10%;">
+								<i class="iconfont" style="font-size: 20px;">&#xe655;</i>
+							</div>
+							<div class="left">
+								<span style="color:#2BC2CC;font-size:18px;">{{summaryList.numNewUser}} 个</span>
+								<p>新增用户数</p>
+							</div>	
+						</div>
+					</div>	 -->
+					<div class="left home-today-child">	
+						<div class="home-today-center clearPa">
+							<div class="left" style="margin:8px 12px 0 10%;">
+								<i class="iconfont" style="font-size: 20px;">&#xe698;</i>
+							</div>
+							<div class="left">
+								<span style="color:#2BC2CC;font-size:18px;">{{summaryList.custTotal}} 个</span>
+								<p>当前客户总数</p>
+							</div>	
+						</div>
+					</div>	
+					<div class="left home-today-child">	
+						<div class="home-today-center clearPa">
+							<div class="left" style="margin:8px 12px 0 10%;">
+								<i class="iconfont" style="font-size: 20px;">&#xe715;</i>
+							</div>
+							<div class="left">
+								<span style="color:#2BC2CC;font-size:18px;">{{summaryList.custNewTotal}} 个</span>
+								<p>新增客户数</p>
+							</div>	
+						</div>
+					</div>	
+				<!-- 	<div class="left home-today-child">	
+						<div class="home-today-center clearPa">
+							<div class="left" style="margin:8px 12px 0 10%;">
+								<i class="iconfont" style="font-size: 20px;">&#xe715;</i>
+							</div>
+							<div class="left">
+								<span style="color:#2BC2CC;font-size:18px;">{{summaryList.sumSheet}} 个</span>
+								<p>累计询价数</p>
+							</div>	
+						</div>
+					</div>	 -->
+					<div class="left home-today-child">	
+						<div class="home-today-center clearPa">
+							<div class="left" style="margin:8px 12px 0 10%;">
+								<i class="iconfont" style="font-size: 20px;">&#xe638;</i>
+							</div>
+							<div class="left">
+								<span style=" color:#2BC2CC;font-size:18px;">{{summaryList.offerTotal}} 个</span>
+								<p>累计报价数</p>
+							</div>	
+						</div>
+					</div>	
+					<div class="left home-today-child">	
+						<div class="home-today-center clearPa">
+							<div class="left" style="margin:8px 12px 0 10%;">
+								<i class="iconfont" style="font-size: 20px;">&#xe716;</i>
+							</div>
+							<div class="left">
+								<span style="color:#2BC2CC;font-size:18px;">{{summaryList.orderTotal}} 个</span>
+								<p>累计订单数</p>
+							</div>	
+						</div>
+					</div>	
+					<div class="left home-today-child">	
+						<div class="home-today-center clearPa">
+							<div class="left" style="margin:8px 12px 0 10%;">
+								<i class="iconfont" style="font-size: 20px;">&#xe716;</i>
+							</div>
+							<div class="left">
+								<span style="color:#2BC2CC;font-size:18px;">{{summaryList.orderOverTotal}} 个</span>
+								<p>累计成单数</p>
+							</div>	
+						</div>
+					</div>
+					<div class="left home-today-child">	
+						<div class="home-today-center clearPa">
+							<div class="left" style="margin:8px 12px 0 10%;">
+								<i class="iconfont" style="font-size: 20px;">&#xe716;</i>
+							</div>
+							<div class="left">
+								<span style="color:#2BC2CC;font-size:18px;">{{summaryList.orderValidTotal}}个</span>
+								<p>生效订单数</p>
+							</div>	
+						</div>
+					</div>
+					<div class="left home-today-child">	
+						<div class="home-today-center clearPa">
+							<div class="left" style="margin:8px 12px 0 10%;">
+								<i class="iconfont" style="font-size: 20px;">&#xe716;</i>
+							</div>
+							<div class="left">
+								<span style="color:#2BC2CC;font-size:18px;">￥{{summaryList.orderTotalMoney||0.00}}</span>
+								<p>累计订单金额</p>
+							</div>	
+						</div>
+					</div>
+					<div class="left home-today-child">	
+						<div class="home-today-center clearPa">
+							<div class="left" style="margin:8px 12px 0 10%;">
+								<i class="iconfont" style="font-size: 20px;">&#xe716;</i>
+							</div>
+							<div class="left">
+								<span style="color:#2BC2CC;font-size:18px;">￥{{summaryList.orderValidMoney||0.00}}</span>
+								<p>有效订单金额</p>
+							</div>	
+						</div>
+					</div>	
+					
+				</div>
+
+				
+				<!--客户数据展示-->
+				<div class="left home-today-three">
+					
+					<h2 style="margin-top: 10px;">
+						<i class="iconfont" :style="{color:this.$store.state.themeColor.headerColor}">&#xe60a;</i>
+						<span style="font-size:16px;margin-right: 60px;">新增客户区域分布图</span>
+						<!-- <span style="font-size: 12px;color:#666">时间：{{currentYear}}</span> -->
+					</h2>
+					<!-- <x-chart :id="highchartOptions[0].id" :option="highchartOptions[0].option" style="margin-top:15px;"></x-chart> -->
+					<component :is="chartArt" :id="highchartOptions[0].id" :option="highchartOptions[0].option" style="margin-top:15px;"></component>
+				</div>
+				<div class="left home-today-three">
+					<h2 style="margin-top: 10px;">
+						<i class="iconfont" :style="{color:this.$store.state.themeColor.headerColor}">&#xe60a;</i>
+						<span style="font-size:16px;margin-right: 60px;">成交订单客户区域分布图</span>
+						<!-- <span style="font-size: 12px;color:#666">时间：{{currentYear}}</span> -->
+					</h2>
+					<component :is="chartArt" :id="highchartOptions[1].id" :option="highchartOptions[1].option" style="margin-top:15px;"></component>
+				</div>
+				<div class="left home-today-one">
+					<h2 style="margin-top: 10px;">
+						<i class="iconfont" :style="{color:this.$store.state.themeColor.headerColor}">&#xe60a;</i>
+						<span style="font-size:16px;margin-right: 60px;">成交商品类别分布图</span>
+						<!-- <span style="font-size: 12px;color:#666">时间：{{currentYear}}</span> -->
+					</h2>
+					<component :is="chartArt" :id="highchartOptions[2].id" :option="highchartOptions[2].option" style="margin-top:15px;"></component>
+				</div>
+				<div class="left home-today-two">
+					<h2 style="margin-top: 10px;">
+						<i class="iconfont" :style="{color:this.$store.state.themeColor.headerColor}">&#xe60a;</i>
+						<span style="font-size:16px;margin-right: 60px;">成交商品品牌分布图</span>
+						<!-- <span style="font-size: 12px;color:#666">时间：{{currentYear}}</span> -->
+					</h2>
+					<component :is="chartArt" :id="highchartOptions[3].id" :option="highchartOptions[3].option" style="margin-top:15px;"></component>
+				</div>
+			</div>
+			<!--右侧边栏-->
+			<div class="left aside">
+				<!--遗忘提醒-->
+				<div class="aside_one">
+					<h2 style="margin-top: 10px;padding-bottom: 10px;border-bottom: 1px solid #ddd;">
+						<i class="iconfont" :style="{color:this.$store.state.themeColor.headerColor}">&#xe6d0;</i>
+						<span style="font-size:16px;margin-right: 60px;">遗忘提醒</span>
+					</h2>
+					<div class="aside_one_center clearPa">
+						<div class="aside_one_list left">
+							<h2 style="color:#2BC2CC;font-size:13px;">{{noContactCustOne}} 个</h2>
+							<span style="font-size:11px;">一周到俩周未联系客户</span>
+						</div>
+						<div class="aside_one_list left">
+							<h2 style="color:#2BC2CC;font-size:13px;">{{noContactCustTwo}} 个</h2>
+							<span style="font-size:11px;">两周到一月未联系客户</span>
+						</div>
+						<div class="aside_one_list left">
+							<h2 style="color:#2BC2CC;font-size:13px;">{{noContactCustThree}} 个</h2>
+							<span style="font-size:11px;">一月到俩月未联系客户</span>
+						</div>
+						<div class="aside_one_list left">
+							<h2 style="color:#2BC2CC;font-size:13px;">{{noContactCustFour}} 个</h2>
+							<span style="font-size:11px;">俩月以上未联系客户</span>
+						</div>
+					</div>
+				</div>
+
+				<!--记录事件-->
+				<div class="aside_two">
+					<h2 class="clearPa" style="margin-top: 10px;padding-bottom: 10px;border-bottom: 1px solid #ddd;">
+						<i class="iconfont" :style="{color:this.$store.state.themeColor.headerColor}">&#xe65d;</i>
+						<span style="font-size:16px;">记录事件</span>
+						<span class="right" style="padding-right: 10px;font-size: 11px;line-height: 25px;cursor:default;" @click="dialogFormVisible = true">编辑</span>
+					</h2>
+					<div class="aside_two_center">
+						<div class="aside_two_list" @click="removeEvent" style="cursor:default;">
+							<i class="iconfont" style="color:#eee;">&#xe7a5;</i>
+							<span style="font-size:11px;color:#999;">你有一项工作没有做好，请继续努力...</span>
+						</div>
+						<div class="aside_two_list" @click="removeEvent" style="cursor:default;">
+							<i class="iconfont" style="color:#e4393c;">&#xe7a5;</i>
+							<span style="font-size:11px;color:#999;">你有一项工作没有做好，请继续努力...</span>
+						</div>
+					</div>
+				</div>
+				<!--销售排行-->
+				<div class="aside_three">
+					<h2 style="margin-top: 10px;padding-bottom: 10px;border-bottom: 1px solid #ddd;">
+						<i class="iconfont" :style="{color:this.$store.state.themeColor.headerColor}">&#xe63f;</i>
+						<span style="font-size:16px;margin-right: 60px;">销售排行</span>
+					</h2>
+					<div class="aside_three_center">
+						<div class="home-ranking-list clearPa">
+							<div class="left home-ranking-list-icon" style="background-color:#666;color:#fff;">1</div>
+							<div class="left home-ranking-list-name">
+								<span>张经理</span>
+								<p>华南区域</p>
+							</div>
+							<div class="left home-ranking-list-num">
+								<p>昨日新增客户：<span style="color:#000;">5</span>个</p>
+								<p>昨日成单额：<span style="color:#000;">45578</span>元</p>
+							</div>
+						</div>
+						<div class="home-ranking-list clearPa">
+							<div class="left home-ranking-list-icon" style="background-color:#999;color:#fff;">2</div>
+							<div class="left home-ranking-list-name">
+								<span>张经理</span>
+								<p>华南区域</p>
+							</div>
+							<div class="left home-ranking-list-num">
+								<p>昨日新增客户：<span style="color:#000;">5</span>个</p>
+								<p>昨日成单额：<span style="color:#000;">45578</span>元</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<!--记录事件编辑-->
+			<el-dialog title="记录事件编辑" :visible.sync="dialogFormVisible">
+			  <el-form v-model="recordEvent">
+			    <el-form-item label="">
+			      <el-input v-model="recordEvent"></el-input>
+			    </el-form-item>
+			  </el-form>
+			  <div slot="footer" class="dialog-footer">
+			    <el-button @click="dialogFormVisible = false">取 消</el-button>
+			    <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+			  </div>
+			</el-dialog>
+		</div>
+		<div class="clear"></div>
+	</div>
+	
+
+</template>
+<script type="text/javascript">
+import datetimePick from "@/components/common/datetimePick";
+import {optionOne,optionTwo,optionThree,optionFour} from "@/util/chartOption/home.js";
+import {getSummary} from "@/util/req/home/index.js";
+import {formatDateTime} from "@/util/fn/transTime.js";
+	export default{
+		name:"home",
+		data(){
+			return{
+				dialogFormVisible:false,  //编辑事件切换
+				recordEvent:"",         //编辑内容
+				highchartOptions:[
+					{
+						id: 'chart1',
+      					option: optionOne
+					},
+					{
+						id: 'chart2',
+      					option:optionTwo
+					},
+					{
+						id: 'chart3',
+      					option: optionThree
+					},
+					{
+						id: 'chart4',
+      					option: optionFour
+					}
+				],
+				startTime:null,		//开始时间
+				startEnd:null,		//结束时间	
+				year:null, 			//年份
+				summaryList:{}, 	//汇总数据		
+				sumTime:2018, 	//本周 	
+				currentYear:null,
+				custAreaData:null, 		// 新增客户区域分布
+				orderCustAreaData:null,			// 成交订单客户区域分布
+				orderCategoryData:null,			//成交商品类别分布
+				orderBrandData:null, 			//成交商品品牌分布
+				chartArt:'',
+				noContactCustOne:null,	//一周到两周未联系客户
+				noContactCustTwo:null,	//两周到一个月未联系客户
+				noContactCustThree:null,//一月到两月未联系
+				noContactCustFour:null 	//两个月以上未联系
+			}
+		},
+		mounted(){
+			//默认为本周数据
+			var now = new Date(); //当前日期
+			var nowDayOfWeek = now.getDay(); //今天本周的第几天
+			var nowDay = now.getDate(); //当前日
+			var nowMonth = now.getMonth(); //当前月
+			var nowYear = now.getFullYear(); //当前年
+			var NowWeekStartDate = new Date(nowYear, nowMonth, nowDay - nowDayOfWeek);
+			var NowWeekEndDate = new Date(nowYear, nowMonth, nowDay + (6 - nowDayOfWeek));
+			console.log(NowWeekStartDate);
+			var timeS=formatDateTime(NowWeekStartDate);
+			var timeE=formatDateTime(NowWeekEndDate);
+			var years=formatDateTime(NowWeekEndDate,2);
+
+			this.startTime=timeS;
+			this.startEnd=timeE;
+			this.year=years;
+			this.getSummaryData();
+		},
+		methods:{
+			removeEvent(){
+				this.$confirm('此操作将此条记录事件, 是否继续?', '提示', {
+		          confirmButtonText: '确定',
+		          cancelButtonText: '取消',
+		          type: 'warning'
+		        }).then(() => {
+		          this.$message({
+		            type: 'success',
+		            message: '删除成功!'
+		          });
+		        }).catch(() => {
+		          this.$message({
+		            type: 'info',
+		            message: '已取消删除'
+		          });          
+		        })
+			},
+			changetimeName(val){	//改变名称
+				//console.log(val);
+				this.sumTime=val;
+			},
+			changetime(val){		//时间确认改变
+				this.startTime=val.timeStart;
+				this.startEnd=val.timeEnd;
+				this.year=val.yearValue;
+				this.currentYear=this.startTime+'~'+this.startEnd;
+
+				this.getSummaryData();
+			},
+			getSummaryData(){		//获取汇总数据
+				var params={
+					startTime:this.startTime||{},
+					startEnd:this.startEnd||{},
+					year:this.year||{}
+				};
+				getSummary(params,res=>{
+					//console.log(res.data);
+					res=res.data;
+					this.summaryList=res;
+					this.custAreaData=res.custAreaData ;
+					this.orderCustAreaData=res.orderCustAreaData;
+					this.orderCategoryData=res.orderCategoryData;
+					this.orderBrandData=res.orderBrandData;
+					this.noContactCustOne=res.noContactCustOne;	//一周到两周未联系客户
+					this.noContactCustTwo=res.noContactCustTwo;	//两周到一个月未联系客户
+					this.noContactCustThree=res.noContactCustThree;//一月到两月未联系
+					this.noContactCustFour=res.noContactCustFour;	//两个月以上未联系
+					//optionOne.series[0].data=this.custAreaData;	//新增客户区域分布
+					optionOne.series[0].data=this.custAreaData[1];
+					optionOne.xAxis.categories=this.custAreaData[0];
+					optionTwo.series[0].data=this.orderCustAreaData[1];
+					optionTwo.xAxis.categories=this.orderCustAreaData[0];
+					optionThree.series[0].data=this.orderCategoryData;
+					optionFour.series[0].data=this.orderBrandData;
+
+					this.chartArt="";
+					setTimeout(()=>{this.chartArt='XChart'},0);
+				})
+			},
+			sumList(res,month,count){			//对返回数据进行处理(数据，月份(名称)，数量(名称))
+			
+			},
+			getOfferList(val){			//获取报价&订单数据(年)
+
+			
+			}
+		},
+		components:{
+			datetimePick,
+			XChart:() => import('@/components/common/chart.vue')			
+		}
+	}
+</script>
+<style lang="scss" scoped>
+.section{
+	background-color:#fff;
+	border-radius:4px;
+}
+	.iconfont{
+		vertical-align: middle;
+	}
+	.home{
+		width:73%;
+		padding:20px 10px;
+	}
+		.home-today{
+			padding:20px 0;
+		}
+		.home-today-child{
+			width:21%;
+			min-width:150px;
+			float:left;
+			margin: 0 25px 10px 0;
+		}
+			.home-today-center{
+				width:100%;
+				background-color:#EFEDF0;
+				border-radius:4px;
+				text-align:center;
+				color: #666;
+				font-size: 11px;
+				padding:10px;
+			}
+		.home-today-one{
+			margin-top:20px;
+			width:50%;
+			box-sizing:border-box;
+		}		
+		.home-today-two{
+			margin-top:20px;
+			width:50%;
+		}
+		.home-today-three{
+			width:100%;
+		}
+	.aside{
+		width:20%;
+		padding:10px;
+	}
+		.aside_one{
+			
+		}
+			.aside_one_center{
+				background-color:#EFEDF0;
+				padding:10px;
+				margin-top:10px;
+				border-radius:4px;
+			}
+				.aside_one_list{
+					width:47%;
+					min-width:115px;
+					color:#666;
+					margin:0 5px 10px 0;
+
+				}	
+		.aside_two{
+			margin-top:20px;
+		}
+			.aside_two_center{
+				background-color:#EFEDF0;
+				padding:10px;
+				margin-top:10px;
+				border-radius:4px;
+				min-height:200px;
+				max-height:300px;
+				overflow-y:scroll;
+			}
+				.aside_two_list{
+					margin-bottom:5px;
+				}	
+		.aside_three{
+			margin-top:20px;
+		}
+			.aside_three_center{
+				background-color:#EFEDF0;
+				padding:10px;
+				margin-top:10px;
+				border-radius:4px;
+				min-height:200px;
+				max-height:300px;
+			}
+				.home-ranking-list{
+					margin-bottom:10px;
+				}
+					.home-ranking-list-icon{
+						width:20px;
+						height:20px;
+						border-radius:50%;
+						text-align:center;
+						line-height: 20px;
+						margin-top:6px;
+					}
+					.home-ranking-list-name{
+						font-size:12px;
+						color:#666;
+						text-align:center;
+						min-width:70px;
+					}
+					.home-ranking-list-num{
+						font-size:12px;
+						color:#666;
+					}							
+</style>

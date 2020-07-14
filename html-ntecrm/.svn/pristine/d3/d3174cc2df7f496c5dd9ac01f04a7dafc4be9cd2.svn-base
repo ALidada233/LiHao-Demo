@@ -1,0 +1,120 @@
+<template>
+  <div class="shipping">
+    <el-table :data="orderShipping" ref="table" :height="tableHeight" width="100%;" :header-cell-style="{'background-color':'#EFEDF0'}" style="margin-top:20px;">
+      <el-table-column width="150" prop="orderNo" label="订单编号" align="center">
+         <template slot-scope="scope">
+          <span style="color:#409EFF;cursor:default;" @click="$router.push({path:'/admin/order',query:{orderNo:scope.row.orderNo}})">{{scope.row.orderNo}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="150"  prop="contractNo" label="合同编号"></el-table-column>
+      <el-table-column width="150" align="center" prop="receiptName" label="收货人姓名"></el-table-column>
+      <el-table-column width="120" prop="receiptPhone" label="收货人手机号"></el-table-column>
+      <el-table-column width="120" prop="address" label="收货地址"></el-table-column>
+      <el-table-column width="100" prop="file" label="发货单文件" align="center">
+        <template slot-scope="scope">
+          <span style="color:#66b1ff;cursor:default;" v-if="scope.row.file" @click="invoiceFileVisible=true;invoiceFile=scope.row.file;">预览</span>
+          <span v-else>无</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="120" prop="logBank" label="发货物流公司"></el-table-column>
+      <el-table-column width="120" prop="logNo" label="发货物流单号"></el-table-column>
+      <el-table-column width="160"  align="center" prop="sendTime" label="发货时间"></el-table-column>
+    </el-table>
+    <div class="clearPa edit">
+      <!-- 分页 -->
+      <div class="block" style="float: right;margin-top:10px;">
+        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="currentPage"
+          :page-sizes="[5, 10, 15, 30]" :page-size="pageSize" layout="sizes, prev, pager, next, total" :total="pageCount">
+        </el-pagination>
+      </div>
+    </div>
+     <!-- 预览发货单文件 -->
+      <el-dialog
+        title="预览发货单"
+        :visible.sync="invoiceFileVisible"
+        width="80%"
+        class="selFile"
+        :before-close="invoiceFileVisibleClose"
+        :append-to-body="true"
+        >
+        <div>
+          <object v-if="invoiceFile&&invoiceFile.indexOf('pdf')>-1" :data="invoiceFile" width="100%" height="550px" internalinstanceid="130"></object>
+          <img v-else :src="invoiceFile" style="width:100%;" alt="">
+        </div>
+      </el-dialog>
+  </div>
+</template>
+<script>
+import {queryOrderShippingList} from "@/util/req/shipping/index";
+export default {
+  name:"shipping",
+  data(){
+    return{
+      tableHeight:null,
+      loading:false,
+      currentPage: 1,
+      pageSize: 10,
+      pageCount: null,
+      invoiceFileVisible:false,
+      orderShipping:[],
+      invoiceFile:null
+    }
+  },
+  watch:{
+   
+  },
+  methods:{
+    invoiceFileVisibleClose(){
+      this.invoiceFileVisible=false;
+    },
+    handleSizeChange(pageSize) { //数据条数改变时
+      this.loading = true;
+      this.pageSize = pageSize;
+      this.currentPage = 1;
+      this.queryOrderShippingList();
+    },
+    handleCurrentChange(currentPage) { //选取分页
+      this.loading = true;
+      this.queryOrderShippingList();
+    },
+    queryOrderShippingList(){      //查询列表
+      var parmas = {
+        pageSize: this.pageSize,
+        page: this.currentPage
+      };
+      this.loading = true;
+      queryOrderShippingList(parmas, res => {
+        if (res.msgCode == 200) {
+          this.orderShipping = res.data.list;
+          this.pageCount = res.data.pageCount;
+          setTimeout(() => {
+            this.loading = false;
+          }, 200)
+        } else {
+          setTimeout(() => {
+            this.loading = false;
+          }, 200)
+        }
+      })  
+    }
+  },
+  mounted(){
+    this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop-120;
+    this.queryOrderShippingList();
+  }
+}
+</script>
+<style lang="scss" scoped>
+  .shipping{
+    background: #fff;
+    border-radius: 4px;
+    padding: 20px;
+  }
+  .selFile /deep/ .el-dialog {
+    margin-top: 10px!important;
+  }
+  .shipping /deep/ ::-webkit-scrollbar {
+    height: 9px;
+    width: 7px;
+  }
+</style>

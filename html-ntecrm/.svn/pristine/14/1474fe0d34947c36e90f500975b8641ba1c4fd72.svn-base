@@ -1,0 +1,922 @@
+<template>
+  <div class="operator">
+
+    <div style="margin-top:-20px;margin-bottom: 20px;">
+      <!-- 条件查询： -->
+      <el-input style="width: 15%;margin-top: 20px;" placeholder="请输入搜索内容" size="medium" v-model="searchContent"
+        clearable>
+      </el-input>
+      <el-select v-model="orderStatus" multiple clearable size="medium" @change="selChangeStatus" placeholder="请选择订单状态">
+        <el-option :value="6" label="待申请"></el-option>
+        <el-option :value="0" label="待确认"></el-option>
+        <el-option :value="1" label="已确认"></el-option>
+        <el-option :value="2" label="退货中"></el-option>
+        <el-option :value="3" label="已退货"></el-option>
+        <el-option :value="4" label="退款"></el-option>
+        <el-option :value="5" label="无效"></el-option>
+        <el-option :value="7" label="全部"></el-option>
+      </el-select>
+      <el-select v-model="saleId" placeholder="请选择负责人" :filterable="true" :clearable="true" style="width:150px;margin-top: 10px;"
+        size="medium">
+        <el-option v-for="(item,index) in salesList" :key="index" :label="item.name" :value="item.id">
+        </el-option>
+      </el-select>
+      <el-select v-model="payStatus" placeholder="请选择支付状态" multiple :filterable="true" :clearable="true" style="width:150px;margin-top: 10px;"
+        size="medium">
+        <el-option label="未支付" :value="0"></el-option>
+        <el-option label="已预付" :value="1"></el-option>
+        <el-option label="已支付" :value="2"></el-option>
+      </el-select>
+      <el-select v-model="shippingStatus" placeholder="请选择发货状态" multiple :filterable="true" :clearable="true" style="width:150px;margin-top: 10px;"
+        size="medium">
+        <el-option label="未到货" :value="0"></el-option>
+        <el-option label="到货未发货" :value="1"></el-option>
+        <el-option label="已发货" :value="2"></el-option>
+        <el-option label="确认收货" :value="3"></el-option>
+      </el-select>
+      <el-select v-model="moneyStatus" placeholder="请选择付款方式" multiple :filterable="true" :clearable="true" style="width:150px;margin-top: 10px;"
+        size="medium">
+        <el-option label="预付全款" :value="1"></el-option>
+        <el-option label="30%预付款，70%款到发货" :value="2"></el-option>
+        <el-option label="50%预付款，50%款到发货" :value="3"></el-option>
+        <el-option label="货到付款" :value="4"></el-option>
+        <el-option label="款到发货" :value="7"></el-option>
+        <el-option label="月结" :value="5"></el-option>
+        <el-option label="其它" :value="6"></el-option>
+      </el-select>
+      <el-select v-model="indexStr" placeholder="技术协助需求" :filterable="true" :clearable="true" style="width:150px;margin-top: 10px;">
+          <el-option label="是" value="1"></el-option>
+          <el-option label="否" value="2"></el-option>
+        </el-select>
+      <el-date-picker v-model="createTime" value-format="yyyy-MM-dd HH:mm:ss" type="datetimerange" range-separator="至"
+        start-placeholder="新建开始日期" end-placeholder="新建结束日期" align="right" size="medium" style="margin-top: 10px;width:290px;margin-right: 15px;">
+      </el-date-picker>
+      <el-date-picker v-model="updateTime" value-format="yyyy-MM-dd HH:mm:ss" type="datetimerange" range-separator="至"
+        start-placeholder="更新开始日期" end-placeholder="更新结束日期" align="right" size="medium" style="margin-top: 10px;width:290px;margin-right: 15px;">
+      </el-date-picker>
+      <el-button type="primary" size="medium" style="margin-top: 15px;" @click="queryOrderList" icon="el-icon-search"></el-button>
+      <el-button v-tip.top.dark="'重置'" style="margin-top:10px;" size="medium" icon="el-icon-refresh" @click="resetSearchCondition()"></el-button>
+    </div>
+    <div class="operatorTable" style="margin-top: 0px;">
+      <el-table :data="dataList" style="width: 100%" :height="tableHeight" :border="true" v-loading="loading" class="screenTable" ref="table">
+        <el-table-column label="操作" width="240">
+          <template slot-scope="scope">
+            <el-button type="primary" v-tip.top.dark="'申请确认'" size="mini" v-if="scope.row.orderStatus==6" style="margin-bottom:5px;"
+              class="iconfont" round @click="applyHandle(scope.row)">&#xe67f;</el-button>
+            <el-button v-tip.top.dark="'报价单'" size="mini" v-if="scope.row.offerFile!==null && scope.row.offerFile!==''"
+              style="margin-bottom:5px;background:#5bc0de;color:#fff;" class="iconfont" round @click="viewContract(scope.row,1)">&#xe651;</el-button>
+            <el-badge :is-dot="scope.row.technicalNum>0" class="item"  v-if="scope.row.orderStatus>0 && scope.row.orderStatus<5">
+              <el-button type="primary" v-tip.top.dark="'详情'" size="mini"
+                style="margin-bottom:5px;" class="iconfont" round @click="getOrderDetail(scope.row)">&#xe6e5;</el-button>
+              </el-badge>  
+            <el-button v-tip.top.dark="'合同'" size="mini" v-if="scope.row.contractFile!==null && scope.row.contractFile!==''"
+              style="margin-bottom:5px;background:#8E8CBC;color:#fff;margin-left:0;" class="iconfont" round @click="viewContract(scope.row,2)">&#xe617;</el-button>
+            <span v-if="roleId==36||roleId==37||roleId==42||roleId==39">
+              <el-button type="primary" v-tip.top.dark="'确认'" size="mini" style="margin-bottom:5px;" class="iconfont"
+                round @click="confirmOrderVisible=true;confirmform.id=scope.row.id;confirmform.moneyStatus=scope.row.moneyStatus;"
+                v-if="scope.row.orderStatus==0 && 
+              (scope.row.moneyStatus==1 || scope.row.moneyStatus==2 || scope.row.moneyStatus==3 || scope.row.moneyStatus==6)">&#xe642;</el-button>
+              <el-button v-tip.top.dark="'确认'" size="mini" style="margin-bottom:5px;background:#009a61;color:#fff;" class="iconfont"
+                round @click="confirmOrderVisible=true;confirmform.id=scope.row.id;confirmform.moneyStatus=scope.row.moneyStatus;"
+                v-if="scope.row.orderStatus==0 && 
+              (scope.row.moneyStatus==4 || scope.row.moneyStatus==5 || scope.row.moneyStatus==7)">&#xe62c;</el-button>
+             </span>
+             <el-button  v-if="scope.row.orderStatus!=5" v-tip.top.dark="'回滚订单'" class="iconfont" type="danger" size="mini" round @click="rollBackHandle(scope.row)">&#xe767;</el-button>
+          </template>
+        </el-table-column>
+        <el-table-column label="订单编号" align="center" width="150">
+           <template slot-scope="scope">
+              <span :style="{'color':scope.row.indexId>0?'#409EFF':''}">
+                {{scope.row.orderNo}}
+              </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="业务员" align="center" width="80">
+          <template slot-scope="scope">
+              <span>
+                {{scope.row.saleName}}
+              </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="订单状态" align="center" width="100">
+          <template slot-scope="scope">
+            <span v-if="scope.row.orderStatus==0">待确认</span>
+            <span v-if="scope.row.orderStatus==1">已确认</span>
+            <span v-if="scope.row.orderStatus==2">退货中</span>
+            <span v-if="scope.row.orderStatus==3">已退货</span>
+            <span v-if="scope.row.orderStatus==4">退款</span>
+            <span style="color: red;font-weight: bold;" v-if="scope.row.orderStatus==5">无效</span>
+            <span v-if="scope.row.orderStatus==6">待申请</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="支付状态" align="center" width="100">
+          <template slot-scope="scope">
+            <el-tag  type="warning"  v-if="scope.row.payStatus==0">未支付</el-tag>
+            <el-tag  v-if="scope.row.payStatus==1">已预付</el-tag>
+            <el-tag  type="success" v-if="scope.row.payStatus==2">已支付</el-tag>
+          </template>
+        </el-table-column>
+        <!-- <el-table-column label="发货状态" align="center" width="110">
+          <template slot-scope="scope">
+            <el-tag type="info" v-if="scope.row.shippingStatus==0">未到货</el-tag>
+            <el-tag v-if="scope.row.shippingStatus==1">到货未发货</el-tag>
+            <el-tag type="success" v-if="scope.row.shippingStatus==2">已发货</el-tag>
+            <el-tag type="warning" v-if="scope.row.shippingStatus==3">确认收货</el-tag>
+          </template>
+        </el-table-column> -->
+        <el-table-column label="付款方式" align="center" width="110">
+          <template slot-scope="scope">
+            <span v-if="scope.row.moneyStatus==1">预付全款</span>
+            <span v-if="scope.row.moneyStatus==2">30%预付款<span><br>70%款到发货</span></span>
+            <span v-if="scope.row.moneyStatus==3">50%预付款<span><br>50%款到发货</span></span>
+            <span v-if="scope.row.moneyStatus==4">货到付款</span>
+            <span v-if="scope.row.moneyStatus==7">款到发货</span>
+            <span v-if="scope.row.moneyStatus==5">月结</span>
+            <span v-if="scope.row.moneyStatus==6">其它</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="客户公司" align="center" width="150">
+          <template slot-scope="scope">
+            <span>
+              <el-popover placement="top-start" title="" width="150" trigger="hover" :content="scope.row.custCompanyName">
+                <span slot="reference" style="cursor:default;" v-html="$root.OmissionText(scope.row.custCompanyName==null?null:scope.row.custCompanyName,8)"></span>
+              </el-popover>
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="联系人信息" align="center" width="200">
+          <template slot-scope="scope">
+            <span>
+              {{scope.row.conName}}-{{scope.row.telePhone}}<br>{{scope.row.mailBox}}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" width="100" label="总金额">
+          <template slot-scope="scope">
+            <span>￥{{scope.row.totalMoney}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" width="100" label="应付金额">
+          <template slot-scope="scope">
+            <span>￥{{scope.row.copeMoney}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" width="100" label="尾款金额">
+          <template slot-scope="scope">
+            <span>￥{{scope.row.waitMoney}}</span>
+          </template>
+        </el-table-column>
+         <el-table-column align="center" width="100" label="已付金额">
+          <template slot-scope="scope">
+            <span>￥{{scope.row.preMoney+scope.row.payMoney}}</span>
+          </template>
+        </el-table-column>
+         <el-table-column align="center" width="100" label="待付金额">
+          <template slot-scope="scope">
+            <span>￥{{scope.row.totalMoney-(scope.row.preMoney+scope.row.payMoney)}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column  label="支付记录" align="center" width="100">
+          <template slot-scope="scope">
+            <span style="color:#66b1ff;cursor:default;" @click="$router.push({path:'/admin/payLog',query:{orderNo:scope.row.orderNo}})">查看</span>
+          </template>
+        </el-table-column>
+        <el-table-column  label="发货记录" align="center" width="100">
+          <template slot-scope="scope">
+            <span style="color:#66b1ff;cursor:default;" @click="$router.push({path:'/admin/payLog',query:{orderNo:scope.row.orderNo}})">查看</span>
+          </template>
+        </el-table-column>
+        <el-table-column  label="发票记录" align="center" width="100">
+          <template slot-scope="scope">
+            <span style="color:#66b1ff;cursor:default;" @click="$router.push({path:'/admin/payLog',query:{orderNo:scope.row.orderNo}})">查看</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="remark" label="备注" align="center" width="200">
+        </el-table-column>
+        <!-- <el-table-column prop="technicalNum" label="技术支持未读" align="center" width="110">
+        </el-table-column> -->
+        <el-table-column prop="createTime" label="创建时间" align="center" width="160">
+        </el-table-column>
+        <el-table-column prop="updateTime" label="更新时间" align="center" width="160">
+        </el-table-column>
+      </el-table>
+    </div>
+    <!--分页-->
+    <div class="clearPa edit">
+      <!-- 分页 -->
+      <div class="block" style="float: right;margin-top:10px;">
+        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="currentPage"
+          :page-sizes="[5, 10, 15, 30]" :page-size="pageSize" layout="sizes, prev, pager, next, total" :total="pageCount">
+        </el-pagination>
+      </div>
+    </div>
+
+    <!--新增&编辑-->
+    <transition name="el-fade-in-linear">
+      <region-edit v-show="editShow" :editState="editState" :editList="editList" @changeEdit="closeEdit"></region-edit>
+    </transition>
+    <!-- 预览合同 -->
+    <el-dialog :title="sendTitle?'预览合同':'预览报价单'" class="sendTitle" width="80%" :visible.sync="heTongVisible"
+      :append-to-body="true">
+      <div style="width:100%">
+        <object :data="pdfFile" v-if="pdfFile&& pdfFile.indexOf('pdf')>-1" width="100%" height="550px" internalinstanceid="233"></object>
+        <img v-else style="width: 100%;" :src="pdfFile" alt="">
+      </div>
+      <div style="text-align: right;margin-top: 20px;">
+        <el-upload v-if="sendTitle" style="display:inline-block;" class="upload-demo" action="/nte-crm/uploadFile"
+          :on-preview="handlePreview" :on-remove="handleRemove" :before-remove="beforeRemove" :limit="1" :on-exceed="handleExceed"
+          :on-success="successUpload" accept=".pdf" :file-list="fileList">
+          <el-button size="small" type="primary">合同更换</el-button>
+          <div slot="tip" class="el-upload__tip"></div>
+        </el-upload>
+        <el-button type="primary" size="small" @click="heTongVisible=false">关闭</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="确认订单" :visible.sync="confirmOrderVisible" @close="closeConfirmform()">
+      <el-form :model="confirmform" :rules="rules" ref="confirmform">
+        <el-form-item label="类型" label-width="120px">
+          <el-select v-model="confirmform.orderStatus" placeholder="请选择确认类型">
+            <el-option label="确认" :value="1"></el-option>
+            <el-option label="无效" :value="5"></el-option>
+          </el-select>
+        </el-form-item>
+        <div v-if="confirmform.orderStatus==1">
+    
+          <div v-if="confirmform.moneyStatus==1 || confirmform.moneyStatus==2 || confirmform.moneyStatus==3 || confirmform.moneyStatus==6">
+            <el-form-item label="支付金额 (￥)" label-width="120px" prop="money">
+              <el-input type="text" style="width:200px;" v-model.number="confirmform.money" placeholder="请输入支付金额"></el-input>
+            </el-form-item>
+            <!-- <el-form-item label="支付状态" label-width="120px">
+              <el-radio-group v-model="confirmform.payStatus">
+                <el-radio :label="1">已预付</el-radio>
+              </el-radio-group>
+            </el-form-item> -->
+            <el-form-item label="支付时间" label-width="120px" prop="payTime">
+              <el-date-picker v-model="confirmform.payTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss"
+                placeholder="请输入支付时间">
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="流水号" label-width="120px" prop="tradeNo">
+              <el-input type="text" style="width:200px;" v-model="confirmform.tradeNo" placeholder="请输入流水号"></el-input>
+            </el-form-item>
+            <el-form-item label="补录时间" label-width="120px">
+              <el-date-picker v-model="confirmform.createTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss"
+                placeholder="请输入补录时间">
+              </el-date-picker>
+            </el-form-item>
+          </div>
+        </div>
+        <el-form-item label="补录时间" label-width="120px"
+         v-if="confirmform.orderStatus==1 && (confirmform.moneyStatus==4||confirmform.moneyStatus==5||confirmform.moneyStatus==7) ">
+          <el-date-picker v-model="confirmform.createTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss"
+            placeholder="请输入补录时间">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="理由" label-width="120px">
+          <el-input type="textarea" :rows="4" style="width:300px;" v-model="confirmform.remark" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="closeConfirmform()">取 消</el-button>
+        <el-button type="primary" @click="confirmOrder()">确 定</el-button>
+      </div>
+    </el-dialog>
+    <!-- 订单详情 -->
+    <transition name="fade-transform" mode="out-in">
+      <detail ref="selectfood" class="detailVisible" v-show="detailVisible" @closeVisible="detailVisible=false;rowId=null;queryOrderList();"
+        :rowId="rowId" :orderRowList="orderRowList" :detailVisible="detailVisible">
+      </detail>
+    </transition>
+    <!-- 申请确认 -->
+    <el-dialog
+      title="申请确认"
+      :visible.sync="applyConfirmVisible"
+      width="30%"
+      :before-close="applyConfirmClose">
+      <el-form ref="applyForm" :model="applyForm" label-width="100px"  :rules="rules" >  
+        <el-form-item label="申请状态">
+          <el-radio-group v-model="applyForm.orderStatus">
+            <el-radio :label="0">确认</el-radio>
+            <el-radio :label="5">无效</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="申请原因" v-if="applyForm.orderStatus==0">
+          <el-input type="textarea" v-model="applyForm.remark" style="width: 80%;"></el-input>
+        </el-form-item>
+        <el-form-item label="申请原因" prop="remark" v-else>
+          <el-input type="textarea" v-model="applyForm.remark" style="width: 80%;"></el-input>
+          <span style="color:#e4393c;">(必填)</span>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="applyConfirmClose">取 消</el-button>
+        <el-button type="primary" @click="applyConfirmSub">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 订单回滚 -->
+    <el-dialog
+      title="订单回滚"
+      :visible.sync="rollBackOrderVisible"
+      width="30%"
+      :before-close="rollBackOrderClose">
+      <el-form ref="rollBackForm" :model="rollBackForm" label-width="100px"  :rules="rules" >  
+        <el-form-item label="回滚原因" prop="remark">
+          <el-input type="textarea" v-model="rollBackForm.remark" style="width: 80%;"></el-input>
+          <span style="color:#e4393c;">(必填)</span>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="rollBackOrderClose">取 消</el-button>
+        <el-button type="primary" @click="rollBackOrderSub">确 定</el-button>
+      </span>
+    </el-dialog>
+  </div>
+</template>
+<script type="text/javascript">
+  import regionEdit from "@/page/admin/region/components/regionEdit"
+  import {
+    getSalesList
+  } from "util/req/customer/table";
+  import {
+    queryOrderList,
+    updateOrder,
+    updateContractFile,
+    queryOrderDetail,
+    applyConfirmOrder,
+    confirmOrder,
+    rollBackOrder
+  } from "util/req/order/index"
+  export default {
+    name: 'order',
+    data() {
+      return {
+        tableHeight:null,
+        dataList: [{
+          dscribe: null,
+          name: null
+        }],
+        loading: false, //表格数据加载样式
+        currentId: null,
+        editButton: true, //编辑按钮状态
+        editShow: false,
+        editState: false, //编辑&新增状态
+        accreditShow: false, //授权状态
+        loading: false,
+        currentPage: 1,
+        pageSize: 10,
+        pageCount: null,
+        editList: null,
+        orderStatus: [],
+        searchContent: null,
+        sendTitle: true,
+        heTongVisible: false,
+        pdfFile: null,
+        payStatus:[],   //支付状态
+        shippingStatus:[], //发货状态
+        moneyStatus:[],   //付款方式
+        indexStr:null,
+        createTime: null, //创建时间（用来watch）
+        updateTime: null, //更新时间（用来watch）
+        createTimeStart: null,
+        createTimeEnd: null,
+        updateTimeStart: null,
+        updateTimeEnd: null,
+        salesList: [],
+        saleId: null,
+        confirmform: {
+          id: null,
+          orderStatus: null,
+          moneyStatus: null,
+          remark: null,
+          tradeNo:null,//流水号
+          money: null, //支付金额
+          // payStatus: 1, //已预付
+          payTime: null //支付时间
+        },
+        rules: {
+          moneyStatus: {
+            required: true,
+            trigger: 'blur',
+            message: "金额状态不能为空"
+          },
+          money: [{
+            required: true,
+            trigger: 'blur',
+            message: "支付金额不能为空"
+          },
+          { 
+            pattern:/^[1-9]\d*(\.\d+)?$/,
+             message:"只能输入大于0的金额"
+          }],
+          payTime: {
+            required: true,
+            trigger: 'blur',
+            message: "支付时间不能为空"
+          },
+          remark:{
+            required: true,
+            trigger: 'blur',
+            message: "原因不能为空"
+          },
+          tradeNo:{
+            required: true,
+            trigger: 'blur',
+            message: "流水号不能为空"
+          }
+        },
+        confirmOrderVisible: false,
+        applyConfirmVisible:false,
+        rollBackOrderVisible:false,
+        selRow:{},  //点击选中行
+        applyForm:{ orderStatus:0},//申请确认表单元素
+        rollBackForm:{ remark:null},//申请确认表单元素
+        fileList: [],
+        offerId: null,
+        orderId: null,
+        detailVisible: false, //订单详情页面
+        orderRowList: {},
+        rowId: null,
+        roleId: JSON.parse(sessionStorage.getItem('userDto')).roleId || null
+      }
+    },
+    watch: {
+      currentId(val) { //表格数据选中处理
+        if (val != null) {
+          this.editButton = false
+        } else {
+          this.editButton = true
+        }
+      },
+      createTime(val) {
+        if (val != null) {
+          this.createTimeStart = val[0];
+          this.createTimeEnd = val[1];
+        } else {
+          this.createTimeStart = null;
+          this.createTimeEnd = null;
+        }
+      },
+      updateTime(val) {
+        if (val != null) {
+          this.updateTimeStart = val[0];
+          this.updateTimeEnd = val[1];
+        } else {
+          this.updateTimeStart = null;
+          this.updateTimeEnd = null;
+        }
+      },
+      heTongVisible(val) {
+        if (!val) {
+          this.handleRemove();
+        }
+      },
+      'applyForm.orderStatus'(){
+        this.applyForm.remark=null;
+      }
+    },
+    methods: {
+      applyConfirmClose(){
+        this.applyConfirmVisible=false;
+        this.applyForm={ orderStatus:0}
+        this.selRow={};
+      },
+      rollBackOrderClose(){
+        this.rollBackOrderVisible=false;
+        this.rollBackForm={remark:null}
+        this.selRow={};
+      },
+      selChangeStatus(){
+        if(this.orderStatus[this.orderStatus.length-1]==7){
+          this.orderStatus=[7];
+        }
+        if(this.orderStatus.length>1 && this.orderStatus.indexOf(7)>-1){
+          this.orderStatus.splice(this.orderStatus.indexOf(7),1);
+        }
+      },
+      handleRemove(file) {
+        this.file = null;
+        this.fileList = [];
+      },
+      handlePreview(file) {
+        console.log(file);
+      },
+      handleExceed(files) {
+        this.$message.warning('当前只允许传输一个文件');
+      },
+      beforeRemove(file) {
+        return this.$confirm(`确定移除 ${ file.name }？`);
+      },
+      successUpload(response, file) {
+        this.fileList = [{
+          name: file.name,
+          url: response.data.url
+        }]
+        this.saveContractFile(this.fileList[0].url);
+      },
+      getSalesList() {
+        getSalesList(res => {
+          this.salesList = res.data.data.list;
+        })
+      },
+      changeSelect(id) {
+        if (this.currentId != id) {
+          this.currentId = id;
+          this.dataList.map((item) => {
+            if (this.currentId != item.id) {
+              item.selected = false;
+            } else {
+              item.selected = true;
+            }
+            return item
+          })
+        } else if (this.currentId == id) {
+          this.currentId = null;
+          this.dataList.map((item) => {
+            item.selected = false;
+            return item
+          })
+        }
+      },
+      resetSearchCondition() {
+        this.createTimeStart = null;
+        this.createTimeEnd = null;
+        this.updateTimeStart = null;
+        this.updateTimeEnd = null;
+        this.searchContent = null;
+        this.createTime=null;
+        this.updateTime=null;
+        this.saleId=null;
+        this.orderStatus= [];
+        this.payStatus=[];
+        this.shippingStatus=[];
+        this.moneyStatus=[];
+        this.indexStr=null;
+        this.queryOrderList();
+      },
+      closeEdit(state) {
+        this.editShow = state;
+        this.queryOrderList();
+      },
+      editHandle(state) {
+        this.editShow = true;
+        if (state) {
+          this.editState = true
+        } else {
+          this.editState = false
+        }
+      },
+      closeAccredit(state) {
+        this.accreditShow = state
+      },
+      handleSizeChange(pageSize) { //数据条数改变时
+        this.loading = true;
+        this.pageSize = pageSize;
+        this.currentPage = 1;
+        this.queryOrderList();
+      },
+      handleCurrentChange(currentPage) { //选取分页
+        this.loading = true;
+        this.queryOrderList();
+      },
+      queryOrderList() { //查询订单列表
+        var parmas = {
+          pageSize: this.pageSize,
+          page: this.currentPage,
+          orderStatusMore: this.orderStatus.join(',')
+        };
+        //如果选中全部的情况下
+        if(this.orderStatus.indexOf(7)>-1){
+          parmas.orderStatusMore="0,1,2,3,4,5,6"
+        }
+        if (this.saleId) {
+          parmas.saleId = this.saleId;
+        }
+        if (this.searchContent) {
+          parmas.keys = this.searchContent
+        }
+        if (this.createTimeStart) {
+          parmas.createTimeStart = this.createTimeStart;
+          parmas.createTimeEnd = this.createTimeEnd;
+        }
+        if (this.updateTimeStart) {
+          parmas.updateTimeStart = this.updateTimeStart;
+          parmas.updateTimeEnd = this.updateTimeEnd;
+        }
+        //支付方式
+        if(this.payStatus!=null){
+          parmas.payStatusMore=this.payStatus.join(',')
+        }
+        //发货状态
+        if(this.shippingStatus!=null){
+          parmas.shippingStatusMore=this.shippingStatus.join(',')
+        }
+        //付款方式
+        if(this.moneyStatus!=null){
+          parmas.moneyStatusMore=this.moneyStatus.join(',')
+        }
+        if(this.indexStr==1){
+          parmas.indexStr = 1;
+        }else if(this.indexStr==2){
+          parmas.indexStr = 0;
+        }
+        this.loading = true;
+        queryOrderList(parmas, res => {
+          if (res.msgCode == 200) {
+            this.dataList = res.data.list;
+            this.pageCount = res.data.pageCount;
+            setTimeout(() => {
+              this.loading = false;
+            }, 200)
+          } else {
+            setTimeout(() => {
+              this.loading = false;
+            }, 200)
+          }
+        })
+      },
+      editRole(row, state) { //编辑角色
+        this.editShow = true;
+        if (state) {
+          this.editState = true;
+          this.editList = JSON.parse(JSON.stringify(row));
+        } else {
+          this.editState = false
+        }
+      },
+      viewContract(row, state) {
+        this.orderId = row.id;
+        this.offerId = row.offerId;
+        this.heTongVisible = true;
+        if (state == 1) {
+          this.sendTitle = false
+          this.pdfFile = row.offerFile
+        } else {
+          this.sendTitle = true
+          this.pdfFile = row.contractFile
+        }
+      },
+      applyHandle(row) {
+        this.applyConfirmVisible=true;
+        this.selRow=row;
+      },
+      rollBackHandle(row){
+        this.rollBackOrderVisible=true;
+        this.selRow=row;
+      },
+      rollBackOrderSub(){
+        var params={
+          orderId:this.selRow.id,
+          remark:this.rollBackForm.remark
+        };
+        console.log("params.orderId"+params.orderId);
+        if(!this.rollBackForm.remark){
+          this.$message({
+            message: '请输入回滚原因',
+            type: 'warning'
+          });
+          return
+        }
+        rollBackOrder(params, res => {
+          if (res.msgCode == 200) {
+            this.$message({
+              type: 'success',
+              message: res.msg
+            });
+            this.rollBackOrderClose();
+            this.queryOrderList();
+          } else {
+            this.$message({
+              type: 'warning',
+              message: res.msg
+            });
+          }
+        })
+      },
+      applyConfirmSub(){  //提价申请确认（销售）
+        var params={
+          id:this.selRow.id,
+          orderStatus:this.applyForm.orderStatus,
+          remark:this.applyForm.remark
+        };
+        if(this.applyForm.orderStatus==5 && !this.applyForm.remark){
+          this.$message({
+            message: '请输入作废原因',
+            type: 'warning'
+          });
+          return
+        }
+        applyConfirmOrder(params, res => {
+          if (res.msgCode == 200) {
+            this.$message({
+              type: 'success',
+              message: res.msg
+            });
+            this.applyConfirmClose();
+            this.queryOrderList();
+          } else {
+            this.$message({
+              type: 'warning',
+              message: res.msg
+            });
+          }
+        })
+      },
+      closeConfirmform() { //关闭确认按钮
+        this.confirmOrderVisible = false;
+        this.confirmform = {};
+        // this.confirmform.payStatus = 1;
+      },
+      confirmOrder() {
+        if (this.confirmform.orderStatus == 5 && (this.confirmform.remark == null || this.confirmform.remark == '')) {
+          this.$message({
+            message: '请输入无效理由',
+            type: 'warning'
+          });
+          return
+        }
+        this.$refs.confirmform.validate(valid => {
+          if (valid) {
+            var parmas = {};
+            parmas.id = this.confirmform.id;
+            // parmas.updateType = 0;
+            if (this.confirmform.orderStatus == 1) { //确认
+              parmas.orderStatus = 1;
+              parmas.remark = this.confirmform.remark;
+              parmas.createTime = this.confirmform.createTime; //创建时间 
+              if (this.confirmform.moneyStatus == 1 || this.confirmform.moneyStatus == 2 || this.confirmform.moneyStatus ==
+                3 || this.confirmform.moneyStatus == 6) {
+                parmas.money = this.confirmform.money; //支付金额
+                parmas.tradeNo = this.confirmform.tradeNo; //流水号
+                parmas.payTime = this.confirmform.payTime; //支付时间
+              }
+            } else if (this.confirmform.orderStatus == 5) { //无效
+              parmas.orderStatus = 5;
+              // parmas.createTime = this.confirmform.createTime; //创建时间 
+              parmas.remark = this.confirmform.remark; //原因
+            }
+            console.log(parmas);
+            confirmOrder(parmas, res => {
+              this.loading = true;
+              if (res.msgCode == 200) {
+                this.closeConfirmform();
+                this.queryOrderList();
+                this.$message({
+                  message: res.msg,
+                  type: 'success'
+                });
+                setTimeout(() => {
+                  this.loading = false;
+                }, 200)
+              } else {
+                this.$message({
+                  message: res.msg,
+                  type: 'warning'
+                });
+              }
+            })
+          }
+        })
+      },
+      saveContractFile(url) {
+        var params = {};
+        params.contractFile = url;
+        params.offerId = this.offerId;
+        params.orderId = this.orderId;
+        updateContractFile(params, res => {
+          this.loading = true;
+          if (res.msgCode == 200) {
+            console.log(res);
+            this.heTongVisible = false;
+            this.offerId = null;
+            this.orderId = null;
+            this.queryOrderList();
+            setTimeout(() => {
+              this.loading = false;
+            }, 200)
+          } else {
+            this.$message({
+              message: res.msg,
+              type: 'warning'
+            });
+            setTimeout(() => {
+              this.loading = false;
+            }, 200)
+          }
+          this.fileList = [];
+        })
+      },
+      getOrderDetail(row) {
+        this.detailVisible = true;
+        console.log(row);
+        this.rowId = row.id;
+        this.orderRowList = JSON.parse(JSON.stringify(row));
+      }
+    },
+    components: {
+      regionEdit,
+      detail: () => import('@/page/admin/order/components/index')
+    },
+    mounted() {
+      this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop-120;
+      this.getSalesList();
+      if (this.$route.query.createTimeStart) {
+        this.createTimeStart = this.$route.query.createTimeStart + ' 00:00:00';
+        this.createTimeEnd = this.$route.query.createTimeEnd + ' 23:59:59';
+        this.createTime = [this.createTimeStart, this.createTimeEnd];
+        var status=this.$route.query.status;
+        if(this.$route.query.saleId){
+          this.saleId=this.$route.query.saleId;
+        }
+        if(status==1){
+          this.orderStatus = [0,1];
+        }else if(status==2){
+          this.orderStatus = [6,0,1];
+        }else if(status==3){
+          this.orderStatus = [0,1];
+        }
+        this.queryOrderList();
+      }else if(this.$route.query.orderNo){
+        this.searchContent=this.$route.query.orderNo;
+        this.queryOrderList();
+      }else {
+        this.queryOrderList();
+      }
+      //去掉又客户需求跳转进来的需求带公司名称
+      var currentUrl = window.location.href;
+      var targetUrl = currentUrl.split("?")[0];
+      window.location.href = targetUrl;
+
+    }
+  }
+
+</script>
+<style lang='scss' scoped>
+  .operator {
+    background-color: #fff;
+    border-radius: 4px;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    position: relative;
+  }
+  .operator /deep/ .is-fixed{
+    top: 5px;
+  }
+  .operatorTable {
+    margin-top: 30px;
+  }
+
+  .operatorTable /deep/ th {
+    background-color: #EFEDF0 !important;
+  }
+
+  .screenTable /deep/ ::-webkit-scrollbar {
+    height: 9px;
+    width: 7px;
+  }
+
+  .sendTitle /deep/ .el-dialog {
+    margin-top: 5vh !important;
+  }
+
+  .upload-demo {
+    position: relative;
+  }
+
+  .upload-demo /deep/ .el-upload-list {
+    position: absolute;
+    left: -280px;
+    top: -7px;
+    display: inline-block;
+  }
+
+  .detailVisible {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border-radius: 4px;
+    min-height: 100%;
+    background-color: #fff;
+    z-index: 1000;
+    padding: 0 20px 20px 20px;
+    box-sizing: border-box;
+  }
+
+  .fade-transform-leave-active,
+  .fade-transform-enter-active {
+    transition: all .2s;
+  }
+
+  .fade-transform-enter {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+
+  .fade-transform-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+</style>

@@ -1,0 +1,153 @@
+<template>
+	<div class="edit" @click.self="closeDialog">
+		<div class="edit-content">
+		  	<div class="edit-header clearPa">
+		  		<h2 class="left"><span v-if="editState">编辑</span><span v-else>新增</span></h2>
+		  		<i  @click="closeDialog" class="el-icon-close right"></i>
+		  	</div>
+
+			<el-form :model="form" ref="systemFrom" :rules="rules" style="height:400px;overflow:scroll;">
+				<div>
+					<el-form-item label="名称" prop="skey" :label-width="formLabelWidth">
+				      <el-input  v-model="form.skey" disabled autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+				    </el-form-item>
+				    <el-form-item label="唯一值" prop="sval" :label-width="formLabelWidth" style="margin-top:10px;">
+				      <el-input type="number" v-model="form.sval" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+				    </el-form-item>
+				</div> 
+			</el-form>
+
+			<span class="edit-footer clearPa">
+			    <el-button class="right" style="margin-right: 10px;margin-top:10px;" type="primary" @click="submitHandle()">确 定</el-button>
+			    <el-button class="right" style="margin-right: 15px;margin-top:10px;" @click="closeDialog">取 消</el-button>
+			</span>
+		</div>
+	</div>
+</template>
+<script type="text/javascript">
+import {updateSystemConfig} from "util/req/system/index"
+	export default{
+		name:"systemEdit",
+		props:{
+			editTitle:{
+				type:String,
+				default: ''
+			},
+			editState:{
+				type:Boolean,
+				default: true
+			},
+			editList:{
+				type:Object,
+				default:''
+			}
+		},
+		data(){
+			return{
+				titleName:'基本信息',
+				form:this.editList || {
+		          skey: '',
+		          sval: ''
+		        },
+		        formLabelWidth: '120px',
+		        rules:{
+		        	sval:[
+						{required: true,message:"名称不能为空",trigger: 'blur'},
+						{min:2,max:12,message:"长度要在2-12个字内",trigger: 'blur'}
+		        	],
+		        	skey:{required: true,message:"唯一值不能为空",trigger: 'blur'}
+		        }
+			}
+		},
+		watch:{
+			editList(val){
+				if(val!=null ||val!=""){					
+					 this.form=val;
+				}
+			}
+		},
+		methods:{
+			closeDialog(){
+				this.form.sval=null;
+				this.form.skey=null;
+				this.$emit("changeEdit",false)
+			},
+			submitHandle(){
+				this.$refs['systemFrom'].validate(valid=>{
+					if(valid){
+						var params
+						if(this.editState){
+							params={
+								sval:this.form.sval,
+								skey:this.form.skey
+							};
+						}else{
+							params={
+								sval:this.form.sval,
+								skey:this.form.skey
+							};
+						}
+						console.log(params);
+						updateSystemConfig(params,res=>{
+							if(res.msgCode=="200"){
+								this.$message({
+						            type: 'success',
+						            message: res.msg
+						        });
+						        this.closeDialog();
+							}else{
+								this.$message({
+						            type: 'info',
+						            message: res.msg
+						        });
+							}
+						})
+					}else{
+						
+					}
+				})
+			}
+		},
+		mounted(){
+
+		}	
+	}
+</script>
+
+<style lang="scss" scoped>
+.edit /deep/ .el-dialog{
+	margin-top:5vh!important;
+}
+.edit{
+	position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overflow: auto;
+    margin: 0;
+    z-index: 2001;
+    background: rgba(0,0,0,.4);
+}
+.edit-content{
+	background:#fff;
+	border-radius:4px;
+	margin:3% auto 0px;
+	width:50%;
+	padding:20px 25px;
+}
+.edit-header{
+	width:100%;
+	height:35px;
+	line-height:35px;
+}
+	h2{
+		font-size:18px;
+	}
+	i{
+		font-size:18px;
+		line-height:35px;
+	}
+.edit-footer{
+}
+</style>

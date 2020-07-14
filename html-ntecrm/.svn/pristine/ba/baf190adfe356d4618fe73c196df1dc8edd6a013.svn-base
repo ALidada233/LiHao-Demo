@@ -1,0 +1,234 @@
+<template>
+	<div class="operator">
+		
+		<div class="operatorTable">
+			<el-table
+		      :data="dataList"
+		      style="width: 100%"
+			  :border="true"
+			  v-loading="loading"
+		      >
+			  <!-- <el-table-column
+			  	v-loading="loading"
+		        prop="selected"
+		        label="选中"
+		        align="center" 
+		        width="120">
+					<template slot-scope="scope">
+					   <div>
+					  	 	<el-checkbox v-model="scope.row.selected" @click.native.prevent="changeSelect(scope.row.id)"></el-checkbox>
+					   </div> 
+					</template>
+		      </el-table-column> -->
+			  <!-- <el-table-column
+		        label="操作"
+		        width="100">
+		        <template slot-scope="scope">
+		        	<el-button size="mini" round type="primary" icon="el-icon-edit" @click="editRole(scope.row,true)"></el-button>
+		        </template>
+		      </el-table-column> -->
+		      <el-table-column
+		        prop="id"
+		        label="ID"
+		        align="center"
+		        width="100">
+		      </el-table-column>
+		      <el-table-column
+		        prop="custCompanyName"
+		        label="公司名称"
+		        width="180">
+		      </el-table-column>
+		      <el-table-column
+		        prop="conName"
+		        label="联系人">
+		      </el-table-column>
+		       <el-table-column
+		        prop="telePhone"
+		        label="手机号">
+		      </el-table-column>
+		      <el-table-column
+		        prop="mailBox"
+		        label="邮箱">
+		      </el-table-column>
+		      <el-table-column
+		        prop="totalMoney"
+		        label="总报价">
+		      </el-table-column>
+		      <el-table-column
+		        prop="createTime"
+		        label="创建时间">
+		      </el-table-column>
+		    </el-table>
+		</div>
+		
+		<!--分页-->
+		<div class="clearPa edit">
+			<!-- <div style="float:left;padding-top: 8px;">
+				<span style="color: #999;font-size: 11px;"><span v-if="editButton">未选中</span><span v-else> 已选</span></span>
+				<el-button size="small" type="primary"  :disabled="editButton" @click="editHandle(true)"><i class="el-icon-edit-outline"></i>编辑</el-button>
+				
+				<el-button size="small" type="primary"  :disabled="editButton" @click="accreditShow=true"><i class="iconfont" style="font-size: 11px;">&#xe62a;</i> 授权</el-button>
+			</div> -->
+
+			<!-- 分页 -->
+			<div class="block" style="float: right;margin-top:10px;">
+			   <el-pagination
+			      @size-change="handleSizeChange"
+			      @current-change="handleCurrentChange"
+			      :current-page.sync="currentPage"
+			      :page-sizes="[5, 10, 15, 30]"
+			      :page-size="pageSize"
+			      layout="sizes, prev, pager, next"
+			      :total="pageCount">
+			    </el-pagination>
+			</div>
+		</div>
+		
+		<!--新增&编辑-->
+		<transition name="el-fade-in-linear">
+			<region-edit 
+				v-show="editShow"
+				:editState="editState"
+				:editList="editList"
+				@changeEdit="closeEdit"
+			></region-edit>
+		</transition>
+
+	</div>
+</template>
+<script type="text/javascript">
+import regionEdit from "@/page/admin/region/components/regionEdit"
+// import accredit from "@/page/admin/role/components/accredit"
+import {queryOrderList} from "util/req/order/index"
+	export default{
+		name:'order',
+		data(){
+			return{
+		        value: '',
+		        dataList: [{
+		        	dscribe:null,
+		        	name:null
+		          }],
+		        loading: false,		//表格数据加载样式
+		        currentId:null,
+		        editButton:true,	 //编辑按钮状态
+		        editShow:false,
+		        editState:false,	//编辑&新增状态
+		        accreditShow:false,	//授权状态
+		        loading:false,
+		        currentPage:1,
+		        pageSize:10,
+		        pageCount:null,
+		        editList:null
+			}
+		},
+		watch: {
+			currentId(val){     //表格数据选中处理
+				if(val!=null){
+					this.editButton=false
+				}else{
+					this.editButton=true
+				}
+			}
+		},
+		methods:{
+			changeSelect(id){
+				if(this.currentId!=id){
+		      		this.currentId=id;
+			      	this.dataList.map((item)=>{
+			      		if(this.currentId!=item.id){
+			      			item.selected=false;
+			      		}else{
+			      			item.selected=true;
+			      		}
+			      		return item
+			      	})
+			    }else if(this.currentId==id){
+			      	this.currentId=null;
+			      	this.dataList.map((item)=>{		      		
+			      		item.selected=false;
+			      		return item
+			      	})
+			    }
+			},
+			closeEdit(state){
+				this.editShow=state;
+				this.queryOrderList();
+			},
+			editHandle(state){
+				console.log(state);
+				this.editShow=true;
+				if(state){
+					this.editState=true
+				}else{
+					this.editState=false
+				}
+			},
+			closeAccredit(state){
+				this.accreditShow=state
+			},
+			handleSizeChange(pageSize){	//数据条数改变时
+		      	this.loading=true;
+		      	this.pageSize=pageSize;
+		      	this.currentPage=1;
+		      	this.queryOrderList();
+		    },
+		    handleCurrentChange(currentPage){	//选取分页
+		      	this.loading=true;
+		      	this.queryOrderList();
+		    },
+			queryOrderList(){	//查询角色管理列表
+				var parmas={
+					pageSize:this.pageSize,
+					page:this.currentPage
+				};
+				queryOrderList(parmas,res=>{
+					this.loading=true;
+					if(res.msgCode==200){
+						console.log(res);
+						this.dataList=res.data.list;
+						this.pageCount=res.data.pageCount;
+						setTimeout(()=>{
+							this.loading=false;
+						},200)
+					}else{
+						setTimeout(()=>{
+							this.loading=false;
+						},200)
+					}
+				})
+			},
+			editRole(row,state){			//编辑角色
+				this.editShow=true;
+				if(state){
+					this.editState=true;
+					this.editList=JSON.parse(JSON.stringify(row));
+				}else{
+					this.editState=false
+				}				
+			}
+		},
+		components:{
+			regionEdit
+			// accredit
+		},
+		mounted(){
+			this.queryOrderList();
+		}
+	}
+</script>
+<style lang=scss scoped>
+.operator{
+	background-color:#fff;
+	border-radius:4px;
+	width:100%;
+	padding:20px;
+	box-sizing:border-box;
+}
+.operatorTable{
+	margin-top:30px;
+}
+.operatorTable /deep/ th{
+	background-color:#EFEDF0!important;
+}
+</style>

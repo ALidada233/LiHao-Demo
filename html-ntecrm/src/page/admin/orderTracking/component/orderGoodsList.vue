@@ -1,0 +1,362 @@
+<template>
+  <div>
+    <el-table
+      ref="multipleTable"
+      class="offerPrice"
+      :data="dataGoodsList"
+      :header-cell-style="{'background-color':'#EFEDF0'}"
+      style="width: 100%;"
+    >
+      <el-table-column label="是否辅件" width="100" align="center">
+        <template slot-scope="props">
+          <el-tag type="success" v-if="props.row.isParts==1">是</el-tag>
+          <!-- <el-tag type="info" v-else>否</el-tag> -->
+          <el-button
+            type="primary"
+            round
+            icon="el-icon-edit"
+            v-else
+            size="small"
+            @click="uploadHandle(props.row)"
+          ></el-button>
+        </template>
+      </el-table-column>
+      <el-table-column prop="title" label="商品编号" align="center" width="120">
+        <template slot-scope="scope">
+          <span>{{scope.row.goodsNo}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="goodsInfo" label="商品信息" align="center" width="120">
+        <template slot-scope="scope">
+          <span>{{scope.row.goodsInfo}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="goodsFile" label="商品序列号" align="center" width="180">
+        <template slot-scope="scope">
+          <div v-if="scope.row.isParts==0">
+            <el-input placeholder="请输入商品序列号" disabled v-model="scope.row.serialNum" clearable></el-input>
+          </div>
+        </template>
+      </el-table-column>
+
+      <el-table-column prop="goodsFile" label="商品备注" align="center" width="180">
+        <template slot-scope="scope">
+          <div v-if="scope.row.isParts==0">
+            <el-input
+              type="textarea"
+              placeholder="请输入商品备注"
+              disabled
+              v-model="scope.row.remark"
+              clearable
+            ></el-input>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="goodsImg" label="商品图片" align="center" width="180">
+        <template slot-scope="scope">
+          <span v-if="!(scope.row.goodsImg)">未上传</span>
+          <img v-else style="height:50px;" :src="scope.row.goodsImg" />
+        </template>
+      </el-table-column>
+      <el-table-column prop="goodsFile" label="商品资料" align="center" width="180">
+        <template slot-scope="scope">
+          <div v-if="scope.row.isParts==0">
+            <span v-if="!(scope.row.goodsFile)">未上传</span>
+            <i
+              v-else
+              class="el-icon-document"
+              style="color:#409EFF;font-size:20px;"
+              @click="handlePreview({url:scope.row.goodsFile})"
+            ></i>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="goodsFile" label="商品证书" align="center" width="180">
+        <template slot-scope="scope">
+          <div v-if="scope.row.isParts==0">
+            <span v-if="!(scope.row.certificate)">未上传</span>
+            <i
+              v-else
+              class="el-icon-document"
+              style="color:#409EFF;font-size:20px;"
+              @click="handlePreview({url:scope.row.certificate})"
+            ></i>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="goodsFile" label="商品手册" align="center" width="180">
+        <template slot-scope="scope">
+          <div v-if="scope.row.isParts==0">
+            <span v-if="!(scope.row.manualFile)">未上传</span>
+            <i
+              v-else
+              class="el-icon-document"
+              style="color:#409EFF;font-size:20px;"
+              @click="handlePreview({url:scope.row.manualFile})"
+            ></i>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="goodsFile" label="3D图纸" align="center" width="180">
+        <template slot-scope="scope">
+          <div v-if="scope.row.isParts==0">
+            <span v-if="!(scope.row.thrdFile)">未上传</span>
+            <i
+              v-else
+              class="el-icon-document"
+              style="color:#409EFF;font-size:20px;"
+              @click="handlePreview({url:scope.row.thrdFile})"
+            ></i>
+          </div>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <el-dialog
+      title="上传商品资料"
+      :visible.sync="dialogVisible"
+      width="50%"
+      :append-to-body="true"
+      :before-close="handleClose"
+    >
+      <el-form ref="form" :model="form" label-width="120px">
+        <el-form-item label="商品图片">
+          <el-upload
+            class="avatar-uploader"
+            action="/nte-crm/uploadImage"
+            :show-file-list="false"
+            accept=".jpeg, .png, .jpg, .PNG"
+            :on-success="handleAvatarSuccessImg"
+          >
+            <img v-if="form.goodsImg" :src="form.goodsImg" class="avatar" />
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+          </el-upload>
+        </el-form-item>
+        <el-form-item label="商品资料">
+          <el-upload
+            class="upload-demo"
+            action="/nte-crm/uploadFile"
+            :on-preview="handlePreview"
+            :on-remove="handleRemoveFile"
+            multiple
+            :limit="5"
+            accept=".pdf, .PDF, .jpg, .png, .JEPG, .PNG"
+            :on-success="handleAvatarSuccessFile"
+            :file-list="form.goodsFile"
+          >
+            <el-button size="small" type="primary">点击上传</el-button>
+          </el-upload>
+        </el-form-item>
+        <el-form-item label="商品证书">
+          <el-upload
+            class="upload-demo"
+            action="/nte-crm/uploadFile"
+            :on-preview="handlePreview"
+            :on-remove="handleRemoveCertificate"
+            multiple
+            :limit="1"
+            accept=".pdf, .PDF, .jpg, .png, .JEPG, .PNG"
+            :on-success="handleAvatarSuccessCertificate"
+            :file-list="form.certificate"
+          >
+            <el-button size="small" type="primary">点击上传</el-button>
+          </el-upload>
+        </el-form-item>
+        <el-form-item label="商品序列号">
+          <el-input v-model="form.serialNum" style="width:200px;"></el-input>
+        </el-form-item>
+        <el-form-item label="商品备注">
+          <el-input type="textarea" rows="4" style="width:200px;" v-model="form.remark"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="handleClose">取 消</el-button>
+        <el-button type="primary" @click="submitHandle">确 定</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog
+      title="文件预览"
+      :visible.sync="viewVisible"
+      width="50%"
+      :append-to-body="true"
+      :before-close="closeviewVisible"
+    >
+      <el-select v-model="fileUrl" placeholder="请选择">
+        <el-option v-for="item in pdfList" :key="item" :label="item" :value="item"></el-option>
+      </el-select>
+      <div style="height:400px;overflow-y:scroll;text-align:center;">
+        <object
+          v-if="fileType=='pdf'||fileType=='PDF'"
+          :data="fileUrl"
+          width="100%"
+          height="400px"
+          internalinstanceid="5"
+        ></object>
+        <img v-else :src="fileUrl" alt />
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="closeviewVisible">关 闭</el-button>
+      </span>
+    </el-dialog>
+  </div>
+</template>
+<script>
+import { updOrderDataGoods } from "@/util/req/orderTracking/index";
+
+export default {
+  name: "orderGoodsList",
+  data() {
+    return {
+      dialogVisible: false,
+      viewVisible: false,
+      fileUrl: null,
+      fileType: null,
+      pdfList: [],
+      form: {}
+    };
+  },
+  props: {
+    dataGoodsList: {}
+  },
+  methods: {
+    handlePreview(file) {
+      //预览文件
+      if (
+        file.url.indexOf("xlsx") != -1 ||
+        file.url.indexOf("pptx") != -1 ||
+        file.url.indexOf("docx") != -1
+      ) {
+        window.open(
+          "https://view.officeapps.live.com/op/view.aspx?src=" + file.url,
+          "_blank"
+        );
+      } else {
+        this.viewVisible = true;
+        // this.fileUrl = file.url;
+        var fileIndex = file.url.lastIndexOf(".");
+        var suffix = file.url.substring(fileIndex + 1);
+        if (suffix == "pdf") {
+          this.pdfList = file.url.split(",");
+          this.fileType = "pdf";
+        } else {
+          this.fileType = null;
+        }
+        this.fileUrl = this.pdfList[0];
+      }
+    },
+    handleRemoveFile(file, fileList) {
+      this.form.goodsFile.forEach((item, index) => {
+        if (item.url === file.url) {
+          this.form.goodsFile.splice(index, 1);
+        }
+      });
+    },
+    handleRemoveCertificate(file, fileList) {
+      this.form.certificate.forEach((item, index) => {
+        if (item.url === file.url) {
+          this.form.certificate.splice(index, 1);
+        }
+      });
+    },
+    handleAvatarSuccessImg(res, file) {
+      this.form.goodsImg = res.data.url;
+    },
+    handleAvatarSuccessFile(res, file) {
+      this.form.goodsFile.push({ name: res.data.url, url: res.data.url });
+    },
+    handleAvatarSuccessCertificate(res, file) {
+      this.form.certificate = [{ name: res.data.url, url: res.data.url }];
+    },
+    handleClose() {
+      this.dialogVisible = false;
+      this.form = {};
+    },
+    closeviewVisible() {
+      this.viewVisible = false;
+      this.fileUrl = null;
+      this.fileType = null;
+    },
+    //上传资料
+    uploadHandle(row) {
+      this.dialogVisible = true;
+      var parmas = JSON.parse(JSON.stringify(row));
+      this.form = {
+        goodsFile: !parmas.goodsFile
+          ? []
+          : parmas.goodsFile.split(",").map(item => {
+              item = { name: item, url: item };
+              return item;
+            }),
+        goodsImg: parmas.goodsImg,
+        certificate: parmas.certificate
+          ? [{ name: parmas.certificate, url: parmas.certificate }]
+          : [],
+        serialNum: parmas.serialNum,
+        remark: parmas.remark,
+        id: parmas.id
+      };
+    },
+    //提交资料
+    submitHandle() {
+      var params = JSON.parse(JSON.stringify(this.form));
+      if (params.goodsFile.length > 0) {
+        // params.goodsFile = params.goodsFile[0].url;
+        var urlArr = params.goodsFile.map(item => {
+          return item.url;
+        });
+        params.goodsFile = urlArr.join(",");
+      } else {
+        params.goodsFile = "";
+      }
+      if (params.certificate.length > 0) {
+        params.certificate = params.certificate[0].url;
+      } else {
+        params.certificate = "";
+      }
+      console.log(params);
+      updOrderDataGoods(params, res => {
+        if (res.msgCode == 200) {
+          this.$message({
+            message: res.msg,
+            type: "success"
+          });
+          this.handleClose();
+          this.$emit("refreshData");
+        } else {
+          this.$message({
+            message: res.msg,
+            type: "warning"
+          });
+        }
+      });
+    }
+  }
+};
+</script>
+<style lang=scss scoped>
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409eff;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 100px;
+  height: 100px;
+  line-height: 100px;
+  text-align: center;
+  border: 1px dashed #d9d9d9;
+}
+.avatar {
+  width: 100px;
+  height: 100px;
+  display: block;
+  border: 1px dashed #d9d9d9;
+}
+</style>

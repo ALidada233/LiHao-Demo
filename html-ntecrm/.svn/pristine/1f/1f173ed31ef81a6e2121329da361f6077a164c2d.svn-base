@@ -1,0 +1,586 @@
+<template>
+  <div>
+    <!-- <el-button :style="rotate" type="primary" style="margin-top:5px;" icon="el-icon-menu" size="medium" class="left" circle @click="toggleAside"></el-button> -->
+    <i
+      class="iconfont left"
+      :style="rotate"
+      style="line-height:45px;color:#ccc;font-size:25px;cursor:default;margin-left: 20px;"
+      icon="el-icon-menu"
+      size="medium"
+      @click="toggleAside"
+    >&#xe621;</i>
+    <nav-title class="left"></nav-title>
+    <div
+      style="width:60%;margin-left:50px;display:flex;align-items: center;margin-top: 3px;color: #ed6a0c;"
+      class="left"
+      v-if="formationList.length>0"
+    >
+      <i class="iconfont" style="display:inline-block;padding:0 10px;">&#xe673;</i>
+      <el-carousel
+        direction="vertical"
+        style="width:90%;display:inline-block;margin-left:10px;"
+        height="40px"
+        :interval="3000"
+      >
+        <el-carousel-item v-for="(item,index) in formationList" :key="index">
+          <h3 class="medium overOmit" @click="linkHandle(item.type, item.beId)">{{ item.context }}</h3>
+        </el-carousel-item>
+      </el-carousel>
+    </div>
+    <ul class="right header-right">
+      <li class="left" @click="screenHandle">
+        <!--展开全屏关闭全屏-->
+        <!-- <el-tooltip class="item" effect="dark" content="全屏或退出全屏" placement="bottom">
+					<i class="el-icon-rank"></i>
+        </el-tooltip>-->
+      </li>
+      <!-- <li class="left" style="margin-top: 6px;">
+	  			<el-tooltip class="item" effect="dark" content="主题色" placement="bottom">
+	  				<el-color-picker v-model="themeColor" class="colorPick" ref="colorPicker" size="mini" @change="changeTheme"></el-color-picker>
+	  			</el-tooltip>
+      </li>-->
+      <li class="left">
+        <el-badge :value="formationList.length" style="top:8px;">
+          <i
+            class="el-icon-chat-dot-round"
+            @click="drawer = true;queryInformationList()"
+            style="font-size:20px;vertical-align: middle;position: relative;top: -9px;"
+          ></i>
+        </el-badge>
+      </li>
+      <li class="left" v-if="this.$route.path!='/admin/home'">
+        <el-tooltip class="item" effect="dark" content="公告" placement="bottom">
+          <i class="iconfont" @click="changeNoticeStatus">&#xe662;</i>
+        </el-tooltip>
+      </li>
+
+      <!-- <li class="left">
+	  			<router-link :to="{path:'message'}">
+		  			<el-tooltip class="item" effect="dark" content="通知" placement="bottom">
+			  			<el-badge is-dot class="header-msg">
+						  <i class="iconfont" style="color:#333;">&#xe608;</i>
+						</el-badge>
+					</el-tooltip>
+				</router-link>
+      </li>-->
+      <li class="left">
+        <el-dropdown @command="handleCommand">
+          <span class="el-dropdown-link">
+            <i class="iconfont">&#xe643;</i>
+            {{this.$store.state.loginStatu.c_user}}
+            <i
+              class="el-icon-arrow-down el-icon--right"
+            ></i>
+          </span>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="info">个人信息</el-dropdown-item>
+            <el-dropdown-item command="exit">退出登录</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </li>
+    </ul>
+    <el-drawer :visible.sync="drawer" class="myDrawer" size="40%">
+      <template>
+        <div class="message">
+          <div style="padding:20px;">
+            <div style="display:flex;">
+              <template>
+                <el-tabs @tab-click="handleClick" style="display:inline-block;width:120px;">
+                  <!-- <el-tab-pane label="全部"></el-tab-pane> -->
+                  <el-tab-pane label="未读"></el-tab-pane>
+                  <el-tab-pane label="已读"></el-tab-pane>
+                </el-tabs>
+                <el-select
+                  v-model="type"
+                  clearable
+                  placeholder="请选择消息类型"
+                  style="display:inline-block;margin-left:20px;"
+                  @change="changeMsgType"
+                >
+                  <el-option label="客户新增" :value="1"></el-option>
+                  <el-option label="联系人新增" :value="2"></el-option>
+                  <el-option label="折扣申请" :value="3"></el-option>
+                  <el-option label="折扣审批" :value="4"></el-option>
+                  <el-option label="产品资料" :value="5"></el-option>
+                  <el-option label="订单申请" :value="6"></el-option>
+                  <el-option label="订单确认" :value="7"></el-option>
+                  <el-option label="采购订单" :value="8"></el-option>
+                  <el-option label="货期确认" :value="9"></el-option>
+                  <el-option label="售前服务" :value="10"></el-option>
+                  <el-option label="发票申请" :value="11"></el-option>
+                  <el-option label="发票审批" :value="12"></el-option>
+                  <el-option label="调试服务" :value="13"></el-option>
+                  <el-option label="售后服务" :value="14"></el-option>
+                  <el-option label="项目报备" :value="15"></el-option>
+                </el-select>
+              </template>
+            </div>
+            <el-timeline ref="timeline" :style="{height:'85vh',overflowY: 'scroll'}">
+              <el-timeline-item
+                :timestamp="item.createTime"
+                v-for="(item,index) in dataList"
+                :key="index"
+                placement="top"
+              >
+                <el-card>
+                  <h4>
+                    <el-switch
+                      v-model="item.status"
+                      active-color="#13ce66"
+                      inactive-color="#ff4949"
+                      :active-value="1"
+                      :inactive-value="0"
+                      style="margin-right:10px;"
+                      :disabled="status==1"
+                      @change="updInformationStatus(item.id)"
+                    ></el-switch>
+                    <el-tag type="info" v-if="item.type==1">客户新增</el-tag>
+                    <el-tag type="info" v-if="item.type==2">联系人新增</el-tag>
+                    <el-tag type="info" v-if="item.type==3">折扣申请</el-tag>
+                    <el-tag type="info" v-if="item.type==4">折扣审批</el-tag>
+                    <el-tag type="info" v-if="item.type==5">产品资料</el-tag>
+                    <el-tag type="info" v-if="item.type==6">订单申请</el-tag>
+                    <el-tag type="info" v-if="item.type==7">订单确认</el-tag>
+                    <el-tag type="info" v-if="item.type==8">采购订单</el-tag>
+                    <el-tag type="info" v-if="item.type==9">货期确认</el-tag>
+                    <el-tag type="info" v-if="item.type==10">售前服务</el-tag>
+                    <el-tag type="info" v-if="item.type==11">发票申请</el-tag>
+                    <el-tag type="info" v-if="item.type==12">发票审批</el-tag>
+                    <el-tag type="info" v-if="item.type==13">调试服务</el-tag>
+                    <el-tag type="info" v-if="item.type==14">售后服务</el-tag>
+                    <el-tag type="info" v-if="item.type==15">项目报备</el-tag>
+                  </h4>
+                  <p
+                    style="margin-top:5px;cursor: pointer;"
+                    @click="linkHandle(item.type,item.beId)"
+                  >{{item.context}}</p>
+                </el-card>
+              </el-timeline-item>
+            </el-timeline>
+            <div class="block" style="float: right;margin-top:10px;">
+              <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page.sync="currentPage"
+                :page-sizes="[10,20,30]"
+                :page-size="pageSize"
+                layout="sizes, prev, pager, next"
+                :total="pageCount"
+              ></el-pagination>
+            </div>
+          </div>
+        </div>
+      </template>
+    </el-drawer>
+  </div>
+</template>
+<script type="text/javascript">
+import {
+  queryInformationList,
+  updInformationStatus,
+  getInformationList
+} from "@/util/req/home/index.js";
+import { colorRgba } from "util/fn/colorConversion"; //十六进制转换rgba
+import { exit } from "util/req/login.js";
+import navTitle from "@/components/common/navTitle";
+import { Loading } from "element-ui";
+export default {
+  name: "Header",
+  data() {
+    return {
+      themeColor: localStorage.getItem("headerColor") || "#304156",
+      asideHeight: "",
+      mainHeight: "",
+      screenState: "exit",
+      rotate: {
+        transform: "rotate(0deg)",
+        transition: "transform 0.5s linear"
+      },
+      isCollapse: this.$store.state.isCollapse, //侧边栏伸缩状态
+      asideState: true,
+      s: 0,
+      rt: 0,
+      drawer: false,
+      tableHeight: null,
+      activeName: "first",
+      dataList: [{}],
+      loading: false,
+      pageSize: 10,
+      page: 1,
+      currentPage: 1,
+      pageCount: null, //当前页
+      status: 0,
+      formationList: [],
+      type: null,
+      roleId: JSON.parse(sessionStorage.getItem("userDto")).roleId || null,
+      timer: null
+    };
+  },
+  methods: {
+    handleSizeChange(pageSize) {
+      //数据条数改变时
+      this.loading = true;
+      this.pageSize = pageSize;
+      this.currentPage = 1;
+      this.queryInformationList();
+    },
+    handleCurrentChange(currentPage) {
+      //选取分页
+      this.loading = true;
+      this.queryInformationList();
+    },
+    handleClick(tab) {
+      if (tab.index == 0) {
+        this.status = 0;
+      } else {
+        this.status = 1;
+      }
+      this.currentPage = 1;
+      this.queryInformationList();
+    },
+    //获取消息列表
+    queryInformationList() {
+      var params = {
+        pageSize: this.pageSize,
+        page: this.currentPage,
+        status: this.status,
+        type: this.type
+      };
+      this.loading = true;
+      queryInformationList(params, res => {
+        this.tableHeight =
+          window.innerHeight - this.$refs.timeline.$el.offsetTop;
+        this.dataList = res.data.list;
+        this.pageCount = res.data.pageCount;
+        const loading = Loading.service({
+          target: ".myDrawer",
+          lock: true,
+          text: "Loading",
+          spinner: "el-icon-loading",
+          fullscreen: false,
+          background: "rgba(0, 0, 0, 0.7)"
+        });
+        setTimeout(() => {
+          loading.close();
+        }, 200);
+      });
+    },
+    //消息已读
+    updInformationStatus(id) {
+      updInformationStatus({ id }, res => {
+        if (res.msgCode == 200) {
+          this.$message({
+            type: "success",
+            message: res.msg
+          });
+          this.queryInformationList();
+        } else {
+          this.$message({
+            type: "info",
+            message: res.msg
+          });
+        }
+      });
+    },
+    //获取轮播消息
+    getInformationList() {
+      getInformationList({}, res => {
+        if (res.msgCode == 200) {
+          this.formationList = res.data;
+        }
+      });
+    },
+    //消息跳转
+    linkHandle(type, beId) {
+      var curentUrl = location.href.split("?")[0];
+      if (type == 1 || type == 2) {
+        if (this.$route.path == "/admin/customer") {
+          window.location.href = curentUrl + "?custId=" + beId;
+          location.reload();
+        } else {
+          this.$router.push({
+            path: "/admin/customer",
+            query: { custId: beId }
+          });
+        }
+      } else if (type == 3) {
+        if (this.$route.path == "/admin/discountApp") {
+          window.location.href = curentUrl + "?demandId=" + beId;
+          location.reload();
+        } else {
+          this.$router.push({
+            path: "/admin/discountApp",
+            query: { demandId: beId }
+          });
+        }
+      } else if (type == 4 || type == 10) {
+        //售前或需求
+        if (this.roleId == 41 || this.roleId == 40) {
+          if (this.$route.path == "/admin/TechnicalSupport") {
+            window.location.href = curentUrl + "?beId=" + beId + "&type=1";
+            location.reload();
+          } else {
+            this.$router.push({
+              path: "/admin/TechnicalSupport",
+              query: { beId: beId, type: 1 }
+            });
+          }
+        } else {
+          if (this.$route.path == "/admin/offerList") {
+            window.location.href = curentUrl + "?id=" + beId;
+            location.reload();
+          } else {
+            this.$router.push({
+              path: "/admin/offerList",
+              query: { id: beId }
+            });
+          }
+        }
+      } else if (type == 8) {
+        if (this.$route.path == "/admin/purchase") {
+          window.location.href = curentUrl + "?orderId=" + beId;
+          location.reload();
+        } else {
+          this.$router.push({
+            path: "/admin/purchase",
+            query: { orderId: beId }
+          });
+        }
+      } else if (type == 5) {
+        if (this.$route.path == "/admin/orderTracking") {
+          window.location.href = curentUrl + "?indexId=" + beId;
+          location.reload();
+        } else {
+          this.$router.push({
+            path: "/admin/orderTracking",
+            query: { indexId: beId }
+          });
+        }
+      } else if (
+        type == 6 ||
+        type == 7 ||
+        type == 9 ||
+        type == 11 ||
+        type == 12
+      ) {
+        if (this.$route.path == "/admin/order") {
+          window.location.href = curentUrl + "?id=" + beId;
+          location.reload();
+        } else {
+          this.$router.push({
+            path: "/admin/order",
+            query: { id: beId }
+          });
+        }
+      } else if (type == 13) {
+        if (this.roleId == 41 || this.roleId == 40) {
+          if (this.$route.path == "/admin/TechnicalSupport") {
+            window.location.href = curentUrl + "?beId=" + beId + "&type=2";
+            location.reload();
+          } else {
+            this.$router.push({
+              path: "/admin/TechnicalSupport",
+              query: { beId: beId, type: 2 }
+            });
+          }
+        } else {
+          if (this.$route.path == "/admin/order") {
+            window.location.href = curentUrl + "?id=" + beId;
+            location.reload();
+          } else {
+            this.$router.push({
+              path: "/admin/order",
+              query: { id: beId }
+            });
+          }
+        }
+      } else if (type == 14) {
+        if (this.roleId == 41 || this.roleId == 40) {
+          if (this.$route.path == "/admin/TechnicalSupport") {
+            window.location.href = curentUrl + "?beId=" + beId + "&type=3";
+            location.reload();
+          } else {
+            this.$router.push({
+              path: "/admin/TechnicalSupport",
+              query: { beId: beId, type: 3 }
+            });
+          }
+        } else {
+          if (this.$route.path == "/admin/order") {
+            window.location.href = curentUrl + "?id=" + beId;
+            location.reload();
+          } else {
+            this.$router.push({
+              path: "/admin/order",
+              query: { id: beId }
+            });
+          }
+        }
+      } else {
+        // this.$router.push({
+        //   path: "/admin/order",
+        //   query: { id: beId }
+        // });
+      }
+    },
+    //选择消息类型
+    changeMsgType() {
+      this.queryInformationList();
+    },
+    //设置侧边栏的高度
+    resetHeight() {
+      var clientHeight = document.documentElement.clientHeight;
+      this.asideHeight = clientHeight;
+      this.mainHeight = clientHeight - 45;
+      this.$emit("changeAsideHeight", this.asideHeight, this.mainHeight);
+    },
+    //设置全屏
+    fullScreen() {
+      var el = document.documentElement;
+      var rfs =
+        el.requestFullScreen ||
+        el.webkitRequestFullScreen ||
+        el.mozRequestFullScreen ||
+        el.msRequestFullscreen;
+
+      if (typeof rfs != "undefined" && rfs) {
+        rfs.call(el);
+        setTimeout(() => {
+          this.resetHeight();
+        }, 100);
+      }
+      return;
+    },
+    //退出全屏
+    exitScreen() {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+      } else if (document.webkitCancelFullScreen) {
+        document.webkitCancelFullScreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      }
+      if (typeof cfs != "undefined" && cfs) {
+        cfs.call(el);
+      }
+      setTimeout(() => {
+        this.resetHeight();
+      }, 100);
+    },
+    //ie低版本的全屏，退出全屏都这个方法
+    iefull() {
+      var el = document.documentElement;
+      var rfs = el.msRequestFullScreen;
+      if (typeof window.ActiveXObject != "undefined") {
+        //这的方法 模拟f11键，使浏览器全屏
+        var wscript = new ActiveXObject("WScript.Shell");
+        if (wscript != null) {
+          wscript.SendKeys("{F11}");
+        }
+      }
+    },
+    //改变主题
+    changeTheme() {
+      if (this.themeColor == null) {
+        this.themeColor = "#4F5965";
+      }
+      var AsideRgba = colorRgba(this.themeColor, 0.9);
+      localStorage.setItem("headerColor", this.themeColor);
+      localStorage.setItem("asideColor", AsideRgba);
+      this.$store.state.themeColor.headerColor = this.themeColor;
+      this.$store.state.themeColor.asideColor = AsideRgba;
+    },
+    //全屏处理
+    screenHandle() {
+      if (this.screenState == "exit") {
+        this.screenState = "full";
+        this.fullScreen();
+      } else {
+        this.screenState = "exit";
+        this.exitScreen();
+      }
+    },
+    //切换侧边栏
+    toggleAside() {
+      this.s = this.s + 1;
+      this.rt = 180 * this.s;
+      this.rotate.transform = "rotate(" + this.rt + "deg)";
+      this.isCollapse = !this.isCollapse;
+      this.asideState = !this.asideState;
+      this.$store.commit("changeCollapse", this.isCollapse);
+      this.$emit("toggleChange", this.asideState);
+    },
+    //退出登录
+    handleCommand(sel) {
+      if (sel == "exit") {
+        exit(res => {
+          if (res.data.msgCode == 200) {
+            this.$store.state.asideDefaultActive = "home";
+            this.$store.commit("exitLogin");
+          }
+          //注销由采购技术带过来的参数，原来查询需求
+          sessionStorage.removeItem("buyer_department");
+          sessionStorage.removeItem("technical_department");
+          sessionStorage.removeItem("routesArr");
+          this.$router.replace("/");
+          clearInterval(this.timer);
+        });
+      } else if (sel == "info") {
+        this.$router.push({ path: "info" });
+      }
+    },
+    changeNoticeStatus() {
+      this.$store.state.noticeStatus = !this.$store.state.noticeStatus;
+    }
+  },
+  components: {
+    navTitle
+  },
+  mounted() {
+    this.getInformationList();
+    this.timer = setInterval(() => {
+      this.getInformationList();
+    }, 10000);
+  }
+};
+</script>
+<style lang="scss" scoped>
+.iconfont {
+  vertical-align: middle;
+  font-size: 22px;
+}
+.header-right {
+  color: #333;
+  line-height: 45px;
+}
+.header-right > li {
+  padding: 0 15px;
+  cursor: default;
+  font-size: 14px;
+}
+.el-dropdown {
+  color: #333;
+}
+.header-msg /deep/.el-badge__content.is-fixed.is-dot {
+  right: 3px;
+  top: 15px !important;
+}
+.colorPick /deep/ .el-color-picker__trigger {
+  width: 22px;
+  height: 22px;
+}
+.myDrawer /deep/ .el-drawer__body div:focus {
+  outline-color: #fff;
+}
+.myDrawer /deep/ .el-drawer__header {
+  display: none;
+}
+.myDrawer /deep/ .el-card__body {
+  padding: 10px;
+}
+.medium {
+  line-height: 45px;
+}
+</style>

@@ -1,0 +1,175 @@
+【3.0接口信息】
+    1.订单详情 getOrderDetail 
+　　　   参数：id 订单ID
+        新增返回参数：
+            debugList 调试列表 
+            afterSaleList 售后列表
+            technical｛
+                debuggingUnRead 调试未读
+                afterSaleUnRead 售后未读
+            ｝
+    2.修改订单信息 updateOrder
+        (1)公共参数：id 订单ID updateType 　0确认1采购修改2销售修改3财务修改
+
+        (2)财务参数：
+        　　payTime 支付时间，
+        　　prePayTime 预付时间，
+        　　freightMoney 运费，
+        　　preMoney 预付金额，
+            payMoney 支付金额（尾款），
+        　　preTradeNo 预付流水号，
+        　　payStatus 支付状态 0未支付1已预付2已支付
+
+        (3)采购参数：
+            preArrivalTime 预到货日期，
+        　　arrivalTime，到货日期
+
+        (4)销售参数：
+            type  0 其它
+            debugRequirement 调试要求,
+            shippingStatus 0未到货1到货未发货2已发货3确认收货
+            signForTime 签收时间,
+            sendTime 发货时间，
+            deliveryTime 要求送达时间
+            orderStatus 0待确认1确认2退货中3已退货4退款5无效6待申请确认
+
+            type 1发票
+            invoice 发票状态0不开发票1开发票,
+            billAddress 收发票地址,
+            billLogBank 收票物流公司, 
+            billLogNo 收票物流单号,
+            billReceiptName 收票人姓名,
+            billReceiptPhone 收票人手机号, 
+            billPostNo 收票人邮政编码,
+            isSendBill 是否寄出发票0否 1 是,
+            sendBillTime 发票寄出时间
+            
+            type 2物流
+            address 收货地址,
+            receiptName 收货人姓名,
+            receiptPhone 收货人手机,
+            postNo 邮政编码,
+            logBank 物流公司,
+            logNo 物流单号
+
+            type 3发货单文件上传
+            invoiceFile 发货单文件
+
+        (5)确认参数：//金额状态 1预付全款 2 30%预付款70%款到发货 3 50%预付款50%款到发货 4货到付款 5月结 6其它 7款到发货
+            //金额状态为1，2，3，6 输入预付金额，支付时间 ; 其它4 ，5，7 没有新增参数
+            createTime 补录时间
+            orderStatus 订单状态 1确认5无效
+            remark 备注说明
+            订单确认【1 2 3 6 参数】：
+            preMoney 预付金额
+            payStatus 支付状态1已预付
+            prePayTime 预付时间
+            
+2019-02-14
+    1.客户数据置顶 checkCustIsTop
+        参数：id 客户id，isTop 0否1是
+    2.客户需求置顶 checkDemandIsTop
+        参数：id 客户id，isTop 0否1是
+    
+2019-02-15 
+    1.申请确认订单 applyConfirmOrder
+        参数：id 订单ID，remark 说明
+    14:00:00
+
+    2.新增客户& 修改客户 operCustomer
+        新增参数：beId 贸易商关联ID（多选）
+
+    3.客户数据回显 editCustomer
+        新增返回参数：beCustDtoList 关联的贸易商列表
+        traderList 贸易商列表
+
+    4.获取历史报价商品信息 getOfferGoodList
+        参数：offerId 报价ID
+
+    5.新增申请折扣 saveDiscountApply
+        新增参数：orgMoney 原价 
+        applyMoney 申请价格 
+        applyDiscount 申请折扣率=申请价格/原价  不录入折扣率，自动算出
+
+    6.新增,修改报价 saveDemandOffer
+        新增参数：moneyOther 付款方式为其它时，填写自定义付款方式
+        
+    17:15:00
+2019-02-18
+    1.获取全部贸易商列表 getTraderList 无参数
+2019-02-19
+    1.查询技术支持列表 queryTechnicalSupportList 
+        参数：pId 0 type 类型1售前2调试3售后  status状态0未读1处理中3已完成  keys搜索参数 page页数 pageSize一页显示个数
+    2.新增、回复技术支持 insertTechnicalSupport 
+        公共参数：
+            beId 关联ID 
+            optFile 文件信息 
+            type 类型1售前2调试3售后
+            remark 内容
+            isShield 是否屏蔽技术0否1是（采购,如果上级是屏蔽的，回复自动默认屏蔽）
+        新增参数： 
+            isTop 是否置顶
+            isSMS 是否通知 
+            buyerId 采购ID（多选|隔开）
+            technicalId 技术支持ID（多选|隔开）
+        回复参数：
+            pId 回复ID
+           
+    3.修改技术支持 updateTechnicalSupport
+        已完成参数：
+            id  支持ID 
+            status状态3已完成
+        置顶参数：
+            id  支持ID 
+            isTop 置顶0否1是
+        已读参数：
+            type 类型1售前2调试3售后
+            beId 关联ID //详情：订单传订单ID，需求传需求ID
+
+    4.获取技术支持详情列表 getTechnicalSupportByDto （需求信息详情请求该接口，beId传需求ID，type传1）
+        参数：  
+            beId 关联ID  
+            type 类型1售前2调试3售后
+        返回參數：{
+            id;
+            pId;//回复ID
+            beId;//关联ID
+            type;//类型1售前2调试3售后
+            department;//部门0有关部门1业务部2技术部3采购部
+            isTop;//是否置顶0否1是
+            optFile;//操作文件
+            status;//状态0未读1待处理2处理中3已完成
+            createName;//操作人姓名
+            pName;// 回复谁
+            buyerId;//采购ID
+            technicalId;//技术支持ID
+            createTime;//创建时间
+            remark;//内容
+        }
+    
+    5.获取技术工作台信息 getTechnicalSupportIndex
+        参数：无
+        返回参数：preSaleUnRead 售前未读，debuggingUnRead 调试未读，afterSaleUnRead 售后未读
+    
+    6.需求列表 queryDemandList，订单列表 queryOrderList
+        新增返回参数：technicalNum 技术支持未读条数  
+
+2019-02-20
+
+    1.新增、回复技术支持 
+        新增采购屏蔽参数
+    
+2019-02-28
+    1.上传发货单 insertOrderInvoiceFile
+    参数：id 订单ID，invoiceFile发货单文件，invoiceGoodsId发货商品ID（逗号隔开）
+
+    2.作废发货单商品 desertedOrderInvoiceGoods
+    参数：id 订单ID，invoiceGoodsId发货商品ID（一个）
+
+2019-03-01
+    1.上传商品型号 saveGoodsModel
+    公共参数：goodsNo 商品编号，stock 库存，price 价格，
+    新增：辅件参数：partNo 辅件编码
+         商品参数：range 量程，accuracy 精度，output_signal 输出信号，bePartNo 辅件型号编码（逗号隔开）
+
+2019-03-04

@@ -1,0 +1,713 @@
+<template>
+  <div class="supplier">
+    <!-- 查询条件详情 -->
+    <div>
+      <!-- 条件查询： -->
+      <el-input style="width: 25%;margin-top: 20px;" placeholder="请输入品牌名称" size="medium" v-model="keys"
+        clearable>
+      </el-input> 
+      <el-button type="primary" size="medium" style="margin-top: 10px;" @click="querySupplierList" icon="el-icon-search"></el-button>
+      <el-tooltip class="item" effect="dark" content="重置" placement="top">
+        <el-button size="medium" style="margin-top: 10px;margin-left: 0;" @click="resetHandle" icon="el-icon-refresh"></el-button>
+      </el-tooltip>
+      <el-button type="primary" size="medium" style="margin-top: 10px;" @click="supplierVisible=true;editStatus=false;" icon="el-icon-plus"></el-button>
+    </div>
+    <div class="supplierTable clearPa">
+      <el-table :data="supplierList" style="width: 100%" :border="true" :height="tableHeight" v-loading="loading" ref="table">
+        <el-table-column label="操作" align="center" width="150">
+          <template slot-scope="scope">
+            <el-button size="mini" round type="primary" icon="el-icon-edit" @click="editGoods(scope.row)"></el-button>
+            <el-button size="mini" round type="danger" icon="el-icon-delete" @click="delGoods(scope.row)"></el-button>
+          </template>
+        </el-table-column>
+        <el-table-column width="150" align="center" label="供应商名称">
+          <template slot-scope="scope">
+            <el-popover placement="top-start" title="" width="200" trigger="hover" :content="scope.row.name">
+              <span slot="reference" style="color:#409EFF;cursor:default;" v-html="$root.OmissionText(scope.row.name==null?null:scope.row.name,8)"></span>
+            </el-popover>
+          </template>
+        </el-table-column>
+        <el-table-column prop="conInfo" width="170" align="center" label="联系人信息">
+          <template slot-scope="scope">
+            <p v-for="(item,index) in scope.row.conInfo.split('|')" :key="index" style="text-align:left;">{{item}}</p>
+          </template>
+        </el-table-column>
+        <el-table-column prop="nature" width="100" align="center" label="供应商性质">
+          <template slot-scope="scope">
+            <span v-if="scope.row.nature==1">原厂家</span>
+            <span v-if="scope.row.nature==2">代理商</span>
+            <span v-if="scope.row.nature==3">分销商</span>
+          </template>
+        </el-table-column>
+        <el-table-column width="200" align="center" label="关联品牌">
+          <template slot-scope="scope">
+            <el-popover placement="top-start" title="" width="200" trigger="hover" :content="scope.row.brandInfo">
+              <span slot="reference" style="cursor:default;" v-html="$root.OmissionText(scope.row.brandInfo==null?null:scope.row.brandInfo,50)"></span>
+            </el-popover>
+          </template>
+        </el-table-column>
+        <el-table-column prop="isTop" label="置顶" align="center" width="100">
+           <template slot-scope="scope">
+            <el-switch
+              v-model="scope.row.isTop"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+              @change="changeSwitch(scope.row,'isTop',scope.row.isTop)"
+              :active-value="1"
+              :inactive-value="0">
+            </el-switch>
+          </template>
+        </el-table-column>
+        <el-table-column prop="website" label="网址" align="center" width="200">
+        </el-table-column>
+        <el-table-column prop="openName" label="开户名称" align="center" width="180">
+        </el-table-column>
+        <el-table-column prop="taxpayerNo" label="纳税人识别号" align="center" width="200">
+        </el-table-column>
+        <el-table-column width="200" align="center" label="开户地址">
+          <template slot-scope="scope">
+            <el-popover placement="top-start" title="" width="200" trigger="hover" :content="scope.row.openBankAddress">
+              <span slot="reference" style="cursor:default;" v-html="$root.OmissionText(scope.row.openBankAddress==null?null:scope.row.openBankAddress,12)"></span>
+            </el-popover>
+          </template>
+        </el-table-column>
+        <el-table-column prop="openBankTel" label="开户电话" align="center" width="150">
+        </el-table-column>
+        <el-table-column prop="openBank" label="开户行" align="center" width="120">
+        </el-table-column>
+        <el-table-column prop="openBankNo" label="开户银行账号" align="center" width="200">
+        </el-table-column>
+        <el-table-column prop="fax" label="传真" align="center" width="200">
+        </el-table-column>
+        <el-table-column prop="usedArea" label="行业领域" align="center" width="200">
+        </el-table-column>
+        <el-table-column width="200" align="center" label="评价">
+          <template slot-scope="scope">
+            <el-popover placement="top-start" title="" width="200" trigger="hover" :content="scope.row.evaluation">
+              <span slot="reference" style="cursor:default;" v-html="$root.OmissionText(scope.row.evaluation==null?null:scope.row.evaluation,12)"></span>
+            </el-popover>
+          </template>
+        </el-table-column>
+        <el-table-column prop="createTime" label="创建时间"  align="center" width="180">
+          <template slot-scope="scope">
+            <span>{{scope.row.createTime}}</span>
+          </template>
+        </el-table-column>
+      </el-table>
+      <!--分页-->
+      <div class="block" style="float: right;margin-top:10px;">
+        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="currentPage"
+          :page-sizes="[5, 10, 15, 30]" :page-size="pageSize" layout="sizes, prev, pager, next,total" :total="pageCount">
+        </el-pagination>
+      </div>
+    </div>
+     <!-- 上传品牌 -->
+    <el-dialog :title="editStatus?'编辑供应商':'新增供应商'" :visible.sync="supplierVisible" v-if="supplierVisible" class="supDialog" @close="supplierVisible=false;">
+      <el-form :model="supplierForm" ref="supplierForm" :rules="supplierRules" style="display:flex;flex-wrap:wrap;">
+        <div style="width:50%;">
+          <el-form-item label="品牌名称" :label-width="formLabelWidth" prop="name">
+            <el-input v-model="supplierForm.name" @blur="checkGoodsTitle(supplierForm.name)" autocomplete="off" style="width:60%"></el-input>
+            <span style="color:#e4393c;" v-if="this.checkTitleMsg">{{this.checkTitleMsg}}</span>
+          </el-form-item>
+          <el-form-item label="联系地址" :label-width="formLabelWidth" prop="">
+            <el-input type="text" style="width:60%"  v-model="supplierForm.address" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="供应商性质" :label-width="formLabelWidth" prop="nature">
+            <el-select v-model="supplierForm.nature" placeholder="请选择供应商性质">
+              <el-option label="原厂家" :value="1"></el-option>
+              <el-option label="代理商" :value="2"></el-option>
+              <el-option label="分销商" :value="3"></el-option>
+          </el-select>
+          </el-form-item>
+          <el-form-item label="开户名称" :label-width="formLabelWidth" prop="">
+            <el-input type="text" style="width:60%"  v-model="supplierForm.openName" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="纳税人识别号" :label-width="formLabelWidth" prop="">
+            <el-input type="text" style="width:60%"  v-model="supplierForm.taxpayerNo" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="开户地址" :label-width="formLabelWidth" prop="">
+            <el-input type="text" style="width:60%"  v-model="supplierForm.openBankAddress" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="开户电话" :label-width="formLabelWidth" prop="">
+            <el-input type="text" style="width:60%"  v-model="supplierForm.openBankTel" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="开户行" :label-width="formLabelWidth" prop="">
+            <el-input type="text" style="width:60%"  v-model="supplierForm.openBank" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="开户银行账号" :label-width="formLabelWidth" prop="">
+            <el-input type="text" style="width:60%"  v-model="supplierForm.openBankNo" autocomplete="off"></el-input>
+          </el-form-item>
+        </div>
+        <div style="width:50%;">
+          <el-form-item label="网站" :label-width="formLabelWidth" prop="">
+            <el-input type="text" style="width:60%"  v-model="supplierForm.website" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="传真" :label-width="formLabelWidth" prop="">
+            <el-input type="text" style="width:60%"  v-model="supplierForm.fax" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="行业领域" :label-width="formLabelWidth" prop="">
+            <el-input type="text" style="width:60%"  v-model="supplierForm.usedArea" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="供应商评价" :label-width="formLabelWidth" prop="">
+            <el-input type="text" style="width:60%"  v-model="supplierForm.evaluation" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="是否置顶" :label-width="formLabelWidth">
+            <el-radio v-model="supplierForm.isTop" :label="0">否</el-radio>
+            <el-radio v-model="supplierForm.isTop" :label="1">是</el-radio>
+          </el-form-item>
+          <el-form-item label="关联品牌（主营）" :label-width="formLabelWidth">
+            <el-select v-model="primary" multiple placeholder="请选择品牌" @remove-tag="selBrandHandle">
+              <el-option v-for="(item,index) in brandList" :key="index" :label="item.brandName" :value="item.id"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="关联品牌（非主营）" :label-width="formLabelWidth">
+            <el-select v-model="secondary" multiple placeholder="请选择品牌" @remove-tag="selBrandHandle">
+              <el-option v-for="(item,index) in brandList" :key="index" :label="item.brandName" :value="item.id"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="添加联系人" :label-width="formLabelWidth">
+            <el-button type="primary" icon="el-icon-plus"  @click="supplierConVisible=true"></el-button>
+          </el-form-item>
+        </div>
+        <el-form-item label="联系人" class="formSty" style="width:100%;" :label-width="formLabelWidth">
+          <el-table :data="conTableData" :header-cell-style="{'background-color': '#EFEDF0','height': '30px','padding':'0'}"
+            style="width: 100%">
+            <el-table-column prop="conName" label="操作" align="center" width="150">
+              <template slot-scope="scope">
+                <el-button size="mini" round type="primary" icon="el-icon-edit" @click="modifyLink(scope.$index,scope.row)"></el-button>
+                <el-button size="mini" round type="danger" icon="el-icon-delete" @click="delLink(scope.$index,scope.row)"></el-button>
+              </template>
+            </el-table-column>
+            <el-table-column prop="conName" label="姓名" width="100">
+            </el-table-column>
+            <el-table-column prop="telePhone" label="手机" width="120">
+            </el-table-column>
+            <el-table-column prop="landLine" label="座机" width="100">
+            </el-table-column>
+            <el-table-column prop="mailBox" label="邮箱" width="100">
+            </el-table-column>
+            <el-table-column prop="QQ" label="QQ" width="100">
+            </el-table-column>
+            <el-table-column prop="weChat" label="微信" width="100">
+            </el-table-column>
+            <el-table-column prop="post" label="岗位" width="100">
+            </el-table-column>
+            <el-table-column prop="sex" label="性别" width="100">
+              <template slot-scope="scope">
+                <span v-if="scope.row.sex==1">男</span>
+                <span v-else>女</span>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="supplierVisible = false">取 消</el-button>
+        <el-button type="primary" @click="comfirmSubmit">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 添加联系人 -->
+    <el-dialog :title="recordSelConlink!=null?'编辑联系人':'添加联系人'" :visible.sync="supplierConVisible" v-if="supplierConVisible" class="supConDialog" @close="supplierConVisible=false">
+      <el-form :model="conlinkForm" ref="conlinkForm" :rules="conlinkRules">
+          <el-form-item label="联系人姓名" :label-width="formLabelWidth" prop="conName">
+            <el-input type="text" style="width:60%"  v-model="conlinkForm.conName" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="手机号码" :label-width="formLabelWidth" prop="telePhone">
+            <el-input type="text" style="width:60%"  v-model="conlinkForm.telePhone" autocomplete="off" @blur="checkphone"></el-input>
+            <span style="color:#e4393c;" v-if="this.checkTitleConMsg">{{this.checkTitleConMsg}}</span>
+          </el-form-item>
+          <el-form-item label="座机电话" :label-width="formLabelWidth" prop="">
+            <el-input type="text" style="width:60%"  v-model="conlinkForm.landLine" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="邮箱" :label-width="formLabelWidth" prop="mailBox">
+            <el-input type="text" style="width:60%"  v-model="conlinkForm.mailBox" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="QQ" :label-width="formLabelWidth" prop="">
+            <el-input type="text" style="width:60%"  v-model="conlinkForm.QQ" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="微信" :label-width="formLabelWidth" prop="">
+            <el-input type="text" style="width:60%"  v-model="conlinkForm.weChat" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="岗位" :label-width="formLabelWidth" prop="">
+            <el-input type="text" style="width:60%"  v-model="conlinkForm.post" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="性别" :label-width="formLabelWidth" prop="">
+              <el-radio v-model="conlinkForm.sex" :label="1">男</el-radio>
+              <el-radio v-model="conlinkForm.sex" :label="2">女</el-radio>
+          </el-form-item>
+          <el-form-item label="联系人地址" :label-width="formLabelWidth" prop="">
+            <el-input type="text" style="width:60%"  v-model="supplierForm.contAddress" autocomplete="off"></el-input>
+          </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="supplierConVisible = false">取 消</el-button>
+        <el-button type="primary" @click="comfirmConSubmit">确 定</el-button>
+      </div>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import {querySupplierList,checkSupplierName,checkSupplierConPhone,delSupplierContact,delSupplierBrand,saveSupplier,delSupplier,delSupplierSupplier,editSupplier,checkSupplierIsTop} from "util/req/supplier/index";
+  export default {
+    name: "supplier",
+    data(){
+      return{
+        tableHeight:null,
+        currentPage:1,
+        pageSize:10,
+        pageCount:null,
+        keys:null,
+        optionsSel:[],
+        categoryList:[],
+        loading:false,
+        supplierList:[],
+        brandList:[],
+        primary:[],
+        secondary:[],
+        editStatus:false,
+        supplierVisible:false, //弹窗
+        supplierForm:{
+          isTop:0
+        }, //新增编辑表单参数  
+        supplierRules:{
+          name:{required: true,trigger: 'blur',message:"供应商名称不能为空"},
+          nature:{required: true,trigger: 'blur',message:"供应商性质不能为空"}
+        }, //验证规则
+        conlinkRules:{
+          conName: {
+            required: true,
+            trigger: 'blur',
+            message: "联系人姓名不能为空"
+          },
+          mailBox: [{
+            required: false,
+            trigger: 'blur',
+            pattern: /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/,
+            message: "请输入正确的邮箱"
+          }],
+          telePhone: [
+            // { required: true, trigger: 'blur',message:"客户电话不能为空"},
+            {
+              trigger: 'blur',
+              pattern: /^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/,
+              message: "请输入正确的格式"
+            }
+          ]
+        },
+        conlinkForm:{
+          sex:1
+        },
+        conTableData:[],
+        supplierConVisible:false,
+        formLabelWidth:'140px',
+        checkTitleMsg:null,
+        checkTitleConMsg:null,
+        selSupplierRow:{
+          name:null
+        },
+        editRecordName:null,
+        recordBrandList:[], //记录回显数据的关联供应商
+        recordConList:[],    //记录回显数据的联系人
+        recordSelConlink:null,  //记录选中哪条联系人做编辑
+        recordSupName:null //记录供应商名字做验证
+      }
+    },
+    watch: {
+      supplierVisible:function(val){
+        if(!val){
+          this.supplierForm={};
+          this.supplierForm.isTop=0;
+          this.selSupplierRow={name:null};
+          this.editRecordName=null;
+          this.conTableData=[];
+          this.primary=[];
+          this.secondary=[];
+        }
+      },
+      supplierConVisible:function(val){
+        if(!val){
+          this.conlinkForm={};
+          this.conlinkForm.sex=1;
+          this.recordSelConlink=null;
+          this.checkTitleConMsg=null;
+        }
+      }
+    },
+    methods:{
+      handleSizeChange(pageSize) { //数据条数改变时
+        this.pageSize = pageSize;
+        this.currentPage = 1;
+        this.querySupplierList();
+      },
+      handleCurrentChange(currentPage) { //选取分页
+        this.currentPage = currentPage;
+        this.querySupplierList();
+      },
+      resetHandle(){
+        this.keys=null// 关键字
+        this.querySupplierList();
+      },
+      checkGoodsTitle() { //检查商品名称是否存在
+        if (!this.supplierForm.name) {
+          return
+        }
+        checkSupplierName({
+          name: this.supplierForm.name
+        }, res => {
+          if (res.msgCode == 302) {
+            if(this.editStatus && this.supplierForm.name==this.recordSupName){
+              this.checkTitleMsg = '';
+            }else{
+              this.checkTitleMsg = res.msg;
+            }
+          } else {
+            this.checkTitleMsg = '';
+          }
+        })
+      },
+      checkphone(){
+         if (!this.conlinkForm.telePhone) {
+          return
+        }
+        checkSupplierConPhone({
+          phone: this.conlinkForm.telePhone
+        }, res => {
+          if (res.msgCode == 302) {
+            if(this.conTableData.length>0){
+              var status=false;
+              this.conTableData.forEach(item=>{
+                if(item.telePhone==this.conlinkForm.telePhone && this.recordSelConlink){
+                  status=true;
+                }
+              })
+              if(status){
+                this.checkTitleConMsg = '';
+              }else{
+                this.checkTitleConMsg = res.msg;
+              }
+            }else{
+              this.checkTitleConMsg = res.msg;
+            }
+          } else {
+            var item=this.conTableData.filter(item=>{
+              return item.telePhone==this.conlinkForm.telePhone
+            })
+            if(item.length>0){
+              this.checkTitleConMsg = "号码在列表已出现";
+            }else{
+              this.checkTitleConMsg = '';
+            }
+           
+          }
+        })
+      },
+      changeSwitch(row,type,val){
+        console.log(type,val)
+        var parmas={id:row.id};
+        if(type=="isTop"){
+          parmas.isTop=val;
+        }
+        checkSupplierIsTop(parmas,res=>{
+          if(res.msgCode==200){
+            this.$message({
+              message: res.msg,
+              type: 'success'
+            });
+            this.querySupplierList();
+          }else{
+            this.$message({
+              message: res.msg,
+              type: 'warning'
+            });
+          }
+        })
+      },
+      getPublishGoods(){ //获取上传商品分类和品牌信息
+        editSupplier({},res=>{
+          res = res.data;
+          this.brandList = res.brandList;
+        })
+      },
+      selBrandHandle(tag){   //编辑情况下，删除现有的关联的品牌需要请求  
+       if(this.editStatus){
+         var chaItem=null
+         this.recordBrandList.forEach((item,index)=>{
+           if(tag==item.brandId){
+             chaItem=index
+           }
+         })
+         if(chaItem!=null){
+           delSupplierBrand({id:this.recordBrandList[chaItem].id},res=>{
+             if(res.msgCode==200){
+                this.$message({
+                  type: 'success',
+                  message: res.msg
+                });
+                this.recordBrandList.splice(chaItem,1);
+             }else{
+                this.$message({
+                  type: 'info',
+                  message: res.msg
+                });
+             }
+           })
+         }  
+       }
+      },
+      modifyLink(index,row){
+        console.log(row)
+        this.supplierConVisible=true;
+        this.conlinkForm=row;
+        this.recordSelConlink=index;
+      },
+      delLink(index,row){   //删除供应商联系人
+        if(row.id){
+          this.$confirm('此操作将删除此条联系人, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+          }).then(() => {
+            delSupplierContact({conId:row.id},res=>{
+              if(res.msgCode==200){
+                  this.$message({
+                    type: 'success',
+                    message: res.msg
+                  });
+                  this.conTableData.splice(index,1);
+                  this.recordConList.forEach((item,index)=>{
+                    if(row.id==item.id){
+                      this.recordConList.splice(index,1)
+                    }
+                  })
+                  console.log(this.recordConList)
+              }else{
+                this.$message({
+                  type: 'info',
+                  message: res.msg
+                });
+              }
+            })
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            });          
+          });
+        }else{
+          this.conTableData.splice(index,1);
+        }
+      },
+      delGoods(row){    //删除供应商
+        this.$confirm('此操作将删除此条供应商信息, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          delSupplier({code:row.code},res=>{
+              if(res.msgCode==200){
+                this.$message({
+                  type: 'success',
+                  message: res.msg
+                });
+                this.querySupplierList();
+              }else{
+                this.$message({
+                  type: 'info',
+                  message: res.msg
+                });
+              }
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });          
+        });
+      },
+      editGoods(row){
+        this.editRecordName=row.supplierName;
+        this.selSupplierRow=row;
+        this.editStatus=true;
+        this.supplierVisible=true;
+
+        editSupplier({id:row.id},res=>{
+          this.brandList=res.data.brandList;
+          this.supplierForm=res.data.supplier;
+          this.conTableData=res.data.supplier.conList;
+          this.recordBrandList=res.data.supplier.brandList;
+          this.recordConList=res.data.supplier.conList;
+          this.recordSupName=res.data.supplier.name;
+          var primary=[],secondary=[];
+          //取出返回数据里面的品牌id
+          if(this.supplierForm.brandList.length>0){
+            this.supplierForm.brandList.forEach(item=>{
+              if(item.isMain==0){
+                secondary.push(item.brandId)
+              }else if(item.isMain==1){
+                primary.push(item.brandId)
+              }
+            })
+          }
+          this.primary=primary;
+          this.secondary=secondary;
+        })
+      }, 
+      comfirmSubmit(){
+        //检验供应商名字
+        
+        if(this.checkTitleMsg || this.selSupplierRow.name!=this.recordSupName){
+          this.$message({
+              message: '请检查品牌名称',
+              type: 'info'
+            });
+          return
+        }
+        this.$refs.supplierForm.validate(valid =>{
+          if(valid){
+            if(this.editStatus){
+              this.supplierForm.id=this.selSupplierRow.id;
+            }
+        
+            //是否主营的品牌列表
+            var brandList=[];
+            if(this.primary.length>0){  //主
+              this.primary.forEach(item=>{
+                this.brandList.forEach(row=>{
+                  if(item==row.id){
+                    let sel={};
+                    sel.isMain=1;
+                    sel.brandId=row.id;
+                    brandList.push(sel)
+                  }
+                })
+              })            
+            }
+            if(this.secondary.length>0){  //非
+              this.secondary.forEach(item=>{
+                this.brandList.forEach(row=>{
+                  if(item==row.id){
+                    let sel={};
+                    sel.isMain=0;
+                    sel.brandId=row.id;
+                    brandList.push(sel)
+                  }
+                })
+              })            
+            }
+            //编辑的情况下，对比回显品牌列表，是否出现相同的项，加上id
+            if(this.editStatus){
+              this.recordBrandList.forEach((item,index)=>{
+                brandList.forEach(res=>{
+                  if(item.brandId==res.brandId){
+                    res.id=item.id
+                  }
+                })
+              })
+            }
+            var parmas={
+              brandList:JSON.parse(JSON.stringify(brandList)),
+              conList:this.conTableData
+            }
+            var newParams=Object.assign(this.supplierForm,parmas);
+            saveSupplier(newParams,res=>{
+             if(res.msgCode==200){
+                this.$message({
+                  message: res.msg,
+                  type: 'success'
+                });
+                this.querySupplierList();
+                this.supplierForm={};
+                this.supplierVisible=false;
+             }else{
+               this.$message({
+                  message: res.msg,
+                  type: 'warning'
+                });
+             }
+            })
+          }
+        })
+      },
+      querySupplierList(){
+        var parmas={
+          page:this.currentPage,
+          pageSize:this.pageSize
+        }
+        //搜索条件
+        if(this.keys){
+          parmas.keys=this.keys;
+        }
+        this.loading=true;
+        querySupplierList(parmas,res=>{
+         if(res.msgCode==200){
+           this.supplierList=res.data.list;
+           this.pageCount=res.data.pageCount;
+            setTimeout(()=>{
+              this.loading=false;
+            },200)
+         }else{
+            this.$message({
+              message: res.msg,
+              type: 'warning'
+            });
+         }
+        })
+      },
+      comfirmConSubmit(){
+        if(this.checkTitleConMsg){
+          this.$message({
+              message: '请检查手机号码',
+              type: 'info'
+            });
+          return
+        }
+        this.$refs.conlinkForm.validate(valid=>{
+          if(valid){
+            if(this.recordSelConlink!=null){    //编辑状态
+              this.conTableData.splice(this.recordSelConlink,1,JSON.parse(JSON.stringify(this.conlinkForm)))
+            }else{
+              this.conTableData.push(JSON.parse(JSON.stringify(this.conlinkForm)));
+            }
+            this.supplierConVisible=false; 
+          }
+        })
+      }
+    },
+    mounted(){
+      this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop-130;
+      this.querySupplierList();
+      this.getPublishGoods();
+    }
+  }
+
+</script>
+<style lang="scss" scoped>
+  .supplier /deep/ th {
+    background-color: #EFEDF0 !important;
+  }
+
+  .supplier /deep/ th {
+    background-color: #EFEDF0 !important;
+  }
+
+  .supplier /deep/ ::-webkit-scrollbar {
+    height: 9px;
+    width: 7px;
+  }
+  .supplier /deep/ .el-dialog {
+    margin-top: 20px !important;
+    width: 80%;
+  }
+  .supplier {
+    background: #fff;
+    padding:10px;
+  }
+  .supplierTable{
+    margin-top: 20px;
+  }
+  .supConDialog /deep/ .el-dialog {
+    width: 50%;
+  }
+</style>

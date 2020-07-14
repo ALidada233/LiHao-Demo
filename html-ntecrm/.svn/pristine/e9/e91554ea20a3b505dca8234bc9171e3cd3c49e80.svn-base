@@ -1,0 +1,663 @@
+<template>
+	<div class="edit" @click.self="closeDialog">
+		<div class="edit-content">
+		  	<div class="edit-header clearPa">
+		  		<h2 class="left" v-if="editState">客户编辑</h2>
+		  		<h2 class="left" v-else>客户新增</h2>
+		  		<i  @click="closeDialog" class="el-icon-close right"></i>
+		  	</div>
+			<!-- <el-dropdown style="margin-left: 10px;cursor:default;" @command="changeEdit">
+			  <span class="el-dropdown-link">
+			    {{titleName}}<i class="el-icon-arrow-down el-icon--right"></i>
+			  </span>
+			  <el-dropdown-menu slot="dropdown">
+			  	<el-dropdown-item command="baseUser" v-if="editState">用户信息</el-dropdown-item>
+			    <el-dropdown-item command="baseMsg">客户信息</el-dropdown-item>
+			    <el-dropdown-item command="baseType">客户类型</el-dropdown-item>
+			    
+			  </el-dropdown-menu>
+
+			</el-dropdown> -->
+
+			<el-form :model="form" ref="form" style="height:520px;overflow:scroll;"  :rules="rules">
+				<!--客户信息-->
+				<div style="width:50%;float:left;">
+				    <!-- <el-form-item label="客户名称" :label-width="formLabelWidth" prop="custName">
+				      <el-input v-model="form.custName" autocomplete="off" maxlength="200"  style="width: 80%;"></el-input>
+				    </el-form-item> -->
+				    <el-form-item label="客户公司" :label-width="formLabelWidth">
+				      <el-input v-model="form.custCompanyName" @blur="checkCustCompanyName"  autocomplete="off" maxlength="200"  style="width: 80%;"></el-input>
+					  <br><span style="color:red">{{echoMsg}}</span>
+				    </el-form-item>
+				    
+				    <!-- <el-form-item label="客户电话" :label-width="formLabelWidth" prop="custPhone">
+				      <el-input v-model="form.custPhone" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+				    </el-form-item>
+				    <el-form-item label="客户座机" :label-width="formLabelWidth">
+				      <el-input v-model="form.custLandline"  autocomplete="off"  style="width: 80%;"></el-input>
+				    </el-form-item>
+				    <el-form-item label="客户邮箱" :label-width="formLabelWidth" prop="custEmail">
+				      <el-input v-model="form.custEmail" autocomplete="off" maxlength="200" style="width: 80%;"></el-input>
+				    </el-form-item> -->
+				    
+				    <el-form-item label="客户地址" :label-width="formLabelWidth">
+				      <el-input v-model="form.custAddress" autocomplete="off"  style="width: 80%;"></el-input>
+				    </el-form-item>
+					 <el-form-item label="使用领域" :label-width="formLabelWidth">
+					    <el-input v-model="form.areasOfUse" autocomplete="off" maxlength="200"  style="width: 80%;"></el-input>
+				    </el-form-item>
+				     <el-form-item label="备注" :label-width="formLabelWidth">
+					    <el-input v-model="form.remark" autocomplete="off" maxlength="200"  style="width: 80%;"></el-input>
+				    </el-form-item>
+				    <el-form-item label="联系人" :label-width="formLabelWidth">
+						<span style="color:#409EFF;cursor:default;font-size:13px;" @click="dialogFormVisible=true;currrentLink=null;editStatus=false;">添加</span>
+						<div>
+							<div v-for="(item,index) in linkArray" :key="index" style="position:relative; margin-bottom:10px;padding:2px 10px;border-radius:10px;font-size: 13px;margin-right: 5px;cursor: default;display:inline-block;line-height: 25px;border: 1px solid #e2e2e4;border-radius:10px;height: auto;box-shadow: 0 0 5px #eee;" @click.self="modifyLink(index,false)">
+								<p @click.self="modifyLink(index,false)">姓名: {{item.conName}}</p>
+								<p @click.self="modifyLink(index,false)">手机: {{item.telePhone}}</p>
+								<p @click.self="modifyLink(index,false)">座机: {{item.landLine}}</p>
+								<p @click.self="modifyLink(index,false)">邮箱: {{item.mailBox}}</p>
+								<p @click.self="modifyLink(index,false)">QQ: {{item.QQ}}</p>
+								<p @click.self="modifyLink(index,false)">微信: {{item.weChat}}</p>
+								<p @click.self="modifyLink(index,false)">岗位: {{item.post}}</p>
+								<p @click.self="modifyLink(index,false)">性别: {{item.sex==1?'男':'女'}}</p>
+								<i class="el-icon-circle-close" style="position:absolute;top:-10px;right:0; vertical-align: middle;color: #999;" @click="delLink(index)"></i>
+							</div>
+						</div>
+						
+				        <!-- <span v-for="(item,index) in linkArray" :key="item.conId" style="background:#EFEDF0;padding:2px 5px;border-radius:10px;font-size: 13px;margin-right: 5px;cursor: default;" @click.self="modifyLink(index,true)">{{item.conName}}</span> -->
+				   
+				    </el-form-item>
+				    
+				</div>
+			    
+			    <!--客户类型-->
+			    <div style="width:50%;float:left;">
+			    	<el-form-item label="负责人名" :label-width="formLabelWidth" prop="salesmanId">
+				        <el-select v-model="form.salesmanId" :filterable="true" placeholder="请选择负责人">
+					      <el-option v-for="item in salesList" :key="item.id" :label="item.name" :value="item.id"></el-option>
+					    </el-select>
+					    <el-switch
+					      style="margin-left:10px;"
+						  v-model="isSMS"
+						  active-text="开启短信通知"
+						  inactive-text="关闭"
+						  :active-value="1"
+						  :inactive-value="0"
+						  >
+						</el-switch>
+				    </el-form-item>
+				    <el-form-item label="客户來源" :label-width="formLabelWidth" prop="custSource">
+				     	<el-select v-model="form.custSource"  placeholder="请选择客户來源">
+					        <el-option label="百度" :value="1"></el-option>
+						    <el-option label="360" :value="2"></el-option>
+						    <el-option label="华创推广" :value="3"></el-option>
+						    <el-option label="朋友介绍" :value="4"></el-option>
+						    <el-option label="自行开发" :value="5"></el-option>
+						    <el-option label="电话咨询" :value="6"></el-option>
+						    <el-option label="其他" :value="7"></el-option>
+					    </el-select>
+				    </el-form-item>
+			    	<el-form-item label="客户状态" :label-width="formLabelWidth" prop="custState">
+					    <el-select v-model="form.custState" placeholder="请选择客户状态"  :clearable="true">
+						    <el-option label="新增询价" :value="1"></el-option>
+						    <el-option label="未成交" :value="2"></el-option>
+						    <el-option label="已成交" :value="3"></el-option>
+						    <!-- <el-option label="新增未成交" :value="4"></el-option> -->
+						</el-select>
+					</el-form-item>
+				    <el-form-item label="客户性质" :label-width="formLabelWidth" prop="custNature">
+				     	<el-select v-model="form.custNature"  placeholder="请选择客户性质">
+					        <el-option label="OEM" :value="1"></el-option>
+					         <el-option label="端终" :value="6"></el-option>
+						    <el-option label="设备配套商" :value="2"></el-option>
+						    <el-option label="高校科研院所" :value="3"></el-option>
+						    <el-option label="贸易商" :value="4"></el-option>
+						    <el-option label="其它" :value="5"></el-option>
+					    </el-select>
+				    </el-form-item>
+				
+				    <el-form-item label="处理状态" :label-width="formLabelWidth" prop="contactState">
+				      	<el-select v-model="form.contactState" placeholder="请选择处理状态">
+					        <el-option label="未读" :value="0"></el-option>
+			    			<el-option label="已读" :value="1"></el-option>
+					    </el-select>
+				    </el-form-item>
+				    <el-form-item label="客户属性" :label-width="formLabelWidth" prop="custBelong">
+				      	<el-select v-model="form.custBelong" placeholder="请选择客户属性">			      
+						   <el-option label="必优客户" :value="1"></el-option>
+						   <el-option label="耐特恩客户" :value="2"></el-option>
+					    </el-select>
+				    </el-form-item>
+				    <!-- <el-form-item v-if="form.custBelong==1" prop="userName" label="用户名" :label-width="formLabelWidth">
+				      	<el-input v-model="form.userName" style="width:53%;" autocomplete="off"></el-input>
+				    </el-form-item>
+				    <el-form-item v-if="form.custBelong==1"  prop="alias" label="登录名" :label-width="formLabelWidth">
+				      	<el-input v-model="form.alias" style="width:53%;":disabled="editState" autocomplete="off"></el-input>
+				    </el-form-item>
+					<el-form-item v-if="form.custBelong==1" prop="mobilePhone" label="手机号" :label-width="formLabelWidth">
+				      	<el-input v-model="form.mobilePhone" style="width:53%;" autocomplete="off"></el-input>
+				    </el-form-item> -->
+
+				    <el-form-item v-if="form.custBelong==2" prop="cusRegionIds" label="客户区域" :label-width="formLabelWidth">
+				      	<el-select v-model="form.cusRegionIds" filterable  multiple placeholder="请选择客户区域">
+					       <el-option 
+							v-for="item in regionList"
+							:key="item.id"
+						    :label="item.name"
+						    :value="item.id">
+					       </el-option>
+					    </el-select>
+				    </el-form-item>
+					<el-form-item label="创建时间" :label-width="formLabelWidth">
+				      	<el-date-picker
+							v-model="form.createTime"
+							type="datetime"
+							value-format="yyyy-MM-dd HH:mm:ss"
+							placeholder="补录历史客户">
+						</el-date-picker>
+						<span style="font-size:11px;color:#e4393c;">不填写默认为新增客户</span>
+				    </el-form-item>
+			    </div>
+			        
+			</el-form>
+
+			<span class="edit-footer clearPa">
+			    <el-button class="right" style="margin-right: 15px;margin-top:10px;" @click="closeDialog">取 消</el-button>
+			    <el-button class="right" style="margin-right: 10px;margin-top:10px;" type="primary" @click="submitFrom">确 定</el-button>
+			</span>
+		</div>
+
+		<!-- 添加联系人 -->
+		<new-customers 
+		:dialogFormVisible="dialogFormVisible" 
+		@changDialog="stateDialog"
+		@pushLink="pushLink"
+		:showLink="showLink"
+		:currrentLink="currrentLink"
+		@resetLink="resetLink"
+		:editSte="editStatus"
+		></new-customers>
+	</div>
+</template>
+<script type="text/javascript">
+import newCustomers from "@/page/admin/customerDetails/components/newCustomers";
+import {newCust,getCust,getOperator,getSalesList,deleteContacts,checkCustCompanyName} from "util/req/customer/newUser";
+import {formatDateTime} from "util/fn/transTime";
+import {queryRegionPage} from "util/req/region/index";
+import md5 from 'js-md5';
+	export default{
+		name:"newCustomersEdit",
+		props:{
+			centerDialogVisible:{  
+				type:Boolean,
+				default: false
+			},
+			editTitle:{
+				type:String,
+				default: ''
+			},
+			editState:{		//新增为false 编辑为true
+				type:Boolean,
+				default: true
+			},
+			editUserId:{
+				type:Number,
+				default:0
+			},
+			editCustId:{
+				type:Number,
+				default:0
+			},
+			editList:{
+				type:Object
+			},
+			salesList:{
+				type:Array
+			}
+		},
+		data(){
+			return{
+				titleName:'用户信息',
+				form: {
+				  userId:null,			//用户id
+				  custId:null,			//客户id
+		          custState:null,		//客户状态
+		          custNature:null,		//客户性质
+		          salesmanId:null,		//负责人名
+		          areasOfUse:null,		//使用领域
+		          contactState:null,	//联系状态
+		          custSource:null,		//客户所属
+		          custBelong:null,		//客户属性
+		          cusRegionIds:[],		//客户区域
+		          custAddress:null,		//客户地址
+		          custName:null,		//客户名称
+		          custCompanyName:null,	//客户地址
+		          custPhone:null, 		//客户电话
+		          custLandline:null, 	//客户座机
+		          regTime:'', 			//创建时间
+		          custEmail:null,		//email
+				  salesmanId:null, 		//负责人名
+				  createTime:null 		//创建时间
+		        },
+		        userAddress:'',			//收货地址（不能编辑的）
+		        newSubmitState:false,	//添加新客户是否为空
+		        formLabelWidth: '120px',
+		        changeCenter:'baseUser',
+		        dialogFormVisible:false,
+		        passwordStart:null,		//保留一个用户开始的密码，与修改后的密码进行对比是否有变化
+		        linkArray:[],			//添加联系人数组
+		        showLink:null, 			//回显的联系人数据
+		        currrentLink:null, 		//当前回显数据的下标
+		        operatorList:null, 		//负责人列表
+		        editStatus:false, 		//传递给联系人详情是否是新增还是编辑的状态(false为新增)
+		        regionList:[],			//区域列表
+		        rules:{
+		        	custName:{ required: true, trigger: 'blur', message:"客户名字不能为空"},
+		        	custBelong:{ required: true, trigger: 'blur', message:"客户属性不能为空"},
+		        	cusRegionIds:{ required: true, trigger: 'blur', message:"客户区域不能为空"},
+		        	salesmanId:{ required: true, trigger: 'blur', message:"负责人不能为空"},
+		        	custEmail: [{ required: false, trigger: 'blur',pattern:/^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/,message:"请输入正确的邮箱"}],
+			        custPhone: [
+			        // { required: true, trigger: 'blur',message:"客户电话不能为空"},
+			        			{ trigger: 'blur',pattern:/^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/,message:"请输入正确的格式"}],
+			        custSource:{ required: true, trigger: 'blur', message:"客户来源不能为空"},
+					custState:{ required: true, trigger: 'blur', message:"客户状态不能为空"},	
+					contactState:{ required: true, trigger: 'blur', message:"处理状态不能为空"},
+			        custNature:{ required: true, trigger: 'blur', message:"客户性质不能为空"},
+			        mobilePhone:[ { required: true, trigger: 'blur',message:"客户电话不能为空"},
+			        			{ trigger: 'blur',pattern:/^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/,message:"请输入正确的格式"}],
+			        userName:{ required: true, trigger: 'blur', message:"用户名不能为空"},		
+			        alias:{ required: true, trigger: 'blur', message:"登录名不能为空"}
+		        },
+				isSMS:0,
+				echoMsg:null, 	//检查公司名输出信息
+				recordCompanyName:null,  //编辑状态下记住公司名称
+				isFirst:true,
+				isCompanyTrue:true    //公司名称是否能保存
+			}
+		},
+		watch:{
+			'form.custCompanyName':function(val){
+				this.isCompanyTrue=false;
+				if(val==null||val==""){return}
+				if(this.editState){
+					if(this.isFirst){
+						this.recordCompanyName=val;
+						this.isFirst=false;
+						this.isCompanyTrue=true;
+					}
+				}
+			},
+			'form.salesmanId':function(val){	//负责人名没有时默认为0，需要监听设置为null
+				if(val==0){this.form.salesmanId=null;}
+			},
+			editState(val){
+				console.log(val);
+				if(val==false){
+					this.changeEdit("baseMsg");
+				}else{
+					this.changeEdit("baseUser");
+				}
+			},
+			editUserId(val){
+				this.userId=val;
+				queryRegionPage({page:1,pageSize:100},res=>{
+			   		this.regionList=res.data.list;
+			   })
+			},
+			editList(val){			//监听编辑信息
+				var newForm=Object.assign(val.custDto);
+				console.log(newForm);
+				this.form=newForm;
+				this.operatorList=val.operatorDto;
+				if(val.contList.length!=0){
+					this.linkArray=val.contList;
+					this.linkArray=JSON.parse(JSON.stringify(this.linkArray))
+				}
+				this.passwordStart=this.form.password;//保留初始的密码进行对比	
+				//用户信息	
+				if(val.userDto){
+					this.form.alias=val.userDto.alias
+					this.form.mobilePhone=val.userDto.mobilePhone
+					this.form.userName=val.userDto.userName
+				}
+			},
+			'form.custBelong'(val){
+				if(val==1){
+
+				}
+			},
+			editCustId(val){
+			//	console.log(val);
+			}
+		},
+		components:{
+			newCustomers
+		},
+		computed:{
+			
+		},
+		methods:{
+			stateDialog(state){
+				  this.dialogFormVisible=state;
+				
+		    },
+			changeEdit(e){
+
+			},
+			closeDialog(){
+				this.recordCompanyName=null //编辑状态下记住公司名称
+				this.isFirst=true;
+				this.echoMsg='';
+				this.isSMS=0;
+				this.$emit("changeCenter",false);
+				this.resetFrom();
+				this.linkArray=[];	//联系人数组清空
+				this.isCompanyTrue=true;
+			},
+			getOperatorList(){		//获取负责人列表
+				getSalesList(res=>{
+					this.operatorList=res.data.list;
+				})
+			},
+			queryRegionPage(){					//获取客户区域
+				queryRegionPage({page:1,pageSize:100},res=>{	
+				   	this.regionList=res.data.list;
+				})
+			},
+			resetFrom(){
+				  this.form.custState=null	
+		          this.form.levels=null		
+		          this.form.custNature=null		
+		          this.form.serviceDemand=null	
+		          this.form.salesmanId=null		
+		          this.form.followUpRecord=null	
+		          this.form.areasOfUse=null		
+		          this.form.contactState=null	
+		          this.form.custSource=null		
+		          this.form.custAddress=null		
+		          this.form.custName=null		
+		          this.form.custPhone=null 	
+		          this.form.custLandline =null	
+		          this.form.salesmanId=null
+		          this.form.cusRegionIds=[]
+		          this.form.custCompanyName=null
+		          this.form.custEmail=null
+		          this.form.custBelong=null
+		          this.form.remark=null
+		          this.form.alias=null
+		          this.form.userName=null
+				  this.form.mobilePhone=null
+				  this.form.createTime=null
+			},
+			submitFrom(){		//提交表单内容					
+				//getCust({},res=>{console.log(res);})
+				console.log(this.isCompanyTrue);
+				if(!this.isCompanyTrue){
+					return;
+				}
+				if(this.editState===false){			//新增客户
+					var params={
+						  custState:this.form.custState,
+				          custNature:this.form.custNature,			
+				          // areasOfUse:this.form.areasOfUse,		
+				          contactState:this.form.contactState,
+				          salesmanId:this.form.salesmanId,	
+				          custSource:this.form.custSource,
+				          custBelong:this.form.custBelong,
+				          cusRegionList:this.handleArray(this.form.cusRegionIds)||{},		
+				          custAddress:this.form.custAddress,		
+				          // custName:this.form.custName,	
+				          custCompanyName:this.form.custCompanyName,
+				          // custPhone:this.form.custPhone,
+				          // custLandline:this.form.custLandline,
+				          // custEmail:this.form.custEmail,
+				          conList:[...this.linkArray],
+				          remark:this.form.remark,
+						  isSMS:this.isSMS,
+						  createTime:this.form.createTime
+					}
+					if(this.form.custBelong==1){
+						  // params.email=this.form.custEmail
+				          params.userName=this.form.userName
+				          params.password=md5('123456')
+				          params.alias=this.form.alias
+				          params.mobilePhone=this.form.mobilePhone
+				          params.userId=this.form.userId
+				          params.cusRegionList=[]
+					}else{
+						  params.email={}
+				          params.userName={}
+				          params.password={}
+				          params.alias={}
+				          params.userId={}
+				          params.mobilePhone={}
+				          params.cusRegionList=this.handleArray(this.form.cusRegionIds)||{}
+					}
+					//判断添加新客户的内容是否全部为空
+					console.log(params);
+					//params.userId=this.editUserId;
+					this.$refs.form.validate(valid=>{
+						if(valid){
+							newCust(params,res=>{
+								if(res.msgCode==200){
+					              this.closeDialog();
+					              this.$emit("refreshTable");//刷新表格数据
+					              this.resetFrom();			//清空表格数据
+					              this.$message({
+					                message: res.msg,
+					                type: 'success',
+					                onClose:()=>{	
+					                }
+					              });     
+					            }else{
+					             	this.$alert(res.msg, '添加提示', {
+					                confirmButtonText: '确定',
+					                callback: action => {
+					                	this.closeDialog();
+					                }
+					              })
+					            }
+							})
+						}
+					})
+					
+				}else{			//编辑数据
+					var params={
+						  custId:this.form.custId,
+						  custState:this.form.custState,
+				          custNature:this.form.custNature,			
+				          // areasOfUse:this.form.areasOfUse,		
+				          contactState:this.form.contactState,
+				          custSource:this.form.custSource,
+				          custBelong:this.form.custBelong,
+				          salesmanId:this.form.salesmanId,	
+				          custAddress:this.form.custAddress,		
+				          // custName:this.form.custName,	
+				          custCompanyName:this.form.custCompanyName,
+				          // custPhone:this.form.custPhone,
+				          // custLandline:this.form.custLandline,
+				          // custEmail:this.form.custEmail,
+				          conList:[...this.linkArray],
+				          remark:this.form.remark,
+						  isSMS:this.isSMS,
+						  createTime:this.form.createTime
+					}
+					if(this.form.custBelong==1){
+						  // params.email=this.form.custEmail
+				          params.userName=this.form.userName
+				          params.password=md5('123456')
+				          params.alias=this.form.alias
+				          params.userId=this.form.userId
+				          params.mobilePhone=this.form.mobilePhone
+				          params.cusRegionList=[]
+					}else{
+						  params.email={}
+				          params.userName={}
+				          params.password={}
+				          params.alias={}
+				          params.userId={}
+				          params.mobilePhone={}
+				          params.cusRegionList=this.handleArray(this.form.cusRegionIds)||{}
+					}
+
+					console.log(params);
+					//return
+					this.$refs.form.validate(valid=>{
+						if(valid){
+							newCust(params,res=>{
+								if(res.msgCode==200){
+					              this.closeDialog();
+					              this.$emit("refreshTable");//刷新表格数据
+					              this.$message({
+					                message: '用户信息修改成功',
+					                type: 'success',
+					                onClose:()=>{	
+					                }
+					              });     
+					            }else{
+					              //登录失败
+					             	this.$alert('用户信息修改失败，请重新修改', '修改提示', {
+					                confirmButtonText: '确定',
+					                callback: action => {
+					                	this.closeDialog();
+					                }
+					              })
+					            }
+							})
+						}
+					})
+				
+					console.log(this.form);
+				}
+			},
+			pushLink(arr){					//联系人添加进数组
+				var arr=JSON.parse(JSON.stringify(arr));
+				this.linkArray.push(arr);
+				console.log(JSON.stringify([...this.linkArray]));
+			},
+			delLink(index){						//删除联系人数组的某一项
+				//如果删除联系人conid不为空时，需要请求删除
+				if(this.linkArray[index].conId){
+					
+						this.$confirm('此操作将删除此条联系人, 是否继续?', '删除提示', {
+				          confirmButtonText: '确定',
+				          cancelButtonText: '取消',
+				          type: 'warning'
+				        }).then(() => {
+				        	deleteContacts({conId:this.linkArray[index].conId},res=>{
+				        		if(res.msgCode==200){
+					        		this.$message({
+							            type: 'success',
+							            message: res.msg
+							        });
+						       		this.linkArray.splice(index,1)
+				        		}else{
+				        			this.$message({
+							            type: 'info',
+							            message: res.msg
+							        });
+				        		}
+				        	})
+				        }).catch(() => {
+				          this.$message({
+				            type: 'info',
+				            message: "已取消操作"
+				          });          
+				        });
+					
+				}else{
+					this.linkArray.splice(index,1)
+				}
+			},
+			modifyLink(index,state){					//修改联系人
+				this.showLink=JSON.parse(JSON.stringify(this.linkArray[index]));
+				this.currrentLink=index;
+				this.dialogFormVisible=true;
+				this.editStatus=state;
+			},
+			resetLink(res){
+				var arr=JSON.parse(JSON.stringify(res.form));
+				this.linkArray.splice(res.index,1,arr);
+				console.log(this.linkArray);
+			},
+			handleArray(arr){
+		    	var newItem=[];
+		    	if(arr.length==0){
+		    		return
+		    	}
+		    	for(var i=0;i<arr.length;i++){
+		    		newItem.push({'regionId':arr[i]})
+		    	}
+		    	return newItem
+			},
+			checkCustCompanyName(){	//查询公司名是否存在
+			if(!this.form.custCompanyName){return}
+				if(this.editState && this.form.custCompanyName==this.recordCompanyName){
+					this.echoMsg='';
+					this.isCompanyTrue=true;
+					return
+				}
+				checkCustCompanyName({custCompanyName:this.form.custCompanyName},res=>{
+					if(res.msgCode==302){
+						this.echoMsg=res.msg;
+						this.isCompanyTrue=false;
+					}else{
+						this.echoMsg='';
+						this.isCompanyTrue=true;
+					}
+				}) 
+			}
+		},
+		mounted(){
+			if(this.editState==false){
+				this.changeEdit("baseMsg")
+			}else{
+				this.changeEdit("baseUser")
+			}	
+			this.queryRegionPage();	//进来就先获取负责人名		
+			//	this.getOperatorList();
+			this.operatorList=this.salesList
+		}	
+	}
+</script>
+
+<style lang="scss" scoped>
+.edit /deep/ .el-dialog{
+	margin-top:5vh!important;
+}
+.edit{
+	position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overflow: auto;
+    margin: 0;
+    z-index: 2001;
+    background: rgba(0,0,0,.4);
+}
+.edit-content{
+	background:#fff;
+	border-radius:4px;
+	margin:3% auto 0px;
+	width:90%;
+	padding:20px 25px;
+}
+.edit-header{
+	width:100%;
+	height:35px;
+	line-height:35px;
+	margin-bottom:20px;
+}
+	h2{
+		font-size:18px;
+	}
+	i{
+		font-size:18px;
+		line-height:35px;
+	}
+.edit-footer{
+}
+</style>

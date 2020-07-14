@@ -1,0 +1,152 @@
+<template>
+  <div class="orderDeduction">
+    <div style="margin-bottom:10px;">
+      <!-- 条件查询： -->
+      <el-input style="width: 15%;margin-top: 20px;" placeholder="请输入订单编号" size="medium" v-model="orderNo"
+        clearable>
+      </el-input>
+      <el-input style="width: 20%;margin-top: 20px;" placeholder="请输入业务员/客户公司" size="medium" v-model="keys"
+        clearable>
+      </el-input>
+      <el-date-picker v-model="createTime" value-format="yyyy-MM-dd HH:mm:ss" type="datetimerange" range-separator="至"
+        start-placeholder="新建开始日期" end-placeholder="新建结束日期" align="right" size="medium" style="margin-top: 10px;width:290px;margin-right: 15px;">
+      </el-date-picker>
+      <el-date-picker v-model="updateTime" value-format="yyyy-MM-dd HH:mm:ss" type="datetimerange" range-separator="至"
+        start-placeholder="更新开始日期" end-placeholder="更新结束日期" align="right" size="medium" style="margin-top: 10px;width:290px;margin-right: 15px;">
+      </el-date-picker>
+      <el-button type="primary" size="medium" style="margin-top: 15px;" @click="queryOrderCommissionList" icon="el-icon-search"></el-button>
+      <el-button v-tip.top.dark="'重置'" style="margin-top:10px;" size="medium" icon="el-icon-refresh" @click="resetSearchCondition()"></el-button>
+    </div>
+     <el-table v-loading="loading" :data="royaltyList" ref="table" width="100%;" :height="tableHeight" border :header-cell-style="{'background-color':'#EFEDF0'}">
+       <el-table-column width="150" prop="orderNo" label="订单编码" align="center">
+          <template slot-scope="scope">
+            <span style="color:#409EFF;cursor:default;" @click="$router.push({path:'/admin/order',query:{orderNo:scope.row.orderNo}})">{{scope.row.orderNo}}</span>
+          </template>
+       </el-table-column>
+        <el-table-column width="120" prop="taxDifference" label="含税差额" align="center"></el-table-column>
+        <el-table-column width="120" prop="difference" label="不含税差额" align="center"></el-table-column>
+        <el-table-column width="60" prop="taxRate" label="税率" align="center"></el-table-column>
+        <el-table-column width="100" prop="excludingTaxRate" label="税率计算值" align="center"></el-table-column>
+        <el-table-column width="80" prop="rate" label="提成率" align="center"></el-table-column>
+        <el-table-column width="80" prop="amount" label="提成额" align="center"></el-table-column>
+        <el-table-column width="80" prop="businessFee" label="商务费" align="center"></el-table-column>
+         <el-table-column width="100" prop="offer" label="商品报价" align="center"></el-table-column>
+        <el-table-column prop="goodsInfo"  width="150" label="商品详情" align="center"></el-table-column>
+        <el-table-column width="60" prop="quantity" label="数量" align="center"></el-table-column>
+        <el-table-column width="60" prop="brandName" label="品牌" align="center"></el-table-column>
+        <el-table-column width="80" label="状态" align="center">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.status==1">创建</el-tag>
+            <el-tag type="info" v-if="scope.row.status==2">申请</el-tag>
+            <el-tag type="success" v-if="scope.row.status==3">同意</el-tag>
+            <el-tag type="danger" v-if="scope.row.status==4">拒绝</el-tag>
+            <el-tag type="warning" v-if="scope.row.status==5">完成</el-tag>
+          </template>
+        </el-table-column>
+          <el-table-column width="160" prop="updateTime" label="更新时间" align="center"></el-table-column>
+        <el-table-column width="160" prop="createTime" label="创建时间" align="center"></el-table-column>
+      </el-table>
+      <!--分页-->
+      <div class="clearPa edit">
+        <div class="block" style="float: right;margin-top:10px;">
+          <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="currentPage"
+            :page-sizes="[5, 10, 15, 30]" :page-size="pageSize" layout="sizes, prev, pager, next" :total="pageCount">
+          </el-pagination>
+        </div>
+      </div>
+  </div>
+</template>
+<script>
+import {
+    saveOrderCommission
+  } from "util/req/order/index";
+import{queryOrderCommissionList} from "util/req/orderDeduction/index";
+export default {
+  name:'orderDeduction',
+  data(){
+    return{
+      tableHeight:null,
+      royaltyList:[], //提成列表
+      currentPage: 1,
+      pageSize: 10,
+      pageCount: null,
+      loading: false,
+      keys:null,//关键字
+      orderNo:null,//订单
+      createTime:null,
+      updateTime:null
+    }
+  },
+  methods: {
+    handleSizeChange(pageSize) { //数据条数改变时
+      this.loading = true;
+      this.pageSize = pageSize;
+      this.currentPage = 1;
+      this.queryOrderCommissionList();
+    },
+    handleCurrentChange(currentPage) { //选取分页
+      this.loading = true;
+      this.queryOrderCommissionList();
+    },
+    resetSearchCondition(){
+      this.keys=null;
+      this.createTime=null;
+      this.updateTime=null;
+      this.currentPage=1;
+    },
+    queryOrderCommissionList(){ //获取订单提成
+      var parmas={
+        page:this.currentPage,
+        pageSize:this.pageSize
+      } 
+      if(this.keys){
+        parmas.keys=this.keys;
+      }
+      if(this.orderNo){
+        parmas.orderNo=this.orderNo;
+      }
+      if(this.createTime){
+        parmas.createTimeStart=this.createTime[0]
+        parmas.createTimeEnd=this.createTime[1]
+      }
+      if(this.updateTime){
+        parmas.updateTimeStart=this.updateTime[0]
+        parmas.updateTimeEnd=this.updateTime[1]
+      }
+      this.loading=true;
+      queryOrderCommissionList(parmas,res=>{
+        this.royaltyList=res.data.list;
+        this.pageCount=res.data.pageCount;
+        setTimeout(()=>{
+          this.loading=false;
+        },200)
+      })
+    }
+  },
+  mounted(){
+    this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop-120;
+    if(this.$route.query.orderNo){
+      this.orderNo=this.$route.query.orderNo;
+    }
+    //去掉又客户需求跳转进来的需求带公司名称
+    var currentUrl = window.location.href;
+    var targetUrl = currentUrl.split("?")[0];
+    window.location.href = targetUrl;
+    this.queryOrderCommissionList()
+  }
+}
+</script>
+<style lang="scss" scoped>
+  .orderDeduction /deep/ ::-webkit-scrollbar {
+    height: 9px;
+    width: 7px;
+  }
+  .orderDeduction{
+    background-color: #fff;
+    border-radius: 4px;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    position: relative;
+  }
+</style>

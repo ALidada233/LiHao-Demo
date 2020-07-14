@@ -1,0 +1,410 @@
+<template>
+  <div class="brand">
+    <!-- 查询条件详情 -->
+    <div>
+      <!-- 条件查询： -->
+      <el-input
+        style="width: 15%;margin-top: 20px;"
+        placeholder="请输入品牌名称"
+        size="medium"
+        v-model="brandName"
+        clearable
+      ></el-input>
+      <el-input
+        style="width: 15%;margin-top: 20px;"
+        placeholder="请输入字符编码(A-Z)"
+        size="medium"
+        v-model="charCode"
+        clearable
+      ></el-input>
+      <el-select
+        v-model="isShow"
+        :clearable="true"
+        placeholder="请选择商品显示状态"
+        size="medium"
+        style="width:200px;margin-top: 10px;"
+      >
+        <el-option label="隐藏" :value="0"></el-option>
+        <el-option label="显示" :value="1"></el-option>
+      </el-select>
+      <el-button
+        type="primary"
+        size="medium"
+        style="margin-top: 10px;"
+        @click="queryBrandList"
+        icon="el-icon-search"
+      ></el-button>
+      <el-tooltip class="item" effect="dark" content="重置" placement="top">
+        <el-button
+          size="medium"
+          style="margin-top: 10px;margin-left: 0;"
+          @click="resetHandle"
+          icon="el-icon-refresh"
+        ></el-button>
+      </el-tooltip>
+      <el-button
+        type="primary"
+        size="medium"
+        style="margin-top: 10px;"
+        @click="brandVisible=true;editStatus=false;"
+        icon="el-icon-plus"
+      ></el-button>
+    </div>
+    <div class="brandTable clearPa">
+      <el-table
+        :data="brandList"
+        style="width: 100%"
+        :border="true"
+        :height="tableHeight"
+        v-loading="loading"
+        ref="table"
+      >
+        <el-table-column label="操作" align="center" width="80">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              round
+              type="primary"
+              icon="el-icon-edit"
+              @click="editGoods(scope.row)"
+            ></el-button>
+          </template>
+        </el-table-column>
+        <el-table-column prop="brandName" label="品牌名称" align="center">
+          <template slot-scope="scope">
+            <span style="color:#409EFF;cursor: default;">{{scope.row.brandName}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="discount" width="200" align="center" label="折扣"></el-table-column>
+        <el-table-column prop="charCode" width="200" align="center" label="字符编码"></el-table-column>
+        <el-table-column prop="createName" label="创建人" align="center" width="200"></el-table-column>
+        <el-table-column prop="isShow" label="是否显示" align="center" width="200">
+          <template slot-scope="scope">
+            <el-switch
+              v-model="scope.row.isShow"
+              active-color="#13ce66"
+              @change="changeSwitch(scope.row,'isShow',scope.row.isShow)"
+              inactive-color="#ff4949"
+              :active-value="1"
+              :inactive-value="0"
+            ></el-switch>
+          </template>
+        </el-table-column>
+        <el-table-column prop="isTop" label="置顶" align="center" width="200">
+          <template slot-scope="scope">
+            <el-switch
+              v-model="scope.row.isTop"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+              @change="changeSwitch(scope.row,'isTop',scope.row.isTop)"
+              :active-value="1"
+              :inactive-value="0"
+            ></el-switch>
+          </template>
+        </el-table-column>
+        <!-- <el-table-column prop="brandImg" label="商品图片" align="center" width="110">
+          <template slot-scope="scope">
+            <img style="height:50px;" :src="'http://www.buysensor.com:8003/'+scope.row.brandImg">
+          </template>
+        </el-table-column>-->
+        <el-table-column prop="id" label="ID" width="60" align="center"></el-table-column>
+        <el-table-column prop="createTime" label="创建时间" width="200" align="center">
+          <template slot-scope="scope">
+            <span>{{scope.row.createTime}}</span>
+          </template>
+        </el-table-column>
+      </el-table>
+      <!--分页-->
+      <div class="block" style="float: right;margin-top:10px;">
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page.sync="currentPage"
+          :page-sizes="[5, 10, 15, 30]"
+          :page-size="pageSize"
+          layout="sizes, prev, pager, next,total"
+          :total="pageCount"
+        ></el-pagination>
+      </div>
+    </div>
+    <!-- 上传品牌 -->
+    <el-dialog :title="editStatus?'编辑品牌':'新增品牌'" :visible.sync="brandVisible" v-if="brandVisible">
+      <el-form :model="brandForm" ref="brandForm" :rules="brandRules">
+        <el-form-item label="品牌名称" :label-width="formLabelWidth" prop="brandName">
+          <el-input
+            v-model="brandForm.brandName"
+            @blur="checkGoodsTitle(brandForm.brandName)"
+            autocomplete="off"
+            style="width:50%"
+          ></el-input>
+          <span style="color:#e4393c;" v-if="this.checkTitleMsg">{{this.checkTitleMsg}}</span>
+        </el-form-item>
+        <el-form-item label="品牌折扣率" :label-width="formLabelWidth" prop="discount">
+          <el-input type="text" style="width:40%" v-model="brandForm.discount" autocomplete="off"></el-input>%(折扣率为数字)
+        </el-form-item>
+        <el-form-item label="排序" :label-width="formLabelWidth" prop="sort">
+          <el-input type="text" style="width:40%" v-model="brandForm.sort" autocomplete="off"></el-input>(不能大于999)
+        </el-form-item>
+        <el-form-item label="字符编码" :label-width="formLabelWidth" prop="charCode">
+          <el-input type="text" style="width:40%" v-model="brandForm.charCode" autocomplete="off"></el-input>(A-Z)
+        </el-form-item>
+        <el-form-item label="是否显示" :label-width="formLabelWidth">
+          <el-radio v-model="brandForm.isShow" :label="0">否</el-radio>
+          <el-radio v-model="brandForm.isShow" :label="1">是</el-radio>
+        </el-form-item>
+        <el-form-item label="是否置顶" :label-width="formLabelWidth">
+          <el-radio v-model="brandForm.isTop" :label="0">否</el-radio>
+          <el-radio v-model="brandForm.isTop" :label="1">是</el-radio>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="brandVisible = false">取 消</el-button>
+        <el-button type="primary" @click="comfirmSubmit">确 定</el-button>
+      </div>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import {
+  queryBrandList,
+  saveBrand,
+  checkBrandName
+} from "util/req/brand/index";
+export default {
+  name: "brand",
+  data() {
+    return {
+      tableHeight: null,
+      currentPage: 1,
+      pageSize: 10,
+      pageCount: null,
+      optionsSel: [],
+      categoryList: [],
+      loading: false,
+      brandList: [],
+      brandName: null, // 品牌名称
+      isShow: null, // 是否显示0否1是
+      charCode: null, // 字符编码 大写ABC
+      editStatus: false,
+      brandVisible: false, //弹窗
+      brandForm: {
+        isShow: 1,
+        isTop: 0
+      }, //新增编辑表单参数
+      brandRules: {
+        brandName: {
+          required: true,
+          trigger: "blur",
+          message: "品牌名称不能为空"
+        },
+        discount: [
+          { required: true, trigger: "blur", message: "折扣不能为空" },
+          {
+            pattern: /^(0|[1-9][0-9]?|100)$/,
+            trigger: "blur",
+            message: "折扣不能低于0"
+          }
+        ],
+        charCode: [
+          { required: true, trigger: "blur", message: "字符编码不能为空" },
+          { pattern: /^[A-Z]+$/, trigger: "blur", message: "输入内容（A-Z）" }
+        ],
+        sort: [
+          { required: true, trigger: "blur", message: "排序不能为空" },
+          {
+            pattern: /^(0|([1-9]\d{0,2}))$/,
+            trigger: "blur",
+            message: "排序在0-999之间"
+          },
+          { pattern: /^[0-9]*$/, message: "请输入数值" }
+        ]
+      }, //验证规则
+      formLabelWidth: "120px",
+      checkTitleMsg: null,
+      selBrandRow: null,
+      editRecordName: null
+    };
+  },
+  watch: {
+    brandVisible: function(val) {
+      if (!val) {
+        this.brandForm = {
+          isShow: 1,
+          isTop: 0
+        };
+        this.selBrandRow = {};
+        this.editRecordName = null;
+        this.checkTitleMsg = null;
+      }
+    }
+  },
+  methods: {
+    handleSizeChange(pageSize) {
+      //数据条数改变时
+      this.pageSize = pageSize;
+      this.currentPage = 1;
+      this.queryBrandList();
+    },
+    handleCurrentChange(currentPage) {
+      //选取分页
+      this.currentPage = currentPage;
+      this.queryBrandList();
+    },
+    resetHandle() {
+      this.brandName = null; // 品牌名称
+      this.isShow = null; // 是否显示0否1是
+      this.charCode = null; // 字符编码 大写ABC
+      this.queryBrandList();
+    },
+    checkGoodsTitle() {
+      //检查商品名称是否存在
+      if (!this.brandForm.brandName) {
+        return;
+      }
+      checkBrandName(
+        {
+          brandName: this.brandForm.brandName
+        },
+        res => {
+          if (
+            res.msgCode == 302 &&
+            this.editRecordName != this.brandForm.brandName
+          ) {
+            this.checkTitleMsg = res.msg;
+          } else {
+            this.checkTitleMsg = "";
+          }
+        }
+      );
+    },
+    changeSwitch(row, type, val) {
+      console.log(type, val);
+      var parmas = { id: row.id };
+      if (type == "isTop") {
+        parmas.isTop = val;
+      } else {
+        parmas.isShow = val;
+      }
+      saveBrand(parmas, res => {
+        if (res.msgCode == 200) {
+          this.$message({
+            message: res.msg,
+            type: "success"
+          });
+          this.queryBrandList();
+        } else {
+          this.$message({
+            message: res.msg,
+            type: "warning"
+          });
+        }
+      });
+    },
+    editGoods(row) {
+      this.editRecordName = row.brandName;
+      this.selBrandRow = row;
+      this.editStatus = true;
+      this.brandVisible = true;
+      this.brandForm = JSON.parse(JSON.stringify(row));
+    },
+    comfirmSubmit() {
+      this.$refs.brandForm.validate(valid => {
+        if (valid) {
+          if (this.editStatus) {
+            this.brandForm.id = this.selBrandRow.id;
+          }
+          //当有警告输出信息，或者与回显数据不一致时，打断提交
+          if (
+            this.checkTitleMsg &&
+            this.editRecordName != this.brandForm.brandName
+          ) {
+            this.$message({
+              message: 请检查品牌名称,
+              type: "success"
+            });
+            return;
+          }
+          saveBrand(this.brandForm, res => {
+            if (res.msgCode == 200) {
+              this.$message({
+                message: res.msg,
+                type: "success"
+              });
+              this.queryBrandList();
+              this.brandForm = {};
+              this.brandVisible = false;
+            } else {
+              this.$message({
+                message: res.msg,
+                type: "warning"
+              });
+            }
+          });
+        }
+      });
+    },
+    queryBrandList() {
+      var parmas = {
+        page: this.currentPage,
+        pageSize: this.pageSize
+      };
+      //搜索条件
+      if (this.brandName) {
+        parmas.brandName = this.brandName;
+      }
+      if (this.isShow || this.isShow == 0) {
+        parmas.isShow = this.isShow;
+      }
+      if (this.charCode) {
+        parmas.charCode = this.charCode;
+      }
+      this.loading = true;
+      queryBrandList(parmas, res => {
+        if (res.msgCode == 200) {
+          this.brandList = res.data.goodsList;
+          this.pageCount = res.data.pageCount;
+          this.$refs.table.bodyWrapper.scrollTop = 0;
+          setTimeout(() => {
+            this.loading = false;
+          }, 200);
+        } else {
+          this.$message({
+            message: res.msg,
+            type: "warning"
+          });
+        }
+      });
+    }
+  },
+  mounted() {
+    this.tableHeight =
+      window.innerHeight - this.$refs.table.$el.offsetTop - 130;
+    this.queryBrandList();
+  }
+};
+</script>
+<style lang="scss" scoped>
+.brand /deep/ th {
+  background-color: #efedf0 !important;
+}
+
+.brand /deep/ th {
+  background-color: #efedf0 !important;
+}
+
+.brand /deep/ ::-webkit-scrollbar {
+  height: 9px;
+  width: 7px;
+}
+.brand /deep/ .el-dialog {
+  margin-top: 20px !important;
+}
+.brand {
+  background: #fff;
+  padding: 10px;
+}
+.brandTable {
+  margin-top: 20px;
+}
+</style>

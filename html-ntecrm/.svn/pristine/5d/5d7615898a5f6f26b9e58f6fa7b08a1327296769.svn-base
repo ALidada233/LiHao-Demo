@@ -1,0 +1,203 @@
+<template>
+  <div class="TechnicalSupport_content">
+    <div class="TechnicalSupport">
+      <div class="listSty" @click="currentTabComponent='preSale';type=1;beId=null;">
+        <div class="iconSty">
+          <i class="iconfont">&#xe6e5;</i>
+        </div>
+        <el-badge :value="preMsg.preSaleUnRead" class="item">
+          <span>技术售前支持</span>
+        </el-badge>
+        <i
+          class="iconfont"
+          v-if="currentTabComponent=='preSale'"
+          style="position:absolute;right:0;top:-10px;font-size:25px;color:#e4393c;"
+        >&#xe605;</i>
+      </div>
+      <div class="listSty" @click="currentTabComponent='afterSale';type=3;beId=null;">
+        <div class="iconSty" style="background:#48A8EE;">
+          <i class="iconfont">&#xe60c;</i>
+        </div>
+        <el-badge :value="preMsg.afterSaleUnRead" class="item">
+          <span>售后技术问题处理</span>
+        </el-badge>
+        <i
+          class="iconfont"
+          v-if="currentTabComponent=='afterSale'"
+          style="position:absolute;right:0;top:-10px;font-size:25px;color:#e4393c;"
+        >&#xe605;</i>
+      </div>
+      <div class="listSty" @click="currentTabComponent='debugging';type=2;beId=null;">
+        <div class="iconSty" style="background:#FE892C;">
+          <i class="iconfont">&#xe653;</i>
+        </div>
+        <el-badge :value="preMsg.debuggingUnRead" class="item">
+          <span>技术调试申请</span>
+        </el-badge>
+        <i
+          class="iconfont"
+          v-if="currentTabComponent=='debugging'"
+          style="position:absolute;right:0;top:-10px;font-size:25px;color:#e4393c;"
+        >&#xe605;</i>
+      </div>
+      <div
+        class="listSty"
+        v-if="roleId==36||roleId==37||roleId==41||roleId==39"
+        @click="currentTabComponent='purchase';"
+      >
+        <div class="iconSty" style="background:#00CAAD;">
+          <i class="iconfont">&#xe609;</i>
+        </div>
+        <el-badge class="item">
+          <span>采购订单</span>
+        </el-badge>
+        <i
+          class="iconfont"
+          v-if="currentTabComponent=='purchase'"
+          style="position:absolute;right:0;top:-10px;font-size:25px;color:#e4393c;"
+        >&#xe605;</i>
+      </div>
+    </div>
+
+    <transition name="fade-transform" mode="out-in">
+      <pre-sale
+        class="comp"
+        v-if="currentTabComponent!='purchase'"
+        :type="type"
+        :beId="beId"
+        @closeVisilog="currentTabComponent=null;getTechnicalSupportIndex();"
+      ></pre-sale>
+    </transition>
+
+    <transition name="fade-transform" mode="out-in">
+      <purchase
+        class="comp"
+        :beId="beId"
+        v-if="currentTabComponent=='purchase'"
+        @closeVisilog="currentTabComponent=null;getTechnicalSupportIndex()"
+      ></purchase>
+    </transition>
+    <!--
+        <transition name="fade-transform" mode="out-in">
+            <debugging v-if="currentTabComponent=='debugging'"
+                class="comp"
+                @closeVisilog="currentTabComponent=null;getTechnicalSupportIndex()"
+            >
+            </debugging>
+    </transition>-->
+  </div>
+</template>
+<script>
+import { getTechnicalSupportIndex } from "util/req/TechnicalSupport/index";
+export default {
+  name: "TechnicalSupport",
+  data() {
+    return {
+      currentTabComponent: "preSale",
+      preMsg: {},
+      type: 1,
+      beId: null,
+      roleId: JSON.parse(sessionStorage.getItem("userDto")).roleId || null
+    };
+  },
+  methods: {
+    getTechnicalSupportIndex() {
+      getTechnicalSupportIndex(res => {
+        this.preMsg = res.data;
+      });
+    }
+  },
+  mounted() {
+    if (this.$route.query.beId) {
+      this.beId = this.$route.query.beId;
+      //消息跳转客户
+      if (this.$route.query.type == 1) {
+        this.currentTabComponent = "preSale";
+      } else if (this.$route.query.type == 2) {
+        this.currentTabComponent = "debugging";
+      } else if (this.$route.query.type == 3) {
+        this.currentTabComponent = "afterSale";
+      }
+      this.type = this.$route.query.type;
+    }
+    this.getTechnicalSupportIndex();
+    var currentUrl = window.location.href;
+    var targetUrl = currentUrl.split("?")[0];
+    window.location.href = targetUrl;
+  },
+  components: {
+    preSale: () => import("@/page/admin/TechnicalSupport/components/preSale"),
+    purchase: () => import("@/page/admin/TechnicalSupport/components/purchase")
+    // afterSale:()=>import("@/page/admin/TechnicalSupport/components/afterSale"),
+    // debugging:()=>import("@/page/admin/TechnicalSupport/components/debugging")
+  }
+};
+</script>
+<style lang="scss" scoped>
+.TechnicalSupport_content {
+  position: relative;
+  background: #fff;
+  padding: 10px;
+  box-sizing: border-box;
+}
+.TechnicalSupport {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 15px;
+  padding-bottom: 0;
+}
+.listSty {
+  width: 220px;
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  margin-right: 30px;
+  cursor: default;
+  position: relative;
+  margin-bottom: 10px;
+}
+.iconSty {
+  width: 40px;
+  height: 40px;
+  background: #16bd86;
+  color: #fff;
+  line-height: 40px;
+  text-align: center;
+  border-radius: 5px;
+}
+.iconSty > i {
+  font-size: 23px;
+}
+.listSty span {
+  margin-left: 10px;
+}
+.listSty /deep/ .is-fixed {
+  top: 10px;
+  right: -10px;
+}
+.comp {
+  // position: absolute;
+  // left: 0px;
+  // top: 0px;
+  // width: 100%;
+  // min-height: 100%;
+  // z-index: 1000;
+  // box-shadow: 0px 0px 10px #eee;
+  background: #fff;
+  box-sizing: border-box;
+}
+.fade-transform-leave-active,
+.fade-transform-enter-active {
+  transition: all 0.2s;
+}
+.fade-transform-enter {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+.fade-transform-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+</style>

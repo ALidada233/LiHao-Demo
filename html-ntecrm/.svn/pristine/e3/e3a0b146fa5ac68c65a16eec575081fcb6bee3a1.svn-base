@@ -1,0 +1,28 @@
+<template>
+  <div>
+    <div style="text-align:right;margin-top:20px;">
+      <i class="iconfont" style="cursor:default;" @click="$emit('closeVisible');resetHandle();">&#xe633;</i>
+    </div>
+    12333333333333
+    <br>
+    12333333333333
+    <br>
+    12333333333333
+    <br>
+    12333333333333
+    <br>
+  </div>
+</template>
+<script>
+export default {
+  name:'shippingList',
+  methods: {
+    resetHandle(){
+
+    }
+  }
+}
+</script>
+<style lang="scss" scoped>
+  
+</style>

@@ -1,0 +1,3171 @@
+<template>
+	<div>
+		<div style="margin-top: 10px;">
+			<i class="iconfont" style="margin-left: 10px;">&#xe616;</i>
+			<el-button type="primary" size="small" @click="$emit('closeContractDialog');remarkText=null;">关闭</el-button>
+			<!-- <div v-for="(item,index) in content.offerGoodsList" :key="index" style="margin-top:15px;">
+				<span style="margin-left:30px;">货期：{{item.goodsInfo}}</span>
+				<el-input v-model="item.weeksStart" min="0" style="width:20%;" type="number" placeholder="请输入内容"></el-input>-
+				<el-input v-model="item.weeksEnd" min="0" style="width:20%;" type="number" placeholder="请输入内容"></el-input> weeks
+			</div> -->
+			
+		</div>
+		<div class="htmlModel" id="subOutputRank-print" style="-webkit-transform:scale(0.65);background: #fff;">
+		  		<table border="0" cellpadding="0" cellspacing="0" width="1075" style="border-collapse: 
+					collapse;table-layout:fixed;width:806pt">
+					<colgroup><col class="x70" width="65" style="mso-width-source:userset;width:48pt">
+					<col class="x70" width="72" span="2" style="mso-width-source:userset;width:54pt">
+					<col class="x70" width="121" style="mso-width-source:userset;width:90pt">
+					<col class="x70" width="88" style="mso-width-source:userset;width:66pt">
+					<col class="x70" width="113" style="mso-width-source:userset;width:84pt">
+					<col class="x70" width="120" style="mso-width-source:userset;width:90pt">
+					<col class="x70" width="112" style="mso-width-source:userset;width:84pt">
+					<col class="x70" width="125" style="mso-width-source:userset;width:93pt">
+					<col class="x70" width="187" style="mso-width-source:userset;width:140pt">
+					</colgroup><tbody><tr height="133" class="x70" style="mso-height-source:userset;height:100pt" id="r0">
+					<td height="133" class="x128" width="65" style="height:100pt;width:48.75pt;" align="left" valign="top"><span style="mso-ignore:vglayout;position:absolute;z-index:1;margin-left:3px;margin-top:0px;width:317px;height:88px"><img width="317" height="88" src="@/assets/contract/image000.jpeg" name="图片 1"></span><span style="mso-ignore:vglayout;position:absolute;z-index:3;margin-left:17px;margin-top:80px;width:326px;height:55px"><img width="326" height="55" src="@/assets/contract/rectangle_Sheet1_3.png" name="Text Box 4"></span><span style="mso-ignore:vglayout2"><table cellpadding="0" cellspacing="0"><tbody><tr><td height="133" class="x72" width="65" style="height:100pt;width:48.75pt;"><a name="PRINT_AREA"><span style="font-size:12pt;color:#000000;font-weight:400;text-decoration:none;text-line-through:none;font-family:&quot;宋体&quot;;"></span></a></td></tr></tbody></table></span></td>
+					<td class="x72" width="72" style="width:54pt;"></td>
+					<td class="x72" width="72" style="width:54pt;"></td>
+					<td class="x72" width="121" style="width:90.75pt;"></td>
+					<td height="133" class="x128" width="88" style="height:100pt;width:66pt;" align="left" valign="top"><span style="mso-ignore:vglayout;position:absolute;z-index:2;margin-left:42px;margin-top:9px;width:309px;height:121px"><img width="309" height="121" src="@/assets/contract/rectangle_Sheet1_2.png" name="Rectangle 3"></span><span style="mso-ignore:vglayout2"><table cellpadding="0" cellspacing="0"><tbody><tr><td height="133" class="x72" width="88" style="height:100pt;width:66pt;"></td></tr></tbody></table></span></td>
+					<td class="x72" width="113" style="width:84.75pt;"></td>
+					<td class="x72" width="120" style="width:90pt;"></td>
+					<td class="x72" width="112" style="width:84pt;"></td>
+					<td height="133" class="x128" width="125" style="height:100pt;width:93.75pt;" align="left" valign="top"><span style="mso-ignore:vglayout;position:absolute;z-index:0;margin-left:31px;margin-top:3px;width:229px;height:99px">
+						<!-- <img width="229" height="99" src="@/assets/contract/rectangle_Sheet1_0.png" name="Text Box 1"> -->
+						<p class="x83" style="margin-top:10px;font-weigh:700">PAGE:<span class="font42" style="font-weigh:700">1 of 1</span></p>
+				     	<p class="x83" style="margin-top:10px;font-weigh:700;">SO DATE:<span class="font42" style="font-weigh:700">{{content.date}}</span></p>
+						</span><span style="mso-ignore:vglayout2"><table cellpadding="0" cellspacing="0"><tbody><tr><td height="133" class="x72" width="125" style="height:100pt;width:93.75pt;"></td></tr></tbody></table></span></td>
+					<td class="x72" width="187" style="width:140.25pt;"></td>
+					</tr>
+					<tr height="21" class="x70" style="mso-height-source:userset;height:15.75pt" id="r1">
+					<td height="21" class="x73" style="height:15.75pt;"></td>
+					<td class="x73"></td>
+					<td class="x73"></td>
+					<td class="x73"></td>
+					<td class="x73"></td>
+					<td class="x72"></td>
+					<td class="x72"></td>
+					<td class="x74"></td>
+					<td colspan="2" id="tc0" class="x117" style="border-right:1px solid windowtext;border-bottom:1px solid windowtext;border:none;background:none;"><font class="font5">SO NO.</font><font class="font16">：</font><font class="font5">{{content.contractCode}}</font></td>
+					</tr>
+					<tr height="21" class="x70" style="mso-height-source:userset;height:15.75pt" id="r2">
+					<td height="21" class="x73" style="height:15.75pt;"></td>
+					<td class="x73"></td>
+					<td class="x73"></td>
+					<td class="x73"></td>
+					<td class="x73"></td>
+					<td class="x72"></td>
+					<td class="x72"></td>
+					<td class="x72"></td>
+					<td class="x72"></td>
+					<td class="x72"></td>
+					</tr>
+					<tr height="19" class="x70" style="mso-height-source:userset;height:14.25pt" id="r3">
+					<td colspan="3" id="tc1" rowspan="3" height="57" class="x75" style="height:42.75pt;"><font class="font5">CUSTOMER</font><font class="font10">　　　</font><font class="font5"><br></font><font class="font10">需方</font></td>
+					<td colspan="2" id="tc2" rowspan="2" height="38" class="x77" style="height:28.5pt;">{{content.companyName}}</td>
+					<td rowspan="3" height="57" class="x76" style="height:42.75pt;overflow:hidden;"><font class="font4">SUPPLIER:</font><font class="font10">　　供方</font></td>
+					<td colspan="4" id="tc3" rowspan="3" height="57" class="x79" style="height:42.75pt;overflow:hidden;"><font class="font8">深圳耐特恩科技有限公司　　　　　　　　　　　　　　　　　　　　　　<br></font><font class="font40">NEW TRANSFORM TECHNOLOGY CO.,LTD<span style="mso-spacerun:yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></font><font class="font8">　　　</font><font class="font40"><br></font><font class="font8">深圳市宝安42区华创达中心商务大厦D座301</font></td>
+					</tr>
+					<tr height="19" class="x70" style="mso-height-source:userset;height:14.25pt" id="r4">
+					</tr>
+					<tr height="19" class="x70" style="mso-height-source:userset;height:14.25pt" id="r5">
+					<td class="x80"></td>
+					<td class="x80"></td>
+					</tr>
+					<tr height="19" class="x70" style="mso-height-source:userset;height:14.25pt" id="r6">
+					<td colspan="3" id="tc4" rowspan="3" height="57" class="x75" style="height:42.75pt;"><font class="font5">CONTACT</font><font class="font41">：　　　</font><font class="font5"><br></font><font class="font10">联系人：</font></td>
+					<td colspan="2" id="tc5" class="x81">{{content.contacts}} {{content.phone}}</td>
+					<td rowspan="3" height="57" class="x76" style="height:42.75pt;overflow:hidden;"><font class="font4">CONTACT</font><font class="font41">：　　</font><font class="font10">联系人</font></td>
+					<td colspan="4" id="tc6" class="x81">{{content.saleName}}　{{content.salePhone}}</td>
+					</tr>
+					<tr height="19" class="x70" style="mso-height-source:userset;height:14.25pt" id="r7">
+					<td colspan="2" id="tc7" class="x83"></td>
+					<td colspan="4" id="tc8" class="x85"><font class="font7">TEL:</font><font class="font42">＋</font><font class="font7">86-755-82908211 *<span style="mso-spacerun:yes">&nbsp;&nbsp;&nbsp; </span>FAX:</font><font class="font42">＋</font><font class="font7">86-755-82959939-802</font></td>
+					</tr>
+					<tr height="19" class="x70" style="mso-height-source:userset;height:14.25pt" id="r8">
+					<td class="x86"></td>
+					<td class="x86"></td>
+					<td colspan="3" id="tc9" class="x85"><a href="mailto:colinli@sensorstech.com" target="_parent"><span style="font-size:10pt;color:#000000;font-weight:400;text-decoration:none;text-line-through:none;font-family:&quot;Arial&quot;;">colinli@sensorstech.com</span></a></td>
+					<td class="x86"></td>
+					</tr>
+					<tr height="20" class="x70" style="mso-height-source:userset;height:15pt" id="r9">
+					<td colspan="5" id="tc10" height="20" class="x87" style="height:15pt;"><font class="font12">BANK </font><font class="font43">开户行：<span style="mso-spacerun:yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>ACCOUNT账号：</font></td>
+					<td class="x89"><font class="font14">BANK </font><font class="font18">开户行：</font></td>
+					<td colspan="4" id="tc11" class="x79"><font class="font8">宁波银行深圳分行　</font><font class="font14">ACCOUNT</font><font class="font18">账号：</font><font class="font40">7301 0122 0001 14715<span style="mso-spacerun:yes">&nbsp; </span></font></td>
+					</tr>
+					<tr height="20" class="x70" style="mso-height-source:userset;height:15pt" id="r10">
+					<td colspan="5" id="tc12" height="20" class="x87" style="height:15pt;"><font class="font12">DUTY PARAGRAPH</font><font class="font43">税号：</font></td>
+					<td colspan="5" id="tc13" class="x90"><font class="font12">DUTY PARAGRAPH</font><font class="font43">税号：</font><font class="font44">91440300683779841K</font></td>
+					</tr>
+					<tr height="21" class="x70" style="mso-height-source:userset;height:15.75pt" id="r11">
+					<td colspan="8" id="tc14" height="21" class="x92" style="border-bottom:1px solid windowtext;height:15.75pt;"></td>
+					<td class="x72"></td>
+					<td class="x72"></td>
+					</tr>
+					<tr height="61" class="x71" style="mso-height-source:userset;height:46pt" id="r12">
+					<td colspan="4" id="tc15" height="61" class="x118" style="border-bottom:1px solid windowtext;height:46pt;">PAYMENT付款:
+						<span v-if="content.moneyStatus==1">全额支付</span>
+						<span v-if="content.moneyStatus==2">30%预付款，70%款到发货</span>
+						<span v-if="content.moneyStatus==3">50%预付款 ，50%款到发货</span>
+						<span v-if="content.moneyStatus==4">货到付款</span>
+						<span v-if="content.moneyStatus==5">月结</span>
+						<span v-if="content.moneyStatus==6">其它</span>
+					</td>
+					<td class="x95" style="overflow:hidden;"><font class="font15">TAX</font><font class="font45">税率：</font><font class="font15">VAT 16%</font></td>
+					<td colspan="3" id="tc16" class="x118" style="border-right:1px solid windowtext;border-bottom:1px solid windowtext;"><font class="font15">WARRANTY<span style="mso-spacerun:yes">&nbsp; </span></font><font class="font45">质保：</font><font class="font45">交付起</font><font class="font45">1年</font><font class="font45">内</font></td>
+					<td colspan="2" id="tc17" class="x118" style="border-right:1px solid windowtext;border-bottom:1px solid windowtext;"><font class="font15">SHIPMENT</font><font class="font45">运输：国内快递供方承担</font></td>
+					</tr>
+					<tr height="19" class="x71" style="mso-height-source:userset;height:14.25pt" id="r13">
+					<td rowspan="2" height="48" class="x101" style="border-right:1px solid windowtext;height:36.25pt;overflow:hidden;"><font class="font5">ITEM<br></font><font class="font16">项目</font></td>
+					<td colspan="3" id="tc18" rowspan="2" height="48" class="x101" style="height:36.25pt;"><font class="font5">PRODUCT / DESCRIPTION<br></font><font class="font16">产品描述</font></td>
+					<td rowspan="2" height="48" class="x129" style="border-right:1px solid windowtext;border-bottom:1px solid windowtext;height:36.25pt;background: #C0C0C0;">备注</td>
+					<td rowspan="2" height="48" class="x101" style="border-right:1px solid windowtext;height:36.25pt;overflow:hidden;"><font class="font5">LEAD TIME<br></font><font class="font16">货期</font></td>
+					<td rowspan="2" height="48" class="x101" style="border-right:1px solid windowtext;height:36.25pt;"><font class="font5">BRAND<br></font><font class="font16">品牌</font></td>
+					<td rowspan="2" height="48" class="x101" style="border-right:1px solid windowtext;height:36.25pt;"><font class="font5">QTY<br></font><font class="font16">数量</font></td>
+					<td rowspan="2" height="48" class="x101" style="border-right:1px solid windowtext;height:36.25pt;overflow:hidden;"><font class="font4">UNIT PRICE</font><font class="font10">　单价</font></td>
+					<td rowspan="2" height="48" class="x101" style="border-right:1px solid windowtext;height:36.25pt;"><font class="font5">SUBTOTAL<br></font><font class="font16">小计</font></td>
+					</tr>
+					<tr height="29" class="x71" style="mso-height-source:userset;height:22pt" id="r14">
+
+					<tr v-for="(item,index) in content.offerGoodsList" :key="index" height="44" class="x70" style="mso-height-source:userset;height:33pt" id="r15"> 
+				     <td height="44" class="x111" style="height:33pt;">{{index+1}}</td> 
+				     <td colspan="3" id="tc19" class="x139" style="border-right:1px solid windowtext;border-bottom:1px solid windowtext;text-align:center;">{{item.goodsInfo.split('—')[0]}}</td> 
+					 <td class="x111">{{item.remark}}</td>
+				     <td class="x115" style="vertical-align: middle;text-align:center;">{{item.deliveryStart}}-{{item.deliveryEnd}} WEEKS</td> 
+				     <td class="x116" style="vertical-align: middle;text-align:center;">{{item.brandName}}</td> 
+				     <td class="x111">{{item.quantity}}</td> 
+				     <td class="x119" align="right" x:num="7100" v-html="currency(item.offer,'￥',2)"> </td> 
+				     <td class="x119" align="right" x:num="7100" x:fmla="=H16*I16" v-html="currency(item.offer*item.quantity,'￥',2)"></td> 
+				    </tr> 
+
+					<tr height="24" class="x70" style="mso-height-source:userset;height:18pt" id="r17">
+					<td colspan="8" id="tc21" height="24" class="x114" style="border-right:1px solid windowtext;border-bottom:1px solid windowtext;height:18pt;"><font class="font4">A.QUALITY STANDARD</font><font class="font10">质量标准：原产地厂家标准，参考官方网站或技术协议；</font></td>
+					<td class="x120"><font class="font21">TOTAL</font><font class="font46">总计RMB</font><font class="font21">:</font></td>
+					<td class="x121" align="right" x:num="11100" x:fmla="=SUM(J16:J16,4000)" v-html="currency(content.totalOffer,'￥',2)"> </td>
+					</tr>
+					<tr height="24" class="x70" style="mso-height-source:userset;height:18pt" id="r18">
+					<td colspan="8" id="tc22" height="24" class="x114" style="border-right:1px solid windowtext;border-bottom:1px solid windowtext;height:18pt;"><font class="font4">B.PACKAGING </font><font class="font10">包装标准：包装符合长途运输条件，需防颠簸、防潮。包装物不回收，不另计价；</font></td>
+					<td class="x122">大写：人民币</td>
+					<td class="x123" v-html="convertCurrency(content.totalOffer)"></td>
+					</tr>
+					<tr height="24" class="x70" style="mso-height-source:userset;height:18pt" id="r19">
+					<td colspan="8" id="tc23" height="24" class="x114" style="border-right:1px solid windowtext;border-bottom:1px solid windowtext;height:18pt;"><font class="font4">C.Dispute Resolution</font><font class="font10">争议解决：参考《经济合同法》，供方所在地仲裁或诉讼；</font></td>
+					<td colspan="2" id="tc24" rowspan="2" height="48" class="x124" style="height:36pt;"></td>
+					</tr>
+					<tr height="24" class="x70" style="mso-height-source:userset;height:18pt" id="r20">
+					<td colspan="8" id="tc25" height="24" class="x114" style="border-right:1px solid windowtext;border-bottom:1px solid windowtext;height:18pt;"><font class="font4">D.EFFECTIVE DATE </font><font class="font10">生效日期：双方签署盖章，传真影印件确认，收到预付款起生效；</font></td>
+					</tr>
+					<tr height="24" style="mso-height-source:userset;height:18pt" id="r21">
+					<td height="24" class="x70" style="height:18pt;" v-if="remarkText">备注：{{remarkText}}</td>
+					<td class="x70"></td>
+					<td class="x70"></td>
+					<td class="x70"></td>
+					<td class="x70"></td>
+					<td class="x70"></td>
+					<td class="x70"></td>
+					<td class="x70"></td>
+					<td class="x70"></td>
+					<td class="x70"></td>
+					</tr>
+					<!--[if supportMisalignedColumns]-->
+					<tr height="0" style="display:none">
+					<td width="65" style="width:48.75pt"></td>
+					<td width="72" style="width:54pt"></td>
+					<td width="72" style="width:54pt"></td>
+					<td width="121" style="width:90.75pt"></td>
+					<td width="88" style="width:66pt"></td>
+					<td width="113" style="width:84.75pt"></td>
+					<td width="120" style="width:90pt"></td>
+					<td width="112" style="width:84pt"></td>
+					<td width="125" style="width:93.75pt"></td>
+					<td width="187" style="width:140.25pt"></td>
+					</tr>
+					<!--[endif]-->
+					</tbody>
+				</table>
+		  	</div>
+			<div style="margin:0 0 10px 120px">
+				<span style="vertical-align:top;">产品描述</span>
+				<div style="display:inline-block;" v-for="(item,index) in content.offerGoodsList" :key="index">
+					{{index+1}}:
+					<el-input
+					style="width:100%"
+					placeholder="请输入内容"
+					v-model="item.goodsInfo">
+					</el-input>
+				</div>
+				
+			</div>
+			<div style="margin:0 0 10px 120px">
+				<span style="vertical-align:top;">备注</span>
+
+				<el-input
+				type="textarea"
+				style="width:50%"
+				:rows="2"
+				placeholder="请输入内容"
+				v-model="remarkText">
+				</el-input>
+			</div>
+			
+		  	<div style="text-align:center">
+		  		 <el-button type="primary" @click="printContent">打 印</el-button>
+		  		 <el-upload
+		  		  style="display: inline-block;margin-left: 10px;"
+				  class="upload-demo"
+				  action="/nte-crm/uploadFile"
+				  :on-preview="handlePreview"
+				  :on-remove="handleRemoveFile"
+				  :before-remove="beforeRemove"
+				  :limit="1"
+				  accept=".pdf"
+				  :on-success="successUploadFile"
+				  :on-exceed="handleExceed"
+				  :file-list="fileList">
+				  <el-button type="success">上传合同</el-button>
+				  <div slot="tip" class="el-upload__tip"></div>
+				</el-upload>
+		  	</div>
+	</div>
+</template>
+<script type="text/javascript">
+import {getContractCode,saveOfferFile} from "util/req/offerList/index"
+	export default{
+		name:"contractNaiteen",
+		props:{
+			naiteenContent:{
+				type:Object  
+			},
+			id:{
+				type:Number
+			}
+		},
+		data(){
+			return{
+				content:{},	//合同内容
+				fileList:[],
+				weeksStart:6,
+				weeksEnd:8,
+				remarkText:null
+			}
+		},
+		watch:{
+			
+			naiteenContent(res){
+				this.content=res;	
+				//this.getContractCode();
+			},
+			weeksStart(val){
+				this.$set(this.content,'weeksStart',val)
+			},
+			weeksEnd(val){
+				this.$set(this.content,'weeksEnd',val)
+			},
+			id(){
+				this.getContractCode();
+			}
+		},
+		filters:{//局部过滤器
+
+				toChies:function(values){//形参
+					let len=values.length//统计出长度
+					let arr=[];
+					
+					let chin_list=['零','壹','贰','叁','肆','伍','陆','柒','捌','玖']//所有的数值对应的汉字
+					
+					let chin_lisp=['仟','佰','拾','亿','仟','佰','拾','万','仟','佰','拾']//进制
+					
+					for(let i=0;i<len;i++){
+						arr.push(parseInt(values[i]));		//输入的数据按下标存进去   存进去的只是数字
+						arr[i]=chin_list[arr[i]]			//是根据我们输入的输入的数字，对应着我们的chin_list这个数组
+					}//123['壹','佰','贰','拾','叁']
+					
+					for(let i=len-1,j=1;i>0;i--){//i =2	1		//倒序		为了添加进制，方便我们去观看
+						arr.splice(i,0,chin_lisp[chin_lisp.length-j++])	//j=2
+					}
+					console.log(arr)
+					
+					arr=arr.join('')
+					if(len>=1){
+						arr+='元整'
+					}
+					return arr
+				}	
+			},
+		methods:{
+			 getContractCode(){
+			 	getContractCode({offerId:this.content.id,status:1},res=>{
+			 		this.content.contractCode=res.data.contractCode;
+			 		this.content.date=res.data.date;
+			 		//this.content.weeksStart=this.weeksStart;
+			 		this.$set(this.content,'weeksStart',this.weeksStart)
+			 		//this.content.weeksEnd=this.weeksEnd;
+			 		this.$set(this.content,'weeksEnd',this.weeksEnd)
+			 		console.log(this.content);
+			 	})
+			 },
+			 printContent(){
+		    	let subOutputRankPrint = document.getElementById('subOutputRank-print');
+                console.log(subOutputRankPrint.innerHTML);
+                let newContent =subOutputRankPrint.innerHTML;
+                let oldContent = document.body.innerHTML;
+                document.title=this.content.contractCode;
+                document.body.innerHTML = newContent;
+                window.print();
+                window.location.reload();
+                document.body.innerHTML = oldContent;
+                return false;
+		    },
+		    currency(value, currency, decimals){		//价格转格式
+		    	  const digitsRE = /(\d{3})(?=\d)/g;
+		    	  value = parseFloat(value)
+				  if (!isFinite(value) || (!value && value !== 0)) return ''
+				  currency = currency != null ? currency : '$'
+				  decimals = decimals != null ? decimals : 2
+				  var stringified = Math.abs(value).toFixed(decimals)
+				  var _int = decimals
+				    ? stringified.slice(0, -1 - decimals)
+				    : stringified
+				  var i = _int.length % 3
+				  var head = i > 0
+				    ? (_int.slice(0, i) + (_int.length > 3 ? ',' : ''))
+				    : ''
+				  var _float = decimals
+				    ? stringified.slice(-1 - decimals)
+				    : ''
+				  var sign = value < 0 ? '-' : ''
+				  return sign + currency + head +_int.slice(i).replace(digitsRE, '$1,') + _float
+
+		    },
+		    convertCurrency(money) {  				//价格转中文
+			  //汉字的数字  
+			  var cnNums = new Array('零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖');  
+			  //基本单位  
+			  var cnIntRadice = new Array('', '拾', '佰', '仟');  
+			  //对应整数部分扩展单位  
+			  var cnIntUnits = new Array('', '万', '亿', '兆');  
+			  //对应小数部分单位  
+			  var cnDecUnits = new Array('角', '分', '毫', '厘');  
+			  //整数金额时后面跟的字符  
+			  var cnInteger = '整';  
+			  //整型完以后的单位  
+			  var cnIntLast = '元';  
+			  //最大处理的数字  
+			  var maxNum = 999999999999999.9999;  
+			  //金额整数部分  
+			  var integerNum;  
+			  //金额小数部分  
+			  var decimalNum;  
+			  //输出的中文金额字符串  
+			  var chineseStr = '';  
+			  //分离金额后用的数组，预定义  
+			  var parts;  
+			  if (money == '') { return ''; }  
+			  money = parseFloat(money);  
+			  if (money >= maxNum) {  
+			    //超出最大处理数字  
+			    return '';  
+			  }  
+			  if (money == 0) {  
+			    chineseStr = cnNums[0] + cnIntLast + cnInteger;  
+			    return chineseStr;  
+			  }  
+			  //转换为字符串  
+			  money = money.toString();  
+			  if (money.indexOf('.') == -1) {  
+			    integerNum = money;  
+			    decimalNum = '';  
+			  } else {  
+			    parts = money.split('.');  
+			    integerNum = parts[0];  
+			    decimalNum = parts[1].substr(0, 4);  
+			  }  
+			  //获取整型部分转换  
+			  if (parseInt(integerNum, 10) > 0) {  
+			    var zeroCount = 0;  
+			    var IntLen = integerNum.length;  
+			    for (var i = 0; i < IntLen; i++) {  
+			      var n = integerNum.substr(i, 1);  
+			      var p = IntLen - i - 1;  
+			      var q = p / 4;  
+			      var m = p % 4;  
+			      if (n == '0') {  
+			        zeroCount++;  
+			      } else {  
+			        if (zeroCount > 0) {  
+			          chineseStr += cnNums[0];  
+			        }  
+			        //归零  
+			        zeroCount = 0;  
+			        chineseStr += cnNums[parseInt(n)] + cnIntRadice[m];  
+			      }  
+			      if (m == 0 && zeroCount < 4) {  
+			        chineseStr += cnIntUnits[q];  
+			      }  
+			    }  
+			    chineseStr += cnIntLast;  
+			  }  
+			  //小数部分  
+			  if (decimalNum != '') {  
+			    var decLen = decimalNum.length;  
+			    for (var i = 0; i < decLen; i++) {  
+			      var n = decimalNum.substr(i, 1);  
+			      if (n != '0') {  
+			        chineseStr += cnNums[Number(n)] + cnDecUnits[i];  
+			      }  
+			    }  
+			  }  
+			  if (chineseStr == '') {  
+			    chineseStr += cnNums[0] + cnIntLast + cnInteger;  
+			  } else if (decimalNum == '') {  
+			    chineseStr += cnInteger;  
+			  }  
+			  return chineseStr;  
+			},
+			//图片上传
+		    handleRemoveFile(file) { 
+		        this.file=null;
+		    },
+		    handlePreview(file) {
+		        console.log(file);
+		    },
+		    handleExceed(files) {
+		        this.$message.warning('当前只允许传输一个文件');
+		    },
+		    beforeRemove(file) {
+		         return this.$confirm(`确定移除 ${ file.name }？`);
+		    },
+		    successUploadFile(response, file){
+		    	var params={
+		    		name:response.data.url,
+		    		url:response.data.url
+		    	};
+		    	this.fileList.push(params);
+		    	var res={
+		    		offerId:this.content.offerGoodsList[0].offerId,
+		    		// contractCode:this.content.contractCode,
+		    		contractFile:response.data.url
+		    	}
+
+		    	saveOfferFile(res,row=>{
+		    		if(row.msgCode==200){
+		    			this.$message({
+				            type: 'success',
+				            message: row.msg
+				        });
+				        this.$emit('closeContractDialog')
+				        this.$emit('resetTable');
+				        this.fileList=[];
+		    		}else{
+		    			this.$message({
+				            type: 'info',
+				            message: row.msg
+				        });
+		    		}
+		    	})
+		    }
+		},
+		mounted(){
+			
+		}
+	}
+
+</script>
+<style lang="scss" scoped>
+	.upload-demo{
+		position:relative;
+	} 
+	.upload-demo /deep/ .el-upload-list{
+		position:absolute;
+		top: -40px;
+	    left: -168px;
+	}
+	tr
+	{mso-height-source:auto;
+	mso-ruby-visibility:none;}
+	col
+	{mso-width-source:auto;
+	mso-ruby-visibility:none;}
+	br
+	{mso-data-placement:same-cell;}
+	ruby
+	{ruby-align:left;}
+	.style0
+	{
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:Normal;
+	mso-style-id:0;}
+	.font0
+	{
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font1
+	{
+	color:#000000;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif"; }
+	.font2
+	{
+	color:#000000;
+	font-size:12pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font3
+	{
+	color:#000000;
+	font-size:12pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font4
+	{
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif"; }
+	.font5
+	{
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif"; }
+	.font6
+	{
+	color:#000000;
+	font-size:10pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font7
+	{
+	color:#000000;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif"; }
+	.font8
+	{
+	color:#000000;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font9
+	{
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif"; }
+	.font10
+	{
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font11
+	{
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font12
+	{
+	color:#000000;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif"; }
+	.font13
+	{
+	color:#000000;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif"; }
+	.font14
+	{
+	color:#000000;
+	font-size:10pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif"; }
+	.font15
+	{
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif"; }
+	.font16
+	{
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font17
+	{
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"MS Reference Sans Serif","sans-serif"; }
+	.font18
+	{
+	color:#000000;
+	font-size:10pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font19
+	{
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font20
+	{
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"MS Reference Sans Serif","sans-serif"; }
+	.font21
+	{
+	color:#000000;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif"; }
+	.font22
+	{
+	color:#FA7D00;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font23
+	{
+	color:#3F3F3F;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font24
+	{
+	color:#FFFFFF;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font25
+	{
+	color:#FF0000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font26
+	{
+	color:#1F497D;
+	font-size:13pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font27
+	{
+	color:#1F497D;
+	font-size:18pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font28
+	{
+	color:#9C0006;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font29
+	{
+	color:#1F497D;
+	font-size:15pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font30
+	{
+	color:#000000;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font31
+	{
+	color:#FFFFFF;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font32
+	{
+	color:#1F497D;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font33
+	{
+	color:#800080;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:underline;
+	font-family:"宋体","sans-serif"; }
+	.font34
+	{
+	color:#3F3F76;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font35
+	{
+	color:#9C6500;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font36
+	{
+	color:#FA7D00;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font37
+	{
+	color:#7F7F7F;
+	font-size:11pt;
+	font-weight:400;
+	font-style:italic;
+	font-family:"宋体","sans-serif"; }
+	.font38
+	{
+	color:#006100;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font39
+	{
+	color:#0000FF;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:underline;
+	font-family:"宋体","sans-serif"; }
+	.font40
+	{
+	color:#000000;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif"; }
+	.font41
+	{
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Microsoft Tai Le","sans-serif"; }
+	.font42
+	{
+	color:#000000;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font43
+	{
+	color:#000000;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font44
+	{
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif"; }
+	.font45
+	{
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font46
+	{
+	color:#000000;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif"; }
+	.font47
+	{
+	color:#000000;
+	font-size:10pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif"; }
+	.font48
+	{
+	color:#000000;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif"; }
+	.font49
+	{
+	color:#DD0806;
+	font-size:18pt;
+	font-weight:700;
+	font-style:italic;
+	font-family:"Arial","sans-serif"; }
+	.font50
+	{
+	color:#DD0806;
+	font-size:18pt;
+	font-weight:700;
+	font-style:italic;
+	font-family:"微软雅黑","sans-serif"; }
+	.font51
+	{
+	color:#DD0806;
+	font-size:18pt;
+	font-weight:700;
+	font-style:italic;
+	font-family:"宋体","sans-serif"; }
+	td
+	{mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-ignore:padding;}
+	.style0
+	{
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"Normal";
+	}
+	.style1
+	{
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	mso-protection:locked visible;
+	}
+	.style2
+	{
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	mso-protection:locked visible;
+	}
+	.style3
+	{
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	mso-protection:locked visible;
+	}
+	.style4
+	{
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	mso-protection:locked visible;
+	}
+	.style5
+	{
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	mso-protection:locked visible;
+	}
+	.style6
+	{
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	mso-protection:locked visible;
+	}
+	.style7
+	{
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	mso-protection:locked visible;
+	}
+	.style8
+	{
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	mso-protection:locked visible;
+	}
+	.style9
+	{
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	mso-protection:locked visible;
+	}
+	.style10
+	{
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	mso-protection:locked visible;
+	}
+	.style11
+	{
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	mso-protection:locked visible;
+	}
+	.style12
+	{
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	mso-protection:locked visible;
+	}
+	.style13
+	{
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	mso-protection:locked visible;
+	}
+	.style14
+	{
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	mso-protection:locked visible;
+	}
+	.x15
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.style16
+	{
+	mso-number-format:"0%";
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	mso-protection:locked visible;
+	mso-style-name:"Percent";
+	}
+	.style17
+	{
+	mso-number-format:"_ \0022¥\0022* \#\,\#\#0\.00_ \;_ \0022¥\0022* -\#\,\#\#0\.00_ \;_ \0022¥\0022* \0022-\0022??_ \;_ \@_ ";
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	mso-protection:locked visible;
+	mso-style-name:"Currency";
+	}
+	.style18
+	{
+	mso-number-format:"_ \0022¥\0022* \#\,\#\#0_ \;_ \0022¥\0022* -\#\,\#\#0_ \;_ \0022¥\0022* \0022-\0022_ \;_ \@_ ";
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	mso-protection:locked visible;
+	mso-style-name:"Currency [0]";
+	}
+	.style19
+	{
+	mso-number-format:"_ * \#\,\#\#0\.00_ \;_ * -\#\,\#\#0\.00_ \;_ * \0022-\0022??_ \;_ \@_ ";
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	mso-protection:locked visible;
+	mso-style-name:"Comma";
+	}
+	.style20
+	{
+	mso-number-format:"_ * \#\,\#\#0_ \;_ * -\#\,\#\#0_ \;_ * \0022-\0022_ \;_ \@_ ";
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	mso-protection:locked visible;
+	mso-style-name:"Comma [0]";
+	}
+	.style21
+	{
+	mso-number-format:"_ \0022￥\0022* \#\,\#\#0_ \;_ \0022￥\0022* \\-\#\,\#\#0_ \;_ \0022￥\0022* \0022-\0022_ \;_ \@_ ";
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"货币[0]";
+	}
+	.style22
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#EBF1DE;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"20% - 强调文字颜色 3";
+	}
+	.style23
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#FFCC99;
+	mso-pattern:auto none;
+	color:#3F3F76;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:1px solid #7F7F7F;
+	border-right:1px solid #7F7F7F;
+	border-bottom:1px solid #7F7F7F;
+	border-left:1px solid #7F7F7F;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	mso-style-name:"输入";
+	}
+	.style24
+	{
+	mso-number-format:"_ \0022￥\0022* \#\,\#\#0\.00_ \;_ \0022￥\0022* \\-\#\,\#\#0\.00_ \;_ \0022￥\0022* \0022-\0022??_ \;_ \@_ ";
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"货币";
+	}
+	.style25
+	{
+	mso-number-format:"_ * \#\,\#\#0_ \;_ * \\-\#\,\#\#0_ \;_ * \0022-\0022_ \;_ \@_ ";
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"千位分隔[0]";
+	}
+	.style26
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#D7E4BD;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"40% - 强调文字颜色 3";
+	}
+	.style27
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#FFC7CE;
+	mso-pattern:auto none;
+	color:#9C0006;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"差";
+	}
+	.style28
+	{
+	mso-number-format:"_ * \#\,\#\#0\.00_ \;_ * \\-\#\,\#\#0\.00_ \;_ * \0022-\0022??_ \;_ \@_ ";
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"千位分隔";
+	}
+	.style29
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#C3D69B;
+	mso-pattern:auto none;
+	color:#FFFFFF;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"60% - 强调文字颜色 3";
+	}
+	.style30
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#0000FF;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:underline;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"超链接";
+	}
+	.style31
+	{
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:12pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"普通";
+	}
+	.style32
+	{
+	mso-number-format:"0%";
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"百分比";
+	}
+	.style33
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#800080;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:underline;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"已访问的超链接";
+	}
+	.style34
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#FFFFCC;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:1px solid #B2B2B2;
+	border-right:1px solid #B2B2B2;
+	border-bottom:1px solid #B2B2B2;
+	border-left:1px solid #B2B2B2;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	mso-style-name:"注释";
+	}
+	.style35
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#D99694;
+	mso-pattern:auto none;
+	color:#FFFFFF;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"60% - 强调文字颜色 2";
+	}
+	.style36
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#1F497D;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"标题 4";
+	}
+	.style37
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#FF0000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"警告文本";
+	}
+	.style38
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#1F497D;
+	font-size:18pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"标题";
+	}
+	.style39
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#7F7F7F;
+	font-size:11pt;
+	font-weight:400;
+	font-style:italic;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"解释性文本";
+	}
+	.style40
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#1F497D;
+	font-size:15pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:none;
+	border-right:none;
+	border-bottom:2px solid #4F81BD;
+	border-left:none;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	mso-style-name:"标题 1";
+	}
+	.style41
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#1F497D;
+	font-size:13pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:none;
+	border-right:none;
+	border-bottom:2px solid #4F81BD;
+	border-left:none;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	mso-style-name:"标题 2";
+	}
+	.style42
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#95B3D7;
+	mso-pattern:auto none;
+	color:#FFFFFF;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"60% - 强调文字颜色 1";
+	}
+	.style43
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#1F497D;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:none;
+	border-right:none;
+	border-bottom:2px solid #A7C0DE;
+	border-left:none;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	mso-style-name:"标题 3";
+	}
+	.style44
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#B3A2C7;
+	mso-pattern:auto none;
+	color:#FFFFFF;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"60% - 强调文字颜色 4";
+	}
+	.style45
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#F2F2F2;
+	mso-pattern:auto none;
+	color:#3F3F3F;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:1px solid #3F3F3F;
+	border-right:1px solid #3F3F3F;
+	border-bottom:1px solid #3F3F3F;
+	border-left:1px solid #3F3F3F;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	mso-style-name:"输出";
+	}
+	.style46
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#F2F2F2;
+	mso-pattern:auto none;
+	color:#FA7D00;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:1px solid #7F7F7F;
+	border-right:1px solid #7F7F7F;
+	border-bottom:1px solid #7F7F7F;
+	border-left:1px solid #7F7F7F;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	mso-style-name:"计算";
+	}
+	.style47
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#A5A5A5;
+	mso-pattern:auto none;
+	color:#FFFFFF;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:4px double #3F3F3F;
+	border-right:4px double #3F3F3F;
+	border-bottom:4px double #3F3F3F;
+	border-left:4px double #3F3F3F;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	mso-style-name:"检查单元格";
+	}
+	.style48
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#FDEADA;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"20% - 强调文字颜色 6";
+	}
+	.style49
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#C0504D;
+	mso-pattern:auto none;
+	color:#FFFFFF;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"强调文字颜色 2";
+	}
+	.style50
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#FA7D00;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:none;
+	border-right:none;
+	border-bottom:4px double #FF8001;
+	border-left:none;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	mso-style-name:"链接单元格";
+	}
+	.style51
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:1px solid #4F81BD;
+	border-right:none;
+	border-bottom:4px double #4F81BD;
+	border-left:none;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	mso-style-name:"汇总";
+	}
+	.style52
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#C6EFCE;
+	mso-pattern:auto none;
+	color:#006100;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"好";
+	}
+	.style53
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#FFEB9C;
+	mso-pattern:auto none;
+	color:#9C6500;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"适中";
+	}
+	.style54
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#DBEEF4;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"20% - 强调文字颜色 5";
+	}
+	.style55
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#4F81BD;
+	mso-pattern:auto none;
+	color:#FFFFFF;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"强调文字颜色 1";
+	}
+	.style56
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#DCE6F2;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"20% - 强调文字颜色 1";
+	}
+	.style57
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#B9CDE5;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"40% - 强调文字颜色 1";
+	}
+	.style58
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#F2DCDB;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"20% - 强调文字颜色 2";
+	}
+	.style59
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#E6B9B8;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"40% - 强调文字颜色 2";
+	}
+	.style60
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#9BBB59;
+	mso-pattern:auto none;
+	color:#FFFFFF;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"强调文字颜色 3";
+	}
+	.style61
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#8064A2;
+	mso-pattern:auto none;
+	color:#FFFFFF;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"强调文字颜色 4";
+	}
+	.style62
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#E6E0EC;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"20% - 强调文字颜色 4";
+	}
+	.style63
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#CCC1DA;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"40% - 强调文字颜色 4";
+	}
+	.style64
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#4BACC6;
+	mso-pattern:auto none;
+	color:#FFFFFF;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"强调文字颜色 5";
+	}
+	.style65
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#B7DEE8;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"40% - 强调文字颜色 5";
+	}
+	.style66
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#93CDDD;
+	mso-pattern:auto none;
+	color:#FFFFFF;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"60% - 强调文字颜色 5";
+	}
+	.style67
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#F79646;
+	mso-pattern:auto none;
+	color:#FFFFFF;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"强调文字颜色 6";
+	}
+	.style68
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#FCD5B5;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"40% - 强调文字颜色 6";
+	}
+	.style69
+	{
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#FAC090;
+	mso-pattern:auto none;
+	color:#FFFFFF;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	mso-style-name:"60% - 强调文字颜色 6";
+	}
+	.x70
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:12pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x71
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	font-size:12pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x72
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:12pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x73
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x74
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#FFFFFF;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x75
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:top;
+	white-space:normal;word-wrap:break-word;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x76
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:top;
+	white-space:normal;word-wrap:break-word;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x77
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:top;
+	white-space:normal;word-wrap:break-word;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:10pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x78
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:top;
+	white-space:normal;word-wrap:break-word;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x79
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:top;
+	white-space:normal;word-wrap:break-word;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x80
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:top;
+	white-space:normal;word-wrap:break-word;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x81
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x82
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x83
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x84
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x85
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x86
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:10pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x87
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x88
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x89
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:top;
+	white-space:normal;word-wrap:break-word;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:10pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x90
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:top;
+	white-space:normal;word-wrap:break-word;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x91
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:top;
+	white-space:normal;word-wrap:break-word;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x92
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:top;
+	white-space:normal;word-wrap:break-word;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border-top:none;
+	border-right:none;
+	border-bottom:1px solid windowtext;
+	border-left:none;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x93
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:#FFFF00;
+	mso-pattern:auto none;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:none;
+	border-bottom:1px solid windowtext;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x94
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:#FFFF00;
+	mso-pattern:auto none;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:none;
+	border-bottom:1px solid windowtext;
+	border-left:none;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x95
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:normal;word-wrap:break-word;
+	background:#FFFF00;
+	mso-pattern:auto none;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:1px solid windowtext;
+	border-bottom:1px solid windowtext;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x96
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:#FFFF00;
+	mso-pattern:auto none;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:1px solid windowtext;
+	border-bottom:1px solid windowtext;
+	border-left:none;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x97
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:normal;word-wrap:break-word;
+	background:#C0C0C0;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:1px solid windowtext;
+	border-bottom:none;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x98
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:normal;word-wrap:break-word;
+	background:#C0C0C0;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:none;
+	border-bottom:none;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x99
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:normal;word-wrap:break-word;
+	background:#C0C0C0;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:none;
+	border-bottom:none;
+	border-left:none;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x100
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:#C0C0C0;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:1px solid windowtext;
+	border-bottom:none;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x101
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:normal;word-wrap:break-word;
+	background:#C0C0C0;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:1px solid windowtext;
+	border-bottom:1px solid windowtext;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x102
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:#C0C0C0;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border-top:none;
+	border-right:1px solid windowtext;
+	border-bottom:none;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x103
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:normal;word-wrap:break-word;
+	background:#C0C0C0;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border-top:none;
+	border-right:none;
+	border-bottom:none;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x104
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:normal;word-wrap:break-word;
+	background:#C0C0C0;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+	.x105
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:#C0C0C0;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border-top:none;
+	border-right:1px solid windowtext;
+	border-bottom:1px solid windowtext;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x106
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:normal;word-wrap:break-word;
+	background:#C0C0C0;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:1px solid windowtext;
+	border-bottom:none;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x107
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:normal;word-wrap:break-word;
+	background:#C0C0C0;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border-top:none;
+	border-right:1px solid windowtext;
+	border-bottom:none;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x108
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"MS Reference Sans Serif","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:1px solid windowtext;
+	border-bottom:1px solid windowtext;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x109
+	{
+	mso-style-parent:style31;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:normal;word-wrap:break-word;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:10pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:none;
+	border-bottom:1px solid windowtext;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x110
+	{
+	mso-style-parent:style31;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:normal;word-wrap:break-word;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:10pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:none;
+	border-bottom:1px solid windowtext;
+	border-left:none;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x111
+	{
+	mso-style-parent:style31;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:normal;word-wrap:break-word;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:10pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:1px solid windowtext;
+	border-bottom:1px solid windowtext;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x112
+	{
+	mso-style-parent:style31;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:1px solid windowtext;
+	border-bottom:1px solid windowtext;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x113
+	{
+	mso-style-parent:style31;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"MS Reference Sans Serif","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:1px solid windowtext;
+	border-bottom:1px solid windowtext;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x114
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:1px solid windowtext;
+	border-bottom:1px solid windowtext;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x115
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:left;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:12pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:1px solid windowtext;
+	border-bottom:1px solid windowtext;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x116
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#FFFF00;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:1px solid windowtext;
+	border-bottom:1px solid windowtext;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x117
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#FFFF00;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:1px solid windowtext;
+	border-bottom:1px solid windowtext;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x118
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:#FFFF00;
+	mso-pattern:auto none;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:1px solid windowtext;
+	border-bottom:1px solid windowtext;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x119
+	{
+	mso-style-parent:style0;
+	mso-number-format:"\0022￥\0022\#\,\#\#0\.00_\)\;\\\(\0022￥\0022\#\,\#\#0\.00\\\)";
+	text-align:center;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:11pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"MS Reference Sans Serif","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:1px solid windowtext;
+	border-bottom:1px solid windowtext;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x120
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#FFFF00;
+	mso-pattern:auto none;
+	font-size:11pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:1px solid windowtext;
+	border-bottom:1px solid windowtext;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x121
+	{
+	mso-style-parent:style0;
+	mso-number-format:"\0022￥\0022\#\,\#\#0\.00_\)\;\\\(\0022￥\0022\#\,\#\#0\.00\\\)";
+	text-align:center;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#FFFF00;
+	mso-pattern:auto none;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"Arial","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:1px solid windowtext;
+	border-bottom:1px solid windowtext;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x122
+	{
+	mso-style-parent:style0;
+	mso-number-format:"\\$\#\,\#\#0\.00_\)\;\[Red\]\\\(\\$\#\,\#\#0\.00\\\)";
+	text-align:center;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#FFFF00;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:none;
+	border-bottom:1px solid windowtext;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x123
+	{
+	mso-style-parent:style0;
+	mso-number-format:"\[DBNum2\]\[$RMB\]General\;\[Red\]\[DBNum2\]\[$RMB\]General";
+	text-align:center;
+	vertical-align:bottom;
+	white-space:nowrap;
+	background:#FFFF00;
+	mso-pattern:auto none;
+	color:#000000;
+	font-size:12pt;
+	font-weight:700;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:1px solid windowtext;
+	border-bottom:1px solid windowtext;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x124
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:12pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:none;
+	border-bottom:none;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x125
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:12pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:1px solid windowtext;
+	border-right:none;
+	border-bottom:none;
+	border-left:none;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x126
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:12pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border-top:none;
+	border-right:none;
+	border-bottom:none;
+	border-left:1px solid windowtext;
+	mso-diagonal-down:none;
+	mso-diagonal-up:none;
+	mso-protection:locked visible;
+	}
+	.x127
+	{
+	mso-style-parent:style0;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	white-space:nowrap;
+	background:auto;
+	mso-pattern:auto;
+	color:#000000;
+	font-size:12pt;
+	font-weight:400;
+	font-style:normal;
+	font-family:"宋体","sans-serif";
+	border:none;
+	mso-protection:locked visible;
+	}
+</style>

@@ -1,0 +1,687 @@
+<template>
+  <div class="content">
+    <div style="margin-top: -180px;" class="scale">
+      <div
+        style="border: 1px solid #999;padding: 22px;border-radius:4px;margin:0 auto;min-width: 1000px;"
+      >
+        <div class="htmlModel" id="subOutputRank-print" ref="print" style="background: #fff;">
+          <div class="clear" style="padding-top:50px;">
+            <div style="float:left;width:45%;font-size:13px;line-height:25px;">
+              <img style="width:400px;" src="@/assets/contract/image002.png" alt />
+            </div>
+            <div style="float:left;width:55%;line-height:25px;">
+              <p style="font-size:20px;font-weight:500;">深圳必优传感科技有限公司</p>
+              <p
+                style="font-size: 17px;line-height: 28px;font-weight: bold;"
+              >BUYSENSOR TECHNOLOGY CO.,LTD</p>
+              <p style="font-size: 17px;line-height: 28px;">深圳市宝安42区兴华一路华创达商务大厦D栋303</p>
+              <p
+                style="font-size: 17px;line-height: 28px;"
+              >Address:D303,HuaChuangDa Business Center,No.1 Xinghua Road,42th Precinct,Bao'an District, Shenzhen, China.</p>
+            </div>
+          </div>
+          <div
+            class="clear"
+            style="font-size:18px;border-bottom:2px solid #000;padding-bottom:3px;margin-top:20px;"
+          >
+            <div style="float:left;width:45%;">
+              需求方
+              <span style="font-weight: bold;">/Customer</span>
+            </div>
+            <div style="float:left;width:55%;display:flex;justify-content: space-between;">
+              <p>
+                报价方
+                <span style="font-weight: bold;">/Supplier</span>
+              </p>
+              <p>
+                报价单号
+                <span style="font-weight: bold;">/ NO.：{{content.offerCode}}</span>
+              </p>
+            </div>
+          </div>
+          <div style class="clear">
+            <div
+              style="float:left;width:45%;font-size:18px;line-height:33px;box-sizing: border-box;color: #999;"
+            >
+              <p class="fitem">
+                <span class="iitem">
+                  公司名称
+                  <br />Company Name
+                </span>
+                <span class="citem" style>{{content.companyName}}</span>
+              </p>
+              <p class="fitem">
+                <span class="iitem">联系人/Contact:</span>
+                <span class="citem">{{content.contacts}}</span>
+              </p>
+              <p class="fitem">
+                <span class="iitem">手机/ Phone No.</span>
+                <span class="citem">{{content.phone}}</span>
+              </p>
+              <p class="fitem">
+                <span class="iitem" style="min-width: 170px;">座机/Landline No.</span>
+                <span class="citem">{{content.landLine}}</span>
+              </p>
+              <p class="fitem">
+                <span class="iitem">邮箱/Email:</span>
+                <span class="citem">{{content.email}}</span>
+              </p>
+              <p class="fitem">
+                <span class="iitem">地址/Address：</span>
+                <span class="citem">{{content.contAddress}}</span>
+              </p>
+            </div>
+            <div style="float:right;width:55%;font-size:18px;line-height:33px;">
+              <p class="fitem">
+                <span class="iitem">
+                  公司名称
+                  <br />Company Name
+                </span>
+                <span class="citem">深圳必优传感科技有限公司</span>
+              </p>
+              <p class="fitem">
+                <span class="iitem">客户顾问/Customer Consultant</span>
+                <span class="citem">{{content.saleName}}</span>
+              </p>
+              <p class="fitem">
+                <span class="iitem">手机/ Phone No.</span>
+                <span class="citem">{{content.salePhone}}</span>
+              </p>
+              <!-- <p class="fitem"><span class="iitem">座机/Landline No.</span></p> -->
+              <p class="fitem">
+                <span class="iitem">邮箱/Email:</span>
+                <span class="citem">{{content.saleEmail}}</span>
+              </p>
+              <p class="fitem" v-if="createTime">
+                <span class="iitem" style="min-width:250px;">报价时间/Quote date：</span>
+                <span class="citem">{{createTime}}</span>
+              </p>
+              <p class="fitem" v-else>
+                <span class="iitem" style="min-width:250px;">报价时间/Quote date：</span>
+                <span class="citem">{{times}}</span>
+              </p>
+            </div>
+          </div>
+          <div style="margin-top:25px;border:1px solid #000;" class="clear">
+            <div style="min-height:400px;">
+              <table style="width:100%;">
+                <thead style="font-size:18px;">
+                  <th style="text-align:center;">
+                    序号
+                    <p>No.</p>
+                  </th>
+                  <th>
+                    产品型号
+                    <p>Model No.</p>
+                  </th>
+                  <th>
+                    产品描述
+                    <p>Product description</p>
+                  </th>
+                  <!-- <th>品牌</th> -->
+                  <th>
+                    货期（周）
+                    <p>lead time(Week)</p>
+                  </th>
+                  <th>
+                    数量
+                    <p>Qty(pcs)</p>
+                  </th>
+                  <th>
+                    单价（元）
+                    <p>Unit Price(CNY）</p>
+                  </th>
+                  <th>
+                    小计
+                    <p>Subtotal</p>
+                  </th>
+                </thead>
+                <tr v-for="(item,index) in content.offerGoodsList" :key="index">
+                  <td width="80">{{index+1}}</td>
+                  <td width="200">{{item.goodsInfo}}</td>
+                  <td width="250" style="word-break: break-all;">{{item.remark}}</td>
+                  <!-- <td width="200" style="word-break: break-all;">{{item.brandName}}</td> -->
+                  <td width="120">{{item.deliveryStart}}-{{item.deliveryEnd}}周</td>
+                  <td width="120">{{item.quantity}}</td>
+                  <td width="120" v-html="currency(item.offer*1,'￥',2)"></td>
+                  <td width="120" v-html="currency(times1(item.offer,item.quantity),'￥',2)"></td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- <p style="padding:15px 5px;border-bottom:1px solid #000;font-size: 17px;">是否附带技术协议：否□
+            是□（技术协议编号：&nbsp;&nbsp;&nbsp;&nbsp;） </p>-->
+            <p
+              style="padding:10px 5px;border-top:1px solid #000;word-wrap: break-word;font-size: 17px;font-weight:550;"
+            >VALID PERIOD 报价有效期：45天</p>
+            <p
+              style="padding:10px 5px;border-bottom:1px solid #000;word-wrap: break-word;font-size: 17px;font-weight:550;"
+            >REMARKS备注：{{remarkText}}</p>
+            <div
+              class="clear"
+              style="border-bottom:1px solid #000;display:flex;align-items: center;"
+            >
+              <p
+                style="float:left;min-height:60px;text-align:center;font-size:17px;font-weight: bold;line-height:30px;box-sizing: border-box; flex:2.6;"
+              >
+                传感器行业垂直实效平台——必优传感欢迎您
+                <br />访问我们的网站获取更多信息
+              </p>
+              <div
+                style="float:left;min-height:60px;line-height:30px;font-size:17px;font-weight: bold;box-sizing: border-box; flex:1;border-left:1px solid #000;border-right:1px solid #000;"
+              >
+                <p style="text-align:center;border-bottom:1px solid #000;">总计/Total</p>
+                <p style="text-align:center;">税率/Tax rate</p>
+              </div>
+              <div
+                style="float:left;min-height:60px;line-height:30px;font-size:17px;font-weight: bold;box-sizing: border-box; flex:1.8;"
+              >
+                <p
+                  style="text-align:center;border-bottom:1px solid #000;"
+                  v-html="currency(content.totalOffer,'',2)"
+                ></p>
+                <p style="text-align:center;">13%</p>
+              </div>
+            </div>
+            <div class="clear" style="font-weight:500;display:flex;">
+              <p
+                style="display:flex;align-items:center;justify-content:center;font-size:20px;font-weight: bold;border-right:1px solid #000;min-height:60px;line-height:30px; flex:2.6;"
+              >www.buysensor.com</p>
+              <div
+                style="display:flex;flex-wrap:wrap; align-items:center;justify-content:center;font-size:17px;font-weight: bold;min-height:60px;line-height:30px; flex:1;border-right:1px solid #000;"
+              >
+                <span>付款方式</span>
+                <p>/Terms of Payment</p>
+              </div>
+              <p
+                style="display:flex;align-items:center;justify-content:center;font-size:17px;font-weight: bold;border-right:1px solid #000;min-height:60px;line-height:30px; flex:1.8;"
+              >
+                <span v-if="content.moneyStatus==1">预付全款</span>
+                <span v-if="content.moneyStatus==2">30%预付款，70%款到发货</span>
+                <span v-if="content.moneyStatus==3">50%预付款 ，50%款到发货</span>
+                <span v-if="content.moneyStatus==7">款到发货</span>
+                <span v-if="content.moneyStatus==4">货到付款</span>
+                <span v-if="content.moneyStatus==5">月结</span>
+                <span v-if="content.moneyStatus==6">其它</span>
+              </p>
+            </div>
+          </div>
+          <div
+            style="margin-top:10px;font-size:17px;line-height:30px;font-weight: bold;"
+          >必优告知——buysensor announcement</div>
+          <div
+            style="margin-top:15px;font-size:17px;line-height:30px;padding-bottom:5px; border-bottom:2px solid #999;"
+            class="clear"
+          >
+            <p>质量标准：原产地厂家标准，参考官方网站或技术协议。Quality standards: standards of original factory, please refer to official website or technical agreement.</p>
+            <p>包装标准：包装符合长途运输条件，需防颠簸、防潮。包装物不回收，不另计价。Packaging standards: Suitable for long distance transportation ,well protected against bumps and humidity.Packaging</p>
+            <p>争议解决：参考《经济合同法》，供方所在地仲裁或诉讼。Dispute Resolution:Refer to Economic Contract Law,Arbitration or litigation should proceed in the location of supplier</p>
+            <p>生效日期：双方签署盖章，传真影印件确认，收到预付款起生效。Effectice Date:Both sides signed and sealed, confirmed by fax copy of contract .contract takes effect when supplier received</p>
+            <p>有效日期：有效时间45天。Effective time 45 days</p>
+          </div>
+          <div style="display:flex;margin-top:10px;">
+            <img style="width:100%;" src="@/assets/contract/buysensor.png" alt />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin:-150px 0 10px 350px;">
+      <el-form label-width="200px">
+        <el-form-item label="报价单创建时间" style="margin-bottom:10px;">
+          <el-date-picker
+            v-model="createTime"
+            type="date"
+            format="yyyy-MM-dd"
+            value-format="yyyyMMdd"
+            :picker-options="pickerOptions"
+            placeholder="选择日期"
+          ></el-date-picker>
+        </el-form-item>
+        <el-form-item label="备注" style="margin-bottom:10px;">
+          <el-input
+            type="textarea"
+            style="width:50%"
+            :rows="2"
+            placeholder="请输入内容"
+            clearable
+            v-model="remarkText"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+    </div>
+    <div style="text-align:center;">
+      <el-button @click="$emit('closeContractDialog');remarkText=null">关闭</el-button>
+      <el-button type="primary" @click="printContent">打 印</el-button>
+      <el-upload
+        style="display: inline-block;margin-left: 10px;"
+        class="upload-demo"
+        action="/nte-crm/uploadFile"
+        :on-preview="handlePreview"
+        :on-remove="handleRemoveFile"
+        :before-remove="beforeRemove"
+        :limit="1"
+        accept=".pdf"
+        :on-success="successUploadFile"
+        :on-exceed="handleExceed"
+        :file-list="fileList"
+      >
+        <el-button type="success">上传报价单</el-button>
+        <div slot="tip" class="el-upload__tip"></div>
+      </el-upload>
+    </div>
+  </div>
+</template>
+<script type="text/javascript">
+import { getContractCode, saveOfferFile } from "util/req/offerList/index";
+import Print from "@/util/fn/print.js";
+export default {
+  name: "offerNaiteen",
+  props: {
+    naiteenContent: {
+      type: Object
+    },
+    id: {
+      type: Number
+    }
+  },
+  data() {
+    return {
+      content: {}, //合同内容
+      fileList: [],
+      weeksStart: 6,
+      weeksEnd: 8,
+      remarkText: null,
+      times: null,
+      createTime: null,
+      resultTime: null,
+      pickerOptions: {
+        disabledDate(time) {
+          return time.getTime() >= Date.now() + 8.64e6;
+        }
+      }
+    };
+  },
+  watch: {
+    naiteenContent: {
+      handler(res) {
+        console.log("content", res);
+        this.content = res;
+        //编辑时合拼出现的同一个商品
+        var obj = {};
+        var repeatArr = this.content.offerGoodsList.reduce(function(
+          item,
+          next
+        ) {
+          if (!obj[next.modelId] || next.isParts == 1) {
+            item.push(next);
+            obj[next.modelId] = true;
+          } else {
+            var index = item.map(row => row.modelId).indexOf(next.modelId);
+            item[index].quantity = item[index].quantity + next.quantity;
+          }
+          return item;
+        },
+        []);
+        var newRepeatArr = [];
+        repeatArr.forEach(item => {
+          let res = JSON.parse(JSON.stringify(item));
+          res.partsList = [];
+          newRepeatArr.push(res);
+          if (item.partsList.length > 0) {
+            newRepeatArr = newRepeatArr.concat(item.partsList);
+          }
+        });
+        this.content.offerGoodsList = newRepeatArr;
+        this.resultTime = res.updateTime.substring(10);
+        var updatedate = res.updateTime.substring(0, 10).replace(/-/g, "");
+        this.createTime = updatedate;
+        //this.getContractCode();
+      },
+      immediate: true
+    },
+    weeksStart(val) {
+      this.$set(this.content, "weeksStart", val);
+    },
+    weeksEnd(val) {
+      this.$set(this.content, "weeksEnd", val);
+    },
+    id: {
+      handler() {
+        this.getContractCode();
+      },
+      immediate: true
+    }
+  },
+  filters: {
+    //局部过滤器
+
+    toChies: function(values) {
+      //形参
+      let len = values.length; //统计出长度
+      let arr = [];
+
+      let chin_list = [
+        "零",
+        "壹",
+        "贰",
+        "叁",
+        "肆",
+        "伍",
+        "陆",
+        "柒",
+        "捌",
+        "玖"
+      ]; //所有的数值对应的汉字
+
+      let chin_lisp = [
+        "仟",
+        "佰",
+        "拾",
+        "亿",
+        "仟",
+        "佰",
+        "拾",
+        "万",
+        "仟",
+        "佰",
+        "拾"
+      ]; //进制
+
+      for (let i = 0; i < len; i++) {
+        arr.push(parseInt(values[i])); //输入的数据按下标存进去   存进去的只是数字
+        arr[i] = chin_list[arr[i]]; //是根据我们输入的输入的数字，对应着我们的chin_list这个数组
+      } //123['壹','佰','贰','拾','叁']
+
+      for (let i = len - 1, j = 1; i > 0; i--) {
+        //i =2	1		//倒序		为了添加进制，方便我们去观看
+        arr.splice(i, 0, chin_lisp[chin_lisp.length - j++]); //j=2
+      }
+      console.log(arr);
+
+      arr = arr.join("");
+      if (len >= 1) {
+        arr += "元整";
+      }
+      return arr;
+    }
+  },
+  methods: {
+    times1(num1, num2) {
+      console.log("tag", "");
+      const num1String = num1.toString();
+      const num2String = num2.toString();
+      const num1Digits = (num1String.split(".")[1] || "").length;
+      const num2Digits = (num2String.split(".")[1] || "").length;
+      const baseNum = Math.pow(10, num1Digits + num2Digits);
+      return (
+        (Number(num1String.replace(".", "")) *
+          Number(num2String.replace(".", ""))) /
+        baseNum
+      );
+    },
+    getContractCode() {
+      getContractCode(
+        {
+          offerId: this.content.id,
+          status: 0
+        },
+        res => {
+          this.content.date = res.data.date;
+          this.times = res.data.date;
+          this.$set(this.content, "date", res.data.date);
+        }
+      );
+    },
+    printContent() {
+      let data = new Date();
+      let day = data.getDate() >= 10 ? data.getDate() : "0" + data.getDate();
+      var contractCode = JSON.parse(JSON.stringify(this.content.offerCode));
+      contractCode = contractCode.slice(0, 5) + day + contractCode.slice(5);
+      let companyName = JSON.parse(JSON.stringify(this.content.companyName));
+      companyName =
+        companyName.indexOf("科技有限公司") > -1
+          ? companyName.replace("科技有限公司", "")
+          : companyName.replace("有限公司", "");
+      contractCode = contractCode.split("-")[0];
+      contractCode += companyName;
+      document.title = contractCode;
+      Print(this.$refs.print);
+    },
+    currency(value, currency, decimals) {
+      //价格转格式
+      if (value && String(value).indexOf(".") != -1) {
+        var leng = String(value).split(".")[1];
+        var decimals = leng.length > 2 ? leng.length : 2;
+      }
+      const digitsRE = /(\d{3})(?=\d)/g;
+      value = parseFloat(value);
+      if (!isFinite(value) || (!value && value !== 0)) return "";
+      currency = currency != null ? currency : "$";
+      decimals = decimals != null ? decimals : 2;
+      var stringified = Math.abs(value).toFixed(decimals);
+      var _int = decimals ? stringified.slice(0, -1 - decimals) : stringified;
+      var i = _int.length % 3;
+      var head = i > 0 ? _int.slice(0, i) + (_int.length > 3 ? "," : "") : "";
+      var _float = decimals ? stringified.slice(-1 - decimals) : "";
+      var sign = value < 0 ? "-" : "";
+      return (
+        sign + currency + head + _int.slice(i).replace(digitsRE, "$1,") + _float
+      );
+    },
+    convertCurrency(money) {
+      //价格转中文
+      //汉字的数字
+      var cnNums = new Array(
+        "零",
+        "壹",
+        "贰",
+        "叁",
+        "肆",
+        "伍",
+        "陆",
+        "柒",
+        "捌",
+        "玖"
+      );
+      //基本单位
+      var cnIntRadice = new Array("", "拾", "佰", "仟");
+      //对应整数部分扩展单位
+      var cnIntUnits = new Array("", "万", "亿", "兆");
+      //对应小数部分单位
+      var cnDecUnits = new Array("角", "分", "毫", "厘");
+      //整数金额时后面跟的字符
+      var cnInteger = "整";
+      //整型完以后的单位
+      var cnIntLast = "元";
+      //最大处理的数字
+      var maxNum = 999999999999999.9999;
+      //金额整数部分
+      var integerNum;
+      //金额小数部分
+      var decimalNum;
+      //输出的中文金额字符串
+      var chineseStr = "";
+      //分离金额后用的数组，预定义
+      var parts;
+      if (money == "") {
+        return "";
+      }
+      money = parseFloat(money);
+      if (money >= maxNum) {
+        //超出最大处理数字
+        return "";
+      }
+      if (money == 0) {
+        chineseStr = cnNums[0] + cnIntLast + cnInteger;
+        return chineseStr;
+      }
+      //转换为字符串
+      money = money.toString();
+      if (money.indexOf(".") == -1) {
+        integerNum = money;
+        decimalNum = "";
+      } else {
+        parts = money.split(".");
+        integerNum = parts[0];
+        decimalNum = parts[1].substr(0, 4);
+      }
+      //获取整型部分转换
+      if (parseInt(integerNum, 10) > 0) {
+        var zeroCount = 0;
+        var IntLen = integerNum.length;
+        for (var i = 0; i < IntLen; i++) {
+          var n = integerNum.substr(i, 1);
+          var p = IntLen - i - 1;
+          var q = p / 4;
+          var m = p % 4;
+          if (n == "0") {
+            zeroCount++;
+          } else {
+            if (zeroCount > 0) {
+              chineseStr += cnNums[0];
+            }
+            //归零
+            zeroCount = 0;
+            chineseStr += cnNums[parseInt(n)] + cnIntRadice[m];
+          }
+          if (m == 0 && zeroCount < 4) {
+            chineseStr += cnIntUnits[q];
+          }
+        }
+        chineseStr += cnIntLast;
+      }
+      //小数部分
+      if (decimalNum != "") {
+        var decLen = decimalNum.length;
+        for (var i = 0; i < decLen; i++) {
+          var n = decimalNum.substr(i, 1);
+          if (n != "0") {
+            chineseStr += cnNums[Number(n)] + cnDecUnits[i];
+          }
+        }
+      }
+      if (chineseStr == "") {
+        chineseStr += cnNums[0] + cnIntLast + cnInteger;
+      } else if (decimalNum == "") {
+        chineseStr += cnInteger;
+      }
+      return chineseStr;
+    },
+    //图片上传
+    handleRemoveFile(file) {
+      this.file = null;
+    },
+    handlePreview(file) {
+      console.log(file);
+    },
+    handleExceed(files) {
+      this.$message.warning("当前只允许传输一个文件");
+    },
+    beforeRemove(file) {
+      return this.$confirm(`确定移除 ${file.name}？`);
+    },
+    successUploadFile(response, file) {
+      var params = {
+        name: response.data.url,
+        url: response.data.url
+      };
+      this.fileList.push(params);
+      var res = {
+        offerId: this.content.offerGoodsList[0].offerId,
+        // contractCode:this.content.contractCode,
+        offerFile: response.data.url
+      };
+      if (this.createTime) {
+        var str =
+          this.createTime.substring(0, 4) +
+          "-" +
+          this.createTime.substring(4, 6) +
+          "-" +
+          this.createTime.substring(6, 8);
+        res.createTime = str + this.resultTime;
+      }
+      saveOfferFile(res, row => {
+        if (row.msgCode == 200) {
+          this.$message({
+            type: "success",
+            message: row.msg
+          });
+          this.$emit("closeContractDialog");
+          this.$emit("resetTable");
+        } else {
+          this.$message({
+            type: "info",
+            message: row.msg
+          });
+        }
+        this.fileList = [];
+      });
+    }
+  }
+};
+</script>
+
+<style lang="scss" scoped>
+.content {
+  font-family: "SimSun";
+}
+
+.upload-demo {
+  position: relative;
+}
+
+.upload-demo /deep/ .el-upload-list {
+  position: absolute;
+  top: -40px;
+  left: -168px;
+}
+
+.clear:after {
+  content: "";
+  display: block;
+  clear: both;
+}
+thead {
+  border-bottom: 1px solid #000;
+}
+thead th {
+  text-align: center;
+  padding: 20px;
+  font-size: 18px;
+  // border-bottom:1p solid #000;
+}
+thead th p {
+  font-weight: bold;
+}
+td {
+  text-align: center;
+  padding: 10px;
+  white-space: inherit;
+  font-size: 17px;
+}
+.scale {
+  transform: scale(0.65);
+  -ms-transform: scale(0.65);
+  -moz-transform: scale(0.65);
+  -webkit-transform: scale(0.65);
+  -o-transform: scale(0.65);
+}
+.fitem {
+  color: #333;
+  font-weight: 550;
+  display: flex;
+}
+.iitem {
+  min-width: 150px;
+  display: inline-block;
+}
+.citem {
+  display: inline-block;
+  width: 100%;
+  border-bottom: 1px solid #e4393c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>

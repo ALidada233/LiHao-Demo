@@ -1,0 +1,61 @@
+import Vue from 'vue'
+import axios from 'axios';
+import requestUrl from '@/util/http.js'
+//本地环境
+var api;
+if(process.env.NODE_ENV=="development"){
+    api="/nte-crm"
+}else{  //测试环境
+    api=requestUrl;
+}
+//获取合同编号及本地时间
+export const getContractCode=(params,callback)=>{
+  axios({
+      url:api+"/getContractCode",
+      method:'post',
+      data: params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+//生成合同 
+export const saveOfferFile=(params,callback)=>{
+  axios({
+      url:api+"/saveOfferFile",
+      method:'post',
+      data: params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+//获取申请折扣列表信息
+export const getDemadDiscountList=(params,callback)=>{
+  axios({
+      url:api+"/getDemadDiscountList",
+      method:'post',
+      data: params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+//删除需求
+export const deleteDemand =(params,callback)=>{
+  axios({
+      url:api+"/deleteDemand ",
+      method:'post',
+      data: params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+
+//查询商品
+export const getGoodsList =(params,callback)=>{
+  axios({
+      url:api+"/getGoodsList ",
+      method:'post',
+      data: params
+  }).then(res=>{
+     callback(res.data)
+  })
+}

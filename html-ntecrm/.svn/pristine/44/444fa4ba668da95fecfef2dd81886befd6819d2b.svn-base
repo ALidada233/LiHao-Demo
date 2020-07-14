@@ -1,0 +1,464 @@
+<template>
+	<div class="edit" @click.self="closeDialog">
+		<div class="edit-content" style="width:80%;">
+		  	<div class="edit-header clearPa">
+		  		<h2 class="left">客户详情</h2>
+		  		<i  @click="closeDialog" class="el-icon-close right"></i>
+		  	</div>
+			<el-dropdown style="margin-left: 10px;cursor:default;" @command="changeEdit">
+			  <span class="el-dropdown-link">
+			    {{titleName}}<i class="el-icon-arrow-down el-icon--right"></i>
+			  </span>
+			  <el-dropdown-menu slot="dropdown">		  	
+			    <el-dropdown-item command="baseMsg">客户信息</el-dropdown-item>
+			    <el-dropdown-item command="baseNum">数据统计</el-dropdown-item>
+			  </el-dropdown-menu>
+			</el-dropdown>
+
+			<el-form :model="form" style="height:520px;overflow:scroll;">
+				<!--客户信息-->
+				<div v-show="changeCenter=='baseMsg'">
+				   
+				    <div style="float: left;width:50%">
+				    	 <el-form-item label="客户名称" :label-width="formLabelWidth">
+					      <span style="color: #999;">{{form.custName}}</span>
+					    </el-form-item>
+					    <el-form-item label="客户公司" :label-width="formLabelWidth">
+					      <span style="color: #999;">{{form.custCompanyName}}</span>
+					    </el-form-item>
+					    <el-form-item label="客户地址" :label-width="formLabelWidth">
+					      <span style="color: #999;">{{form.custAddress}}</span>
+					    </el-form-item>
+					    <el-form-item label="客户电话" :label-width="formLabelWidth">
+					       <span style="color: #999;">{{form.custPhone}}</span>
+					    </el-form-item>
+					    <el-form-item label="客户电话" :label-width="formLabelWidth">
+					       <span style="color: #999;">{{form.custEmail}}</span>
+					    </el-form-item>
+					    <el-form-item label="联系人" :label-width="formLabelWidth">
+							<span v-for="(item,index) in linkArray" :key="item.conId" style="background:#EFEDF0;padding:2px 5px;border-radius:10px;font-size: 13px;margin-right: 5px;cursor: default;" @click.self="modifyLink(index,true)">{{item.conName}}</span>
+				
+					    </el-form-item>
+					
+				    	<el-form-item label="客户状态" :label-width="formLabelWidth">
+						    <span style="color: #999;" v-if="form.custState==1">月结客户</span>
+					      	<span style="color: #999;" v-if="form.custState==2">未成交</span>
+					      	<span style="color: #999;" v-if="form.custState==3">已成交</span>
+					      	<span style="color: #999;" v-if="form.custState==4">新增未成交</span>
+					    </el-form-item>
+					    <el-form-item label="客户來源" :label-width="formLabelWidth">
+						    <span style="color: #999;" v-if="form.custState==1">百度</span>
+					      	<span style="color: #999;" v-if="form.custState==2">360</span>
+					      	<span style="color: #999;" v-if="form.custState==3">华创推广</span>
+					      	<span style="color: #999;" v-if="form.custState==4">朋友介绍</span>
+					      	<span style="color: #999;" v-if="form.custState==5">自行开发</span>
+					      	<span style="color: #999;" v-if="form.custState==6">电话咨询</span>
+					      	<span style="color: #999;" v-if="form.custState==7">其他</span>
+					    </el-form-item>
+				    </div>
+				    <div style="float: left;width:50%">
+				    	<el-form-item label="客户性质" :label-width="formLabelWidth">
+						    <span style="color: #999;" v-if="form.custNature==1">OEM终端</span>
+				      		<span style="color: #999;" v-if="form.custNature==2">设备配套商</span>
+				      		<span style="color: #999;" v-if="form.custNature==3">高校科研院所</span>
+				      		<span style="color: #999;" v-if="form.custNature==4">贸易商</span>
+				      		<span style="color: #999;" v-if="form.custNature==5">其它</span>
+					    </el-form-item>
+					    <el-form-item label="处理状态" :label-width="formLabelWidth">
+						    <span style="color: #999;" v-if="form.contactState==0">未读</span>
+				      		<span style="color: #999;" v-if="form.contactState==1">已读</span>
+					    </el-form-item>
+					    <el-form-item label="客户属性" :label-width="formLabelWidth">
+						    <span style="color: #999;" v-if="form.custBelong==1">必优客户</span>
+				      		<span style="color: #999;" v-if="form.custBelong==2">耐特恩客户</span>
+					    </el-form-item>
+						<el-form-item v-if="form.custBelong==2" label="客户区域" :label-width="formLabelWidth">
+					      	<span>{{form.cusRegionIds}}</span>
+					    </el-form-item>
+					    <el-form-item label="使用领域" :label-width="formLabelWidth">
+						    <span style="color: #999;">{{form.areasOfUse}}</span>
+					    </el-form-item>
+				    </div>
+				    
+			    </div>
+			    
+			    <!--客户类型-->
+			    <div v-show="changeCenter=='baseNum'">
+			    	<div class="clearPa" style="text-align: center;margin: 10px 0;">
+			    		<el-date-picker
+					      v-model="screenTime"
+					      size="mini"
+					      @change="changeScreenTime"
+					      type="daterange"
+					      range-separator="至"
+					      start-placeholder="开始日期"
+					      end-placeholder="结束日期">
+					    </el-date-picker>
+			    	</div>
+			    	
+			    	<el-form-item label="累计询价次数" :label-width="formLabelWidth">
+				     {{sheetCount}}
+				    </el-form-item>
+				    <el-form-item label="累计报价次数" :label-width="formLabelWidth">
+				     {{offerCount}}
+				    </el-form-item>
+				    <el-form-item label="累计订单次数" :label-width="formLabelWidth">
+				     {{orderCount}}
+				    </el-form-item>
+				    <el-form-item label="累计成单次数" :label-width="formLabelWidth">
+				     {{orderPayCount}}
+				    </el-form-item>
+				    <el-form-item label="总成交金额" :label-width="formLabelWidth">
+				     {{copeSqlCount}}
+				    </el-form-item>
+
+					<div style="text-align:right;margin: 10px 0;">
+						<el-date-picker
+					      v-model="yearStr"
+					      size="mini"
+					      @change="changeYear"
+					      style="margin-right: 10px;"
+					      type="year"
+					      placeholder="选择年">
+					    </el-date-picker>
+					</div>
+				    <component :is="chartArt" :id="highchartOptions[0].id" :option="highchartOptions[0].option"></component>
+			    </div>
+			    
+			</el-form>
+
+			<span class="edit-footer clearPa">
+			
+			</span>
+		</div>
+
+		<!-- 添加联系人 -->
+		<new-customers 
+		:dialogFormVisible="dialogFormVisible" 
+		@changDialog="stateDialog"
+		:showLink="showLink"
+		:currrentLink="currrentLink"
+		:editSte="editStatus"
+		></new-customers>
+	</div>
+</template>
+<script type="text/javascript">
+import {optionThree} from "@/util/chartOption/home.js";
+import newCustomers from "@/page/admin/customerDetails/components/newCustomers";
+import {newCust,getCust,getCustCount} from "util/req/customer/newUser";
+import {formatDateTime} from "util/fn/transTime";
+import md5 from 'js-md5';
+	export default{
+		name:"newCustomersEdit",
+		props:{
+			centerDialogVisible:{  
+				type:Boolean,
+				default: false
+			},
+			editTitle:{
+				type:String,
+				default: ''
+			},
+			editState:{		//新增为false 编辑为true
+				type:Boolean,
+				default: true
+			},
+			editUserId:{
+				type:Number
+			},
+			editCustId:{
+				type:Number
+			},
+			detailList:{
+				type:Object
+			}
+		},
+		filters:{
+			timeFilter(value){
+				 if (!value) return '';
+				 return formatDateTime(value,1)
+			}
+		},
+		data(){
+			return{
+				titleName:'客户信息',
+				form: {
+				  userId:null,			//用户id
+				  custId:null,			//客户id
+		          custState:null,		//客户状态
+		          custNature:null,		//客户性质	      
+		          salesmanId:null,		//负责人名
+		          areasOfUse:null,		//使用领域
+		          custIndustry:null,	//客户行业
+		          custSource:null,		//客户所属
+		          custAddress:null,		//客户地址
+		          custName:null,		//客户名称
+		          custPhone:null, 		//客户电话
+		          regTime:'' 			//创建时间
+		        },
+		        userAddress:'',			//收货地址（不能编辑的）
+		        newSubmitState:false,	//添加新客户是否为空
+		        formLabelWidth: '120px',
+		        highchartOptions:[
+			        	{id:"chart3",option:optionThree}
+					
+		        ],
+		        linkArray:[],			//添加联系人数组
+		        showLink:null, 			//回显的联系人数据
+		        currrentLink:null, 		//当前回显数据的下标
+		        editStatus:false, 		//传递给联系人详情是否是新增还是编辑的状态(false为新增)
+		        changeCenter:'baseMsg',
+		        operatorList:[], 		//负责人列表
+		        dialogFormVisible:false,
+		        operatorCode:[{code:null}],
+		        screenDateStart:'',
+		        screenDateEnd:'',
+		        yearStr:'',
+		        screenTime:'',
+		        chartArt:'',
+		        sheetCount:0,
+		        offerCount:0,
+		        orderCount:0,
+		        orderPayCount:0,
+		        copeSqlCount:0
+			}
+		},
+		watch:{
+			editState(val){
+				if(val==false){
+					this.changeEdit("baseMsg");
+				}else{
+					this.changeEdit("baseNum");
+				}
+			},
+			editUserId(val){
+				this.userId=val;
+			},
+			detailList(val){			//监听编辑信息
+				console.log(val);
+				// var newForm=Object.assign(val.custDto[0],val.userDto[0],val.custJson);
+				var newForm=Object.assign(val.custDto[0]);
+				this.form=newForm;
+				this.operatorList=val.operatorDto;
+				//汇总数据信息
+				this.sheetCount=newForm.sheetCount;
+	    		this.orderPayCount=newForm.orderPayCount;
+	    		this.offerCount=newForm.offerCount;
+	    		this.orderCount=newForm.orderCount;
+	    		this.copeSqlCount=newForm.copeSqlCount;
+									
+				// if(val.addDto.length!=0){	//用户地址的信息参数不为0时才显示
+				// 	this.userAddress=val.addDto[0].cityRegionName+val.addDto[0].disRegionName+val.addDto[0].address
+				// }
+				// if(val.contList.length!=0){
+				// 	this.linkArray=val.contList;
+				// 	this.linkArray=JSON.parse(JSON.stringify(this.linkArray))
+				// }
+				// this.passwordStart=this.form.password;//保留初始的密码进行对比
+				// //详情的统计数据，加折线图的数据处理
+				// var offerList=[0,0,0,0,0,0,0,0,0,0,0,0];
+				// var orderList=[0,0,0,0,0,0,0,0,0,0,0,0];
+				// var newOfferList=val.custJson.offerList.map(item=>{
+				// 	item.offerMothd=Number(item.offerMothd)
+				// 	return item
+				// })
+				// var newOrderList=val.custJson.orderList.map(item=>{
+				// 	item.orderMothd=Number(item.orderMothd)
+				// 	return item
+				// })
+				// if(val.custJson.offerList!=0){		//报价月份情况
+				// 	for(var i=0;i<offerList.length;i++){
+				// 		for(var s=0;s<newOfferList.length;s++){
+				// 			if(i==newOfferList[s].offerMothd){
+				// 				offerList[i-1]=newOfferList[s].offerCount
+				// 			}
+				// 		}
+				// 	}
+				// }
+				// if(val.custJson.orderList!=0){		//订单月份情况
+				// 	for(var j=0;j<orderList.length;j++){
+				// 		for(var g=0;g<newOrderList.length;g++){
+				// 			if(j==newOrderList[g].orderMothd){
+				// 				orderList[j-1]=newOrderList[g].orderCount
+				// 			}
+				// 		}
+				// 	}
+				// }
+				
+				// optionThree.series[0].data=JSON.parse(JSON.stringify(offerList));	//报价
+				// optionThree.series[1].data=JSON.parse(JSON.stringify(orderList));  //订单
+				// this.$set(this.highchartOptions[0].option.series[0],"data",offerList)
+				// this.$set(this.highchartOptions[0].option.series[1],"data",orderList)
+				// this.chartArt='';
+				// setTimeout(()=>{this.chartArt='XChart'},0);
+
+			},
+			'form.salesmanId'(val){
+				if(val==0){
+					this.operatorCode=[{code:null}];
+					return false
+				}
+				var newItem=this.operatorList.filter((item)=>{
+					return item.id==this.form.salesmanId
+				})
+				 this.operatorCode=newItem;
+			}
+		},
+		components:{
+			XChart:() => import('@/components/common/chart.vue'),
+			newCustomers
+		},
+		computed:{
+			
+		},
+		methods:{
+			stateDialog(state){
+		      	this.dialogFormVisible=state
+		    },
+		    changeScreenTime(e){		//数据汇总的查询
+
+		    	var params;
+		    	if(e==null){
+		    		params={userId:this.form.userId}
+		    	}else{
+			    	this.screenDateStart=formatDateTime(e[0]);
+			    	this.screenDateEnd=formatDateTime(e[1]);
+		    		params={
+			    		userId:this.form.userId,
+			    		screenDateStart:this.screenDateStart,
+			    		screenDateEnd:this.screenDateEnd
+			    	}
+		    	}
+		    	
+		    	getCustCount(params,res=>{
+		    		console.log(res);
+		    		this.sheetCount=res.custJson.sheetCount;
+		    		this.orderPayCount=res.custJson.orderPayCount;
+		    		this.offerCount=res.custJson.offerCount;
+		    		this.orderCount=res.custJson.orderCount;
+		    		this.copeSqlCount=res.custJson.copeSqlCount;
+		    	})
+		    },
+		    changeYear(e){
+		    	var newYear=formatDateTime(e,2);
+				var params;
+		    	if(newYear==1970){
+		    		params={
+			    		userId:this.form.userId,
+			    		yearStr:2018
+			    	};
+		    	}else{
+		    		params={
+			    		userId:this.form.userId,
+			    		yearStr:newYear
+		    		}   
+		    	};
+		    	getCustCount(params,res=>{
+		    		console.log(res);
+		    		//详情的统计数据，加折线图的数据处理
+					var offerList=[0,0,0,0,0,0,0,0,0,0,0,0];
+					var orderList=[0,0,0,0,0,0,0,0,0,0,0,0];
+					var newOfferList=res.custJson.offerList.map(item=>{
+						item.offerMothd=Number(item.offerMothd)
+						return item
+					})
+					var newOrderList=res.custJson.orderList.map(item=>{
+						item.orderMothd=Number(item.orderMothd)
+						return item
+					})
+					if(res.custJson.offerList!=0){		//报价月份情况
+						for(var i=0;i<offerList.length;i++){
+							for(var s=0;s<newOfferList.length;s++){
+								if(i==newOfferList[s].offerMothd){
+									offerList[i-1]=newOfferList[s].offerCount
+								}
+							}
+						}
+					}
+					if(res.custJson.orderList!=0){		//订单月份情况
+						for(var j=0;j<orderList.length;j++){
+							for(var g=0;g<newOrderList.length;g++){
+								if(j==newOrderList[g].orderMothd){
+									orderList[j-1]=newOrderList[g].orderCount
+								}
+							}
+						}
+					}				
+					optionThree.series[0].data=JSON.parse(JSON.stringify(offerList));	//报价
+					optionThree.series[1].data=JSON.parse(JSON.stringify(orderList));  //订单
+					this.$set(this.highchartOptions[0].option.series[0],"data",offerList)
+					this.$set(this.highchartOptions[0].option.series[1],"data",orderList);
+					this.chartArt='';
+					setTimeout(()=>{this.chartArt='XChart'},0);
+		    	})
+		    },
+			changeEdit(e){
+				this.changeCenter=e;
+				if(e=="baseMsg"){
+					this.titleName="客户信息"
+				}else if(e=="baseType"){
+					this.titleName="客户类型"
+				}else if(e=="baseNum"){
+					this.titleName="数据统计"
+				}else if(e=="baseUser"){
+					this.titleName="用户信息"
+				}
+			},
+			modifyLink(index,state){					//修改联系人
+				this.showLink=this.linkArray[index];
+				this.currrentLink=index;
+				this.dialogFormVisible=true;
+				this.editStatus=state;
+			},
+			closeDialog(){
+				if(this.editState==false){
+					this.changeEdit("baseMsg")
+				}else{
+					this.changeEdit("baseMsg")
+				}
+				this.$emit("CustomrsDetail",false);
+			}
+		},
+		mounted(){
+
+		}	
+	}
+</script>
+
+<style lang="scss" scoped>
+.edit /deep/ .el-dialog{
+	margin-top:5vh!important;
+}
+.edit{
+	position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overflow: auto;
+    margin: 0;
+    z-index: 2001;
+    background: rgba(0,0,0,.4);
+}
+.edit-content{
+	background:#fff;
+	border-radius:4px;
+	margin:3% auto 0px;
+	width:50%;
+	padding:20px 25px;
+}
+.edit-header{
+	width:100%;
+	height:35px;
+	line-height:35px;
+}
+	h2{
+		font-size:18px;
+	}
+	i{
+		font-size:18px;
+		line-height:35px;
+	}
+.edit-footer{
+}
+</style>

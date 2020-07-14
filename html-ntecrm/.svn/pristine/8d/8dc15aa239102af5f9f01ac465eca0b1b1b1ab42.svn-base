@@ -1,0 +1,359 @@
+<template>
+  <div>
+    <div class="content">
+      <!-- <div class="returnSty" @click="$emit('closeVisilog')">
+        <i class="iconfont">&#xe632;</i>
+        <span>返回工作台</span>
+      </div> -->
+      <!-- <div style="color: #888;padding:20px 0;">
+        <div class="listSty">
+          <div class="iconSty">
+            <i class="iconfont">&#xe6e5;</i>
+          </div>
+          <span>技术售前支持</span>
+        </div>
+      </div> -->
+      <div style="display:inline-flex;align-items: flex-start">
+        <div class="tabs_sup">
+          <el-tabs v-model="activeTab" @tab-click="tabHandle" style="width:200px;">
+            <el-tab-pane label="全部" name="2"></el-tab-pane>
+            <el-tab-pane label="处理中" name="0"></el-tab-pane>
+            <el-tab-pane label="已完成" name="1"></el-tab-pane>
+          </el-tabs>
+        </div>
+        <div style="display:inline-flex;margin-left:20px;">
+          <el-input v-model="keys" clearable placeholder="请输入搜索内容"></el-input>
+        </div>
+        <el-select v-model="saleId" placeholder="请选择负责人" :filterable="true" :clearable="true" style="width:150px;display:inline-flex;margin-left:10px;">
+          <el-option v-for="(item,index) in salesList" :key="index" :label="item.name" :value="item.id">
+          </el-option>
+        </el-select>
+        <el-button type="primary" style="margin-left:10px;" @click="queryTechnicalSupportList()">搜索</el-button>
+      </div>
+      <el-table v-loading="loading" :data="dataList" :border="true" :fit="true" height="490" class="preSale"
+        :header-cell-style="{'background':'#E6EBF0'}" style="width: 100%;">
+        <el-table-column label="操作" width="130" align="center">
+          <template slot-scope="props">
+            <el-button size="mini" round type="primary" icon="el-icon-edit" @click="discussHandle(props.row)"></el-button>
+            <el-button v-if="(type==2||type==3)&&props.row.status==0" size="mini" round type="success" icon="el-icon-check" @click="completedSupport(props.row.id)"></el-button>
+          </template>
+        </el-table-column>
+        <el-table-column label="发起人" align="center" width="78" prop="createName">
+        </el-table-column>
+        <el-table-column label="协助内容"  align="center" prop="remark">
+        </el-table-column>
+        <el-table-column label="需求附件" align="center" prop="demandCode" width="80">
+          <template slot-scope="scope">
+            <span v-if="scope.row.optFile" @click="previewFileVisible=true;previewFileUrl=scope.row.optFile" style="color:#409EFF;cursor:pointer;">预览</span>
+            <span v-else>无</span>
+          </template>
+        </el-table-column>
+        <el-table-column width="100" align="center" label="处理人">
+          <template slot-scope="scope">
+            <span v-for="(item,index) in (scope.row.readName==null?null:scope.row.readName).split(',')" :key="index">
+              <span v-if="item.indexOf('未读')>=0" style="color:red">{{item}}</span><span v-else>{{item}}</span><br/>
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="状态" align="center" width="70" prop="status">
+          <template slot-scope="scope">
+            <span v-if="scope.row.status==0">处理中</span>
+            <span v-if="scope.row.status==1">已完成</span>
+          </template>
+        </el-table-column>
+        <el-table-column width="78" align="center" label="是否置顶">
+          <template slot-scope="scope">
+            <el-switch v-model="scope.row.isTop" :active-value="1" :inactive-value="0" active-color="#13ce66" @change="istopHandle(scope.row.isTop,scope.row.id)"
+              inactive-color="#ff4949">
+            </el-switch>
+          </template>
+        </el-table-column>
+        <div v-if="this.type==1">
+        <el-table-column label="需求内容" align="center" prop="demandInfo">
+        </el-table-column>
+        </div>
+        <el-table-column label="客户信息" align="center" prop="custInfo">
+        </el-table-column>
+        <el-table-column label="创建时间" width="180" align="center" prop="createTime">
+        </el-table-column>
+      </el-table>
+      <!-- 分页 -->
+      <div class="block" style="text-align:right;margin-top:10px;">
+        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="currentPage"
+          :page-sizes="[5, 10, 15, 30]" :page-size="pageSize" layout="sizes, prev, pager, next, total" :total="pageCount">
+        </el-pagination>
+      </div>
+      <!-- 回复信息 -->
+      <transition name="fade-transform" mode="out-in">
+        <discuss v-if="discussStatus" class="discussSty" :type="type" :discussMsg="discussMsg" @closeVisilog="discussStatus=false;queryTechnicalSupportList();$parent.getTechnicalSupportIndex()" @refresh="$parent.getTechnicalSupportIndex()">
+        </discuss>
+      </transition>
+    </div>
+    <el-dialog title="附件" :visible.sync="previewFileVisible" width="60%" :append-to-body="true">
+      <div style="height:400px;overflow-y:scroll;text-align:center;">
+        <object v-if="previewFileUrl&&previewFileUrl.toLowerCase().indexOf('.pdf')>-1" :data="previewFileUrl" width="100%" height="400px" internalinstanceid="5"></object>
+        <img style="width:100%;" v-else :src="previewFileUrl" alt="">
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="previewFileVisible=false;">关闭</el-button>
+      </span>
+    </el-dialog>
+  </div>
+</template>
+<script>
+  import {
+    getSalesList
+  } from "util/req/customer/table";
+  import {
+    queryTechnicalSupportList,
+    updateTechnicalSupport
+  } from "util/req/TechnicalSupport/index";
+  export default {
+    name: "preSale",
+    props:{
+      type:{
+        type:Number
+      }
+    },
+    data() {
+      return {
+        dataList: [],
+        activeTab: '0',
+        discussStatus: false,
+        keys:null,
+        discussMsg: [],
+        loading: false,
+        pageCount: null, //分页总数
+        pageSize: 10, //每页条数
+        currentPage: 1, //当前页
+        salesList: [],
+        saleId: null,
+        previewFileVisible:false,
+        previewFileUrl:null
+      }
+    },
+    watch:{
+      type:function(){
+        this.discussStatus=false;
+        this.queryTechnicalSupportList();
+      },
+      previewFileVisible:function(val){
+        if(!val){
+          this.previewFileUrl=null;
+        }
+      }
+    },
+    // computed: {
+    //   complete: function () {
+    //     if(this.type==2||this.type==3)
+    //     return 
+    //   }
+    // },
+    methods: {
+      tabHandle(tabs) {
+        var status;
+        if (tabs.name == 4) {
+          status = {};
+        } else {
+          status = tabs.name;
+        }
+        this.currentPage=1; //切换之后默认回到第一页
+       this.queryTechnicalSupportList();
+      },
+      handleSizeChange(pageSize) { //数据条数改变时
+        this.loading = true;
+        this.pageSize = pageSize;
+        this.currentPage = 1;
+        this.queryTechnicalSupportList();
+      },
+      getSalesList() {
+        getSalesList(res => {
+          this.salesList = res.data.data.list;
+        })
+      },
+      handleCurrentChange(currentPage) { //选取分页
+        this.loading = true;
+        this.currentId = [];
+        this.queryTechnicalSupportList();
+      },
+      queryTechnicalSupportList() {
+        var parmas = {
+          pId: 0,
+          type: this.type,
+          status: this.activeTab,
+          page: this.currentPage,
+          pageSize: this.pageSize
+        }
+        if(this.activeTab==2){
+          parmas.status={}
+        }
+        if(this.keys){
+          parmas.keys=this.keys
+          parmas.page=1;
+          this.currentPage=1;
+        }
+        if (this.saleId) {
+          parmas.saleId = this.saleId;
+        }
+        this.loading = true;
+        queryTechnicalSupportList(parmas, res => {
+          this.dataList = res.data.list;
+          this.pageCount=res.data.pageCount;
+          setTimeout(() => {
+            this.loading = false;
+          }, 300)
+        })
+      },
+      updateTechnicalSupport(row) { //修改技术支持 
+        var parmas = {
+          beId: row.beId, //关联ID
+          id: row.id
+        }
+        if (row.status == 0) {
+          updateTechnicalSupport(parmas, res => {
+            if (res.msgCode != 200) {
+              this.$message({
+                type: 'info',
+                message: res.msg
+              }); 
+            }
+          })
+        }
+      },
+      discussHandle(row) {
+        this.discussStatus = true;
+        this.discussMsg = row;
+        //this.updateTechnicalSupport(row);
+      },
+      istopHandle(isTop,id) { //置顶
+        updateTechnicalSupport({
+          isTop:isTop,
+          id:id
+        }, res => {
+          if (res.msgCode != 200) {
+            this.$message({
+              type: 'info',
+              message: res.msg
+            });
+          }else{
+            this.queryTechnicalSupportList()
+          }
+        })
+      },
+      completedSupport(id) {  //置为完成状态
+        var parmas = {
+          id: id, // 支持ID 
+          status: 1 //状态1已完成
+        }
+        this.$confirm('是否确认此条支持已完成?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          updateTechnicalSupport(parmas, res => {
+            if (res.msgCode == 200) {
+              this.$message({
+                type: 'success',
+                message: res.msg
+              });
+              this.$parent.getTechnicalSupportIndex();
+              this.queryTechnicalSupportList();
+            } else {
+              this.$message({
+                type: 'info',
+                message: res.msg
+              });
+            }
+          })
+        }).catch((err) => {
+          this.$message({
+            type: 'info',
+            message: '已取消操作'
+          });
+          console.log(err)
+        });
+      }
+    },
+    components: {
+      discuss: () => import('@/page/admin/TechnicalSupport/components/discuss')
+    },
+    mounted() {
+      this.queryTechnicalSupportList();
+      this.getSalesList();
+    }
+  }
+
+</script>
+<style lang="scss" scoped>
+  .content {
+    position: relative;
+    padding: 20px;
+  }
+
+  .discussSty {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    min-height: 100%;
+    z-index: 1500;
+    // box-shadow: 0px 0px 10px #eee;
+    background: #fff;
+    box-sizing: border-box;
+  }
+
+  .listSty {
+    display: flex;
+    align-items: center;
+  }
+
+  .iconSty {
+    width: 40px;
+    height: 40px;
+    background: #16BD86;
+    color: #fff;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 5px;
+  }
+
+  .iconSty>i {
+    font-size: 23px;
+  }
+
+  .listSty>span {
+    padding-left: 15px;
+  }
+
+  .returnSty {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    color: #888;
+    font-size: 13px;
+  }
+
+  .preSale /deep/ ::-webkit-scrollbar {
+    height: 9px;
+    width: 7px;
+    // border-radius: 4px;
+  }
+
+  .fade-transform-leave-active,
+  .fade-transform-enter-active {
+    transition: all .2s;
+  }
+
+  .fade-transform-enter {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+
+  .fade-transform-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  .tabs_sup /deep/ .el-tabs{
+    width: 260px;
+  }
+</style>

@@ -1,0 +1,226 @@
+<template>
+  <div class="infoContent">
+    <el-tabs v-model="activeName">
+      <el-tab-pane label="修改信息" name="first">
+        <div style="width:700px;margin:50px auto 0;">
+          <el-form :model="form" ref="operatorEdit" :rules="rules" style="height:400px;">
+            <div>
+              <el-form-item label="姓名" prop="name" :label-width="formLabelWidth" style="margin-top:10px;">
+                <el-input v-model="form.name" disabled autocomplete="off" maxlength="200" style="width: 50%;"></el-input>
+              </el-form-item>
+              <el-form-item label="手机号" prop="telphone" :label-width="formLabelWidth" style="margin-top:10px;">
+                <el-input v-model="form.telphone" autocomplete="off" maxlength="200" style="width: 50%;"></el-input>
+              </el-form-item>
+              <el-form-item label="邮箱" prop="email" :label-width="formLabelWidth" style="margin-top:10px;">
+                <el-input v-model="form.email" autocomplete="off" maxlength="200" style="width: 50%;"></el-input>
+              </el-form-item>
+              <div class="primary" style="margin-left:200px;width:120px;line-height: 45px;text-align: center;color: #fff;background-color: #409EFF;border-color: #409EFF;border-radius: 4px;cursor: pointer;"
+                @click="submitHandle">确认修改</div>
+            </div>
+          </el-form>
+
+        </div>
+      </el-tab-pane>
+      <el-tab-pane label="修改密码" name="second">
+        <div style="width:700px;margin:50px auto 0;">
+          <el-form :model="form2" ref="operatorEdit2" :rules="rules" style="height:400px;">
+            <div>
+              <el-form-item label="原密码" prop="oldPassWord" :label-width="formLabelWidth" style="margin-top:10px;position:relative;">
+                <el-input :type="passwordType" v-model="form2.oldPassWord" placeholder="请输入原密码" name="password" style="width: 50%;"
+                  auto-complete="on" />
+                <span class="show-pwd">
+                  <i class="iconfont" @click="showPwd">&#xe679;</i>
+                </span>
+              </el-form-item>
+              <el-form-item label="新密码" prop="password" :label-width="formLabelWidth" style="margin-top:10px;position:relative;">
+                <el-input :type="passwordType" v-model="form2.password" placeholder="请输入新密码" name="password" style="width: 50%;"
+                  auto-complete="on" />
+                <span class="show-pwd">
+                  <i class="iconfont" @click="showPwd">&#xe679;</i>
+                </span>
+              </el-form-item>
+
+              <div class="primary" style="margin-left:200px;width:120px;line-height: 45px;text-align: center;color: #fff;background-color: #409EFF;border-color: #409EFF;border-radius: 4px;cursor: pointer;"
+                @click="submitHandlePwd">确认修改</div>
+            </div>
+          </el-form>
+
+        </div>
+      </el-tab-pane>
+    </el-tabs>
+
+
+  </div>
+</template>
+<script type="text/javascript">
+  import {
+    updateOperator
+  } from "util/req/info/index";
+  //import {getTable} from "util/req/operator/index";
+  import md5 from 'js-md5';
+  export default {
+    name: "info",
+    data() {
+      return {
+        form: { //表单信息
+          id: JSON.parse(sessionStorage.getItem("userDto")).id,
+          name: JSON.parse(sessionStorage.getItem("userDto")).name,
+          email: JSON.parse(sessionStorage.getItem("userDto")).email,
+          telphone: JSON.parse(sessionStorage.getItem("userDto")).telphone
+        },
+        form2: {
+          id: JSON.parse(sessionStorage.getItem("userDto")).id,
+          oldPassWord: null,
+          password: null
+        },
+        formLabelWidth: '120px',
+        rules: {
+          name: {
+            required: true,
+            trigger: 'blur',
+            message: "名字不能为空"
+          },
+          oldPassWord: {
+            required: true,
+            trigger: 'blur',
+            message: "密码不能为空"
+          },
+          password: {
+            required: true,
+            trigger: 'blur',
+            message: "密码不能为空"
+          },
+          remark: {
+            required: true,
+            trigger: 'blur',
+            message: "描述不能为空"
+          },
+          email: {
+            required: true,
+            trigger: 'blur',
+            message: "邮箱不能为空"
+          },
+          telphone: [{
+              required: true,
+              trigger: 'blur',
+              message: "手机号不能为空"
+            },
+            {
+              trigger: 'blur',
+              pattern: /^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/,
+              message: "请输入正确的格式"
+            }
+          ]
+        },
+        passwordType: 'password',
+        activeName: 'first'
+      }
+    },
+    watch: {
+      // form(){
+      // 	var item=JSON.parse(sessionStorage.getItem("userDto"));
+      // 	console.log(item)
+      // }			
+    },
+    methods: {
+      closeDialog() {
+        this.$emit("changeEdit", false)
+      },
+      submitHandle() {
+        this.$refs['operatorEdit'].validate(valid => {
+          if (valid) {
+            //getTable({code:this.$store.state.loginStatu.c_user},res=>{
+            updateOperator(this.form, res => {
+              if (res.msgCode == "200") {
+                this.$message({
+                  type: 'success',
+                  message: '修改信息成功'
+                });
+              } else {
+                this.$message({
+                  type: 'info',
+                  message: res.msg
+                });
+              }
+            })
+            //	})		
+          }
+        })
+      },
+      submitHandlePwd() {
+        this.$refs['operatorEdit2'].validate(valid => {
+          if (valid) {
+            if(String(this.form2.oldPassWord).length<6 || String(this.form2.oldPassWord)<6){
+              this.$message({
+                message: '请输入6位正确的密码！',
+                type: 'warning'
+              });
+              return
+            }
+            var params = {
+              id: this.form2.id,
+              oldPassWord: md5(String(this.form2.oldPassWord)),
+              password: md5(String(this.form2.password))
+            }
+            if (params.oldPassWord == params.password) {
+              this.$message({
+                message: '俩次输入密码一致，提交失败',
+                type: 'warning'
+              });
+              return
+            }
+            updateOperator(params, res => {
+              console.log(res);
+              if (res.msgCode == "200") {
+                this.$message({
+                  type: 'success',
+                  message: '修改密码成功'
+                });
+                this.$router.replace("/");
+              } else {
+                this.$message({
+                  type: 'info',
+                  message: res.msg
+                });
+              }
+            })
+          }
+        })
+      },
+      showPwd() {
+        if (this.passwordType === 'password') {
+          this.passwordType = ''
+        } else {
+          this.passwordType = 'password'
+        }
+      }
+    }
+
+  }
+
+</script>
+
+<style lang="scss" scoped>
+  .infoContent {
+    background-color: #fff;
+    border-radius: 4px;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    height: 100%;
+  }
+
+  .show-pwd {
+    position: absolute;
+    right: 300px;
+    top: 7px;
+    font-size: 16px;
+    color: #889aa4;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+</style>

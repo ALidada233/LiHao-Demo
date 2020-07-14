@@ -1,0 +1,103 @@
+<template>
+	<el-container>
+		<!-- background:this.$store.state.themeColor.headerColor -->
+		<el-aside width="200px" :class="[asideState?'toggleShow':'toggleHide']" style="background:#f7f7f7;">
+				<admin-aside></admin-aside>
+		</el-aside>
+		<el-container style="width:100%;height:100vh;">   
+			<el-header ref="header" height="45px" style="background:none!important;">
+					<admin-header @changeAsideHeight="adminAsideHeight" @toggleChange="toggleAside"></admin-header>	
+			</el-header>
+			<el-main :style='{}'>
+					<admin-main ref="main"></admin-main>
+			</el-main>
+		</el-container>	
+	</el-container>
+</template>
+<script type="text/javascript">
+import adminHeader from "@/components/common/header";
+import adminAside from "@/components/common/aside"
+import adminMain from "@/components/common/main"
+	export default{
+		name:"Admin",
+		data(){
+			return{
+				asideHeight:'', //动态改变侧边栏的高度,
+				asideState:true,
+				mainHeader:'',  //面板main的高度
+				mainWidth:this.resizeWidth()-200   //面板main的宽度
+			}
+		},
+		methods: {
+	      //设置侧边栏的高度  height:mainHeader+"px";height:asideHeight+'px',
+		  resetHeight(){
+		      var clientHeight=document.documentElement.clientHeight;
+		    	this.asideHeight=clientHeight; //侧边栏高度
+		    	this.mainHeader=clientHeight-45; //main 的高度
+		  },
+		  resizeWidth(){						//main的宽度js去获取，为了在ie里面出现部分内容不适应宽度%
+		  	var screeWidth=window.innerWidth||document.documentElement.clientWidth||document.body.clientWidth;
+		  	return screeWidth
+		  },
+		  adminAsideHeight(AH,MH){
+		  	this.asideHeight=AH
+		  	this.mainHeader=MH
+		  },
+		  toggleAside(state){
+		  	this.asideState=state;
+		  	if(state){
+				this.mainWidth=this.resizeWidth()-200;
+		  	}else{
+		  		this.mainWidth=this.resizeWidth()-65;
+		  	}
+		  }
+	    },
+	    mounted(){
+	    	this.resetHeight();  	
+	    	this.mainWidth=this.resizeWidth()-200;
+	    },
+	    components:{
+	    	adminHeader,
+	    	adminAside,
+	    	adminMain
+	    }
+	}
+</script>
+<style lang="scss" scoped>
+ .el-header,.el-footer {
+    color: #333;
+  }
+.el-header{
+	padding: 0 20px 0 0;
+}
+ .el-menu{
+	left: 1px;
+  }
+ .el-footer {
+    background-color: #fff;
+    color: #333;
+    height: 45px;
+    line-height: 45px;
+    font-size: 14px;
+ }
+ .el-aside {
+		color: #333;
+		height: calc(100vh);
+ }
+ .el-aside::-webkit-scrollbar {display:none}
+ .el-main {
+    // background-color: #EFEDF0;
+    color: #333;
+    position:relative;
+		width: calc(100%);
+		background: #f7f7f7;
+ }
+.toggleHide{
+	width: 65px!important;
+    transition:all 0.3s ease-in;
+}
+.toggleShow{
+	width: 200px!important;
+    transition:all 0.3s ease-in;
+}
+</style>

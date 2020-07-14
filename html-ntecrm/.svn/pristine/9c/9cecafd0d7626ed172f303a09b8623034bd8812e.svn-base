@@ -1,0 +1,386 @@
+<template>
+  <div>
+    <div class="content">
+      <div style="display:flex;justify-content: space-between;align-items:center;">
+        <el-tabs v-model="activeTab" @tab-click="tabHandle">
+          <el-tab-pane label="全部" name="4"></el-tab-pane>
+          <el-tab-pane label="未读" name="0"></el-tab-pane>
+          <el-tab-pane label="待处理" name="1"></el-tab-pane>
+          <el-tab-pane label="处理中" name="2"></el-tab-pane>
+          <el-tab-pane label="已完成" name="3"></el-tab-pane>
+        </el-tabs>
+        <el-button type="primary" style="height:35px;line-height:1px;" @click="replyVisible=true;">新增支持</el-button>
+      </div>
+      
+      <el-table v-loading="loading" :data="dataList" :border="true" :fit="true" height="490" class="preSale"
+        :header-cell-style="{'background':'#E6EBF0'}" style="width: 100%;">
+        <el-table-column label="操作" width="80" align="center">
+          <template slot-scope="props">
+            <el-button size="mini" round type="primary" icon="el-icon-edit" @click="discussHandle(props.row)"></el-button>
+          </template>
+        </el-table-column>
+        <el-table-column label="协助内容" width="300" align="center" prop="remark">
+        </el-table-column>
+        <el-table-column label="状态" align="center" width="70" prop="status">
+          <template slot-scope="scope">
+            <span v-if="scope.row.status==0">未读</span>
+            <span v-if="scope.row.status==1">待处理</span>
+            <span v-if="scope.row.status==2">处理中</span>
+            <span v-if="scope.row.status==3">已完成</span>
+          </template>
+        </el-table-column>
+        <el-table-column width="78" align="center" label="是否置顶">
+          <template slot-scope="scope">
+            <el-switch v-model="scope.row.isTop" :active-value="1" :inactive-value="0" active-color="#13ce66" @change="istopHandle(scope.row.isTop,scope.row.id)"
+              inactive-color="#ff4949">
+            </el-switch>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作人" align="center" width="78" prop="createName">
+        </el-table-column>
+        <el-table-column label="需求附件" align="center" prop="demandCode" width="80">
+          <template slot-scope="scope">
+            <span v-if="scope.row.optFile" @click="previewFileVisible=true;previewFileUrl=scope.row.demandFile" style="color:#409EFF;cursor:pointer;">预览</span>
+            <span v-else>无</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="更新时间" width="180" align="center" prop="updateTime">
+        </el-table-column>
+        <el-table-column label="创建时间" width="180" align="center" prop="createTime">
+        </el-table-column>
+      </el-table>
+      <!-- 分页 -->
+      <div class="block" style="text-align:right;margin-top:10px;">
+        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="currentPage"
+          :page-sizes="[5, 10, 15, 30]" :page-size="pageSize" layout="sizes, prev, pager, next, total" :total="pageCount">
+        </el-pagination>
+      </div>
+      <!-- 回复信息 -->
+      <transition name="fade-transform" mode="out-in">
+        <discuss v-if="discussStatus" class="discussSty" :type="type" :discussMsg="discussMsg" @closeVisilog="discussStatus=false;">
+        </discuss>
+      </transition>
+
+      <!-- 新增支持 -->
+      <el-dialog title="新增支持" :visible.sync="replyVisible" width="60%" class="replyVisible" :append-to-body="true" :before-close="closeReply">
+        <div style="height:500px;overflow-y:scroll;">
+          <el-form ref="form" :model="form" label-width="120px">
+            <el-form-item label="采购">
+              <el-select v-model="form.buyerId" multiple clearable placeholder="请选择采购">
+                <el-option v-for="(item,index) in buyerList" :key="index" :label="item.code" :value="item.id"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="技术">
+              <el-select v-model="form.technicalId" multiple clearable placeholder="请选择技术">
+                <el-option v-for="(item,index) in technicalList" :key="index" :label="item.code" :value="item.id"></el-option>
+              </el-select>
+            </el-form-item>  
+            <el-form-item label="是否置顶">
+              <el-radio-group v-model="form.isTop">
+                <el-radio label="是" :value="1"></el-radio>
+                <el-radio label="否" :value="0"></el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="短信通知">
+              <el-switch v-model="form.isSMS"
+                active-color="#13ce66"
+                inactive-color="#ff4949"
+                :active-value="1"
+                :inactive-value="0"
+              >
+              </el-switch>
+            </el-form-item>
+            <el-form-item label="选择文件类型">
+              <el-select v-model="form.type" placeholder="请选择选择文件类型">
+                <el-option label="图片" :value="1"></el-option>
+                <el-option label="文件" :value="2"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="图片" v-if="form.type==1">
+              <el-upload style="display: inline-block;margin-left: 10px;" class="upload-demo" action="/nte-crm/uploadImage"
+                :on-preview="handlePreview" :on-remove="handleRemoveFile" :before-remove="beforeRemove" :limit="1" accept="image/*"
+                :on-success="successUploadFile" :on-exceed="handleExceed" :file-list="fileList">
+                <el-button type="success">上传图片</el-button>
+                <div slot="tip" class="el-upload__tip"></div>
+              </el-upload>
+            </el-form-item>
+            <el-form-item label="文件" v-if="form.type==2">
+              <el-upload style="display: inline-block;margin-left: 10px;" class="upload-demo" action="/nte-crm/uploadFile"
+                :on-preview="handlePreview" :on-remove="handleRemoveFile" :before-remove="beforeRemove" :limit="1" accept=".pdf"
+                :on-success="successUploadFile" :on-exceed="handleExceed" :file-list="fileList">
+                <el-button type="success">上传文件</el-button>
+                <div slot="tip" class="el-upload__tip"></div>
+              </el-upload>
+            </el-form-item>
+            <el-form-item label="回复内容">
+              <el-input type="textarea" style="width:400px;" v-model="form.remark"></el-input>
+            </el-form-item>
+          </el-form>
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="closeReply">取消</el-button>
+          <el-button type="primary" @click="confirmReply()">确认</el-button>
+        </span>
+      </el-dialog>
+    </div>
+  </div>
+</template>
+<script>
+  import {
+    queryTechnicalSupportList,
+    updateTechnicalSupport,
+    insertTechnicalSupport
+  } from "util/req/TechnicalSupport/index";
+  import {
+    getBuyerTechnical
+  } from "util/req/offerList/index";
+  export default {
+    name: "preSale",
+    props:{
+      type:{
+        type:Number
+      },
+      orderRowList: {
+        type: Object
+      },
+      technologyList:{
+        type:Object
+      }
+    },
+    data() {
+      return {
+        dataList: [],
+        activeTab: '0',
+        discussStatus: false,
+        discussMsg: [],
+        loading: false,
+        pageCount: null, //分页总数
+        pageSize: 5, //每页条数
+        currentPage: 1, //当前页
+        fileList:[],    //上传文件列表
+        form: {
+          remark: null,
+          type: 1,
+          isTop:0,
+          isSMS:0,
+          buyerId:[],
+          technicalId:[]
+        },
+        replyVisible:false,//新增弹窗
+        buyerList: [],  //采购列表
+        technicalList: [] //技术列表
+      }
+    },
+    methods: {
+      handleRemoveFile(file) {      //到下面successUploadFile方法都是文件处理
+        this.file = null;
+        this.fileList = [];
+      },
+      handlePreview(file) {
+        console.log(file);
+      },
+      handleExceed(files) {
+        this.$message.warning('当前只允许传输一个文件');
+      },
+      beforeRemove(file) {
+        return this.$confirm(`确定移除 ${ file.name }？`);
+      },
+      successUploadFile(response, file) {
+        this.fileList = [{
+          name: file.name,
+          url: response.data.url
+        }]
+      },
+      tabHandle(tabs) {     //切换状态栏
+        var status;
+        if (tabs.name == 4) {
+          status = {};
+        } else {
+          status = tabs.name;
+        }
+        var parmas = {
+          pId: 0,
+          type: this.type,
+          status: status,
+          page: this.currentPage,
+          pageSize: this.pageSize
+        }
+        this.loading = true;
+        queryTechnicalSupportList(parmas, res => {
+          this.dataList = res.data.list;
+          this.loading = false;
+        })
+      },
+      closeReply(){ //关闭新增支持弹窗
+        this.form={}
+      },
+      handleSizeChange(pageSize) { //数据条数改变时
+        this.loading = true;
+        this.pageSize = pageSize;
+        this.currentPage = 1;
+        this.queryTechnicalSupportList();
+      },
+      handleCurrentChange(currentPage) { //选取分页
+        this.loading = true;
+        this.currentId = [];
+        this.queryTechnicalSupportList();
+      },
+      queryTechnicalSupportList() {  //查询技术支持列表
+        var parmas = {
+          pId: 0,
+          type: this.type,
+          status: this.activeTab,
+          page: this.currentPage,
+          pageSize: this.pageSize
+        }
+        this.loading = true;
+        queryTechnicalSupportList(parmas, res => {
+          this.dataList = res.data.list;
+          this.loading = false;
+        })
+      },
+      updateTechnicalSupport(row) { //修改技术支持 状态0未读1待处理2处理中3已完成
+        var parmas = {
+          status: 1, //状态0未读1待处理2处理中3已完成
+          beId: row.beId //关联ID
+        }
+        return
+        if(row.status==0){
+          updateTechnicalSupport(parmas, res => {
+            if (res.msgCode != 200) {
+              this.$message({
+                type: 'info',
+                message: res.msg
+              });
+            }
+          })
+        }
+      },
+      discussHandle(row) {
+        this.discussStatus = true;
+        this.discussMsg = row;
+        this.updateTechnicalSupport(row);
+      },
+      istopHandle(isTop,id) { //置顶
+        updateTechnicalSupport({
+          isTop:isTop,
+          id:id
+        }, res => {
+          if (res.msgCode != 200) {
+            this.$message({
+              type: 'info',
+              message: res.msg
+            });
+          }
+        })
+      },
+      insertTechnicalSupport(){
+        var parmas={
+            // beId:orderRowList.id,// 关联ID 
+            // optFile: ,//文件信息 
+            // type:this.type,//类型1售前2调试3售后
+            // remark: ,//内容
+            // isTop: ,//是否置顶
+            // isSMS: ,//是否通知 
+            // buyerId: ,//采购ID（多选|隔开）
+            // technicalId: //技术支持ID（多选|隔开）
+        }
+        // insertTechnicalSupport(parmas,res=>{
+
+        // })
+      },
+      getBuyerTechnical() {     //获取采购，技术人员列表
+        getBuyerTechnical((res) => {
+          this.buyerList = res.data.buyerList;
+          this.technicalList = res.data.technicalList;
+          //this.buyerArr = this.filterBuyerHandle()||[];
+          //this.technicalArr = this.filterTechnicalHandle()||[];
+        })
+      }
+    },
+    components: {
+      discuss: () => import('@/page/admin/order/components/discuss')
+    },
+    mounted() {
+      this.queryTechnicalSupportList();
+    }
+  }
+
+</script>
+<style lang="scss" scoped>
+  .content {
+    position: relative;
+    // padding: 20px;
+    margin-top: 15px;
+  }
+  .content /deep/ .el-tabs{
+    width: 350px;
+  }
+  .replyVisible /deep/ .el-dialog{
+    margin-top: 5vh!important;
+  }
+  .discussSty {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    min-height: 100%;
+    z-index: 1500;
+    box-shadow: 0px 0px 10px #eee;
+    background: #fff;
+    box-sizing: border-box;
+  }
+
+  .listSty {
+    display: flex;
+    align-items: center;
+  }
+
+  .iconSty {
+    width: 40px;
+    height: 40px;
+    background: #16BD86;
+    color: #fff;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 5px;
+  }
+
+  .iconSty>i {
+    font-size: 23px;
+  }
+
+  .listSty>span {
+    padding-left: 15px;
+  }
+
+  .returnSty {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    color: #888;
+    font-size: 13px;
+  }
+
+  .preSale /deep/ ::-webkit-scrollbar {
+    height: 9px;
+    width: 7px;
+    // border-radius: 4px;
+  }
+
+  .fade-transform-leave-active,
+  .fade-transform-enter-active {
+    transition: all .2s;
+  }
+
+  .fade-transform-enter {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+
+  .fade-transform-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+</style>

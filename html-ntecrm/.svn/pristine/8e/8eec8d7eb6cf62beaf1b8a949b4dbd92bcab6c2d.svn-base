@@ -1,0 +1,99 @@
+<template>
+  <div class="navTitle">
+    <el-breadcrumb separator="/">
+      <el-breadcrumb-item :to="{ path: 'home' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item>{{navName}}</el-breadcrumb-item>
+    </el-breadcrumb>
+  </div>
+</template>
+<script type="text/javascript">
+  export default {
+    name: 'navTitle',
+    data() {
+      return {
+        navName: null
+      }
+    },
+    watch: {
+      //把侧边的栏做成这样我也没办法，就是这么简单，初期什么都没有
+      $route(to, from) {
+        this.$store.state.asideDefaultActive = to.path.split('/').pop()
+        //console.log(to.path.split('/').pop());
+        if (to.path == "/admin/home") {
+          this.navName = null;
+        } else if (to.path == "/admin/customer") {
+          this.navName = "客户管理"
+        } else if (to.path == "/admin/goods") {
+          this.navName = "商品管理"
+        } else if (to.path == "/admin/operator") {
+          this.navName = "管理员管理"
+        } else if (to.path == "/admin/role") {
+          this.navName = "角色管理"
+        } else if (to.path == "/admin/region") {
+          this.navName = "区域管理"
+        } else if (to.path == "/admin/offerList") {
+          this.navName = "需求管理"
+        } else if (to.path == "/admin/system") {
+          this.navName = "系统管理"
+        } else if (to.path == "/admin/discountApp") {
+          this.navName = "折扣申请"
+        } else if (to.path == "/admin/order") {
+          this.navName = "订单管理"
+        } else if (to.path == "/admin/jurisdiction") {
+          this.navName = "权限设置"
+        } else if (to.path == "/admin/TechnicalSupport") {
+          this.navName = "技术工作台"
+        } else if (to.path == "/admin/brand") {
+          this.navName = "品牌"
+        }else if (to.path == "/admin/supplier") {
+          this.navName = "供应商管理"
+        }else if (to.path == "/admin/category") {
+          this.navName = "商品分类"
+        }
+      }
+    },
+    mounted() {
+      var path = this.$store.state.asideDefaultActive;
+      if (path == "home") {
+        this.navName = null;
+      } else if (path == "customer") {
+        this.navName = "客户管理"
+      } else if (path == "goods") {
+        this.navName = "商品管理"
+      } else if (path == "operator") {
+        this.navName = "管理员管理"
+      } else if (path == "role") {
+        this.navName = "角色管理"
+      } else if (path == "region") {
+        this.navName = "区域管理"
+      } else if (path == "offerList") {
+        this.navName = "需求管理"
+      } else if (path == "system") {
+        this.navName = "系统管理"
+      } else if (path == "discountApp") {
+        this.navName = "折扣申请"
+      } else if (path == "order") {
+        this.navName = "订单管理"
+      } else if (path == "jurisdiction") {
+        this.navName = "权限设置"
+      }else if (path == "TechnicalSupport") {
+        this.navName = "技术工作台"
+      }else if (path == "brand") {
+        this.navName = "品牌"
+      }else if (path == "supplier") {
+          this.navName = "供应商管理"
+      }else if (path == "category") {
+          this.navName = "商品分类"
+      }
+    }
+  }
+
+</script>
+<style lang="scss" scoped>
+  .navTitle {
+    margin-top: 15px;
+    margin-left: 20px;
+    color: #999;
+  }
+
+</style>

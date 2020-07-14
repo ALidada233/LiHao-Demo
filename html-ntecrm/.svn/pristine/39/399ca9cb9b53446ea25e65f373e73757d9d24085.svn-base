@@ -1,0 +1,320 @@
+<template>
+  <div class="customersContract">
+
+    <div style="padding:20px;">
+      <!-- <h2 style="font-size: 16px;">已报价列表</h2> -->
+      <div class="left" style="margin-bottom: 20px;">
+        <el-select no-data-text="加载中" clearable v-model="selectLinkMan" filterable @change="searchLinkName(selectLinkMan)"
+          placeholder="请选择公司">
+          <el-option v-for="(item,index) in customerList" :key="index" :label="item.custCompanyName" :value="item.custCompanyName">
+          </el-option>
+        </el-select>
+        <el-select no-data-text="加载中" clearable v-model="selectConId" filterable placeholder="请选择联系人">
+          <el-option v-for="(item,index) in selectLinkList" :key="index" :label="item.conName" :value="item.conId">
+          </el-option>
+        </el-select>
+        <el-select v-model="saleId" placeholder="请选择负责人" :filterable="true" :clearable="true" style="width:150px;margin-right: 15px;margin-top: 10px;">
+          <el-option v-for="(item,index) in salesList" :key="index" :label="item.name" :value="item.id">
+          </el-option>
+        </el-select>
+        <el-button type="primary" size="medium" @click="queryContractList()" icon="el-icon-search"></el-button>
+        <el-button type="primary" size="medium" @click="$emit('closeContractDialog');clearItem()" icon="el-icon-back"></el-button>
+      </div>
+      <el-table v-loading="loading" :data="dataList" height="550" :border="true" style="width: 100%;margin-top: 30px;">
+        <el-table-column label="操作" width="65">
+          <template slot-scope="props">
+            <el-button type="primary" size="mini" v-if="selectType=='offerNaiteen'" icon="el-icon-document" @click="comfirmContract(props.row)">
+            </el-button>
+            <el-button type="primary" v-if="selectType!=='offerNaiteen'" icon="el-icon-tickets" size="mini" @click="comfirmContract(props.row)">
+            </el-button>
+          </template>
+        </el-table-column>
+        <!--   <el-table-column
+			      label="需求 ID"
+			      prop="demandId">
+			    </el-table-column> -->
+        <!-- <el-table-column
+			      label="需求编码"
+						align="center"
+			      prop="demandCode">
+			    </el-table-column> -->
+        <el-table-column label="报价单号" align="center" width="150" prop="offerCode">
+        </el-table-column>
+        <el-table-column label="产品信息" width="400" align="center" prop="goods_info">
+          <template slot-scope="scope">
+            <!-- <span v-html="capitalizeHandle(scope.row.goods_info)"></span> -->
+            <span>{{scope.row.goodsInfo}}</span><br>
+            <span>{{scope.row.assistInfo}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="总标准价" width="100" align="center">
+          <template slot-scope="scope">
+            <span>￥{{scope.row.goodsOffer}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="总报价" width="100" align="center">
+          <template slot-scope="scope">
+            <span>￥{{scope.row.totalOffer}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="商品折扣" align="center">
+          <template slot-scope="scope">
+            <span>{{scope.row.discount}}%</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="总折扣率" align="center">
+          <template slot-scope="scope">
+            <span>{{scope.row.finalDiscount}}%</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="客户公司" align="center" width="150">
+          <template slot-scope="scope">
+            <span>
+              <el-popover placement="top-start" title="" width="150" trigger="hover" :content="scope.row.companyName">
+                <span slot="reference" style="cursor:default;" v-html="$root.OmissionText(scope.row.companyName,10)"></span>
+              </el-popover>
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="联系人信息" align="center" width="180">
+          <template slot-scope="scope">
+            <span>{{scope.row.contacts}}-{{scope.row.phone}}<br>{{scope.row.email}}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="备注" width="200" prop="remark">
+        </el-table-column>
+        <el-table-column label="操作人" align="center" prop="createName">
+        </el-table-column>
+        <el-table-column label="创建时间" width="180" prop="createTime">
+        </el-table-column>
+      </el-table>
+
+    </div>
+    <!--分页-->
+    <div class="block" style="float: right;margin-top:10px;">
+      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="currentPage"
+        :page-sizes="[5, 10, 15, 30]" :page-size="pageSize" layout="sizes, prev, pager, next, total" :total="pageCount">
+      </el-pagination>
+    </div>
+
+    <!-- 耐特恩报价 -->
+    <transition name="el-fade-in-linear">
+      <component :is="selectType"  v-show="naiteenVisible" class="naiteen" @closeContractDialog="naiteenVisible=false;naiteenId=null;clearItem();$root.BackToTop();"
+        @resetTable="queryContractList" :id="naiteenId" :type="type" :naiteenContent="naiteenContent"></component>
+      <!-- <naiteen
+			 v-show="naiteenVisible"
+			 class="naiteen"
+			 @closeContractDialog="naiteenVisible=false;naiteenId=null"
+			 @resetTable="queryContractList"
+			 :id="naiteenId"
+			 :naiteenContent="naiteenContent"
+			 >
+			</naiteen> -->
+    </transition>
+    <!-- 必优合同 -->
+    <!-- <transition name="el-fade-in-linear">
+      <biyou class="biyou" @closeContractDialog="biyouVisible=false;" @resetTable="queryContractList" v-show="biyouVisible"
+        :biyou="biyouContent">
+
+      </biyou>
+    </transition> -->
+  </div>
+</template>
+
+<script type="text/javascript">
+  import {queryContractList} from "util/req/customer/demand";
+  import {getCustomerName,getSalesList,getCustomerConList} from "util/req/customer/table";
+  //import biyou from "@/page/admin/offerList/components/biyou";
+  //import offerNaiteen from "@/page/admin/offerList/components/naiteen";
+  import contract from "@/page/admin/offerList/components/components/template";
+  import offer from "@/page/admin/offerList/components/template";
+  export default {
+    name: "customersContract",
+    props: {
+      getCustID: {
+        type: Number
+      },
+      contractStatus: {
+        type: Boolean
+      },
+      type: {
+        type: String
+      }
+    },
+    data() {
+      return {
+        loading: false,
+        dataList: [{
+          id: null, //id
+          goodsCategory: null, //产品类别
+          productName: null, //产品名称
+          model: null, //品牌
+          budgetaryPrice: null, //预算价格
+          contacts: null, //联系人
+          phone: null, //电话
+          email: null, //邮箱
+          status: null, //状态
+          delFlag: null, //删除状态
+          remark: null, //备注
+          createName: null, //创建人姓名
+          createTime: null, //创建人时间
+          updateTime: null //修改时间
+        }],
+        pageSize: 10,
+        page: 1,
+        currentPage: 1,
+        pageCount: null,
+        naiteenVisible: false,
+        biyouVisible: false,
+        naiteenContent: null, //耐特恩合同详情内容
+        biyouContent: null, //必优合同详情内容
+        naiteenId: null,
+        selectType: this.type,
+        saleId: null,
+        salesList: [],
+        customerList: [],
+        selectLinkMan: null, //公司联系人集合
+        searchName: null, //联系人
+        selectLinkList: [],
+        selectConId: null
+      }
+    },
+    watch: {
+      getCustID(val) {
+
+      },
+      contractStatus(status) {
+        if (status) {
+          this.queryContractList();
+        }
+      },
+      type(status) {
+        if (status == "offer") {
+          this.selectType = "offer"
+        } else {
+          this.selectType = "contract"
+        }
+      }
+    },
+    methods: {
+      clearItem() {
+        this.saleId = null;
+        this.conId = null;
+        this.keys = null;
+      },
+      capitalizeHandle(value) {
+        if (value) {
+          return value.replace("|", "<br><br>");
+        }
+      },
+      queryContractList() { //获取报价列表
+        var params = {
+          pageSize: this.pageSize,
+          page: this.currentPage
+        }
+        if (this.type == 'offer') {
+          params.status = 1
+        } else {
+          params.status = 2
+        }
+        params.status = 1
+        //查询需求时需要加上的条件
+        if (this.selectConId) { //联系人
+          params.conId = this.selectConId;
+        }
+        if (this.selectLinkMan) { //公司名称
+          params.keys = this.selectLinkMan;
+        }
+        if (this.saleId) { //负责人名称
+          params.saleId = this.saleId;
+        }
+        this.loading = true;
+        queryContractList(params, res => {
+          this.loading = false;
+          this.pageCount = res.data.pageCount;
+          this.loading=true;
+          this.dataList = res.data.list;
+          setTimeout(()=>{
+            this.loading=false;
+          },100)
+          
+        })
+      },
+      handleSizeChange(pageSize) { //数据条数改变时
+        this.pageSize = pageSize;
+        this.currentPage = 1;
+        this.queryContractList();
+      },
+      handleCurrentChange(currentPage) { //选取分页
+        this.currentPage = currentPage;
+        this.queryContractList();
+      },
+      comfirmContract(row) {
+        console.log(row);
+        this.naiteenVisible = true;
+        this.naiteenContent = row;
+        this.naiteenId = row.id;
+        console.log(this.naiteenContent);
+      },
+      getCustomerName() {
+        getCustomerName({
+          pageSize: 1000,
+          page: 1
+        }, res => {
+          res = res.data.data;
+          this.customerList = res.list;
+        })
+      },
+      getSalesList() {
+        getSalesList(res => {
+          console.log(res);
+          this.salesList = res.data.data.list
+          console.log(this.salesList);
+        })
+      },
+      searchLinkName(val) { //查询联系人
+        var item = this.customerList.filter(res => {
+          return res.custCompanyName == val
+        })
+        console.log(item)
+        getCustomerConList({
+          custCode: item[0].custCode
+        }, data => {
+          this.selectLinkList = data.data.list
+        })
+      }
+    },
+    mounted() {
+      this.getSalesList();
+      this.getCustomerName();
+    },
+    components: {
+      // biyou,
+      // offerNaiteen,
+      // contractNaiteen,
+      offer,
+      contract
+    }
+  }
+
+</script>
+
+
+<style lang="scss" scoped>
+  .customersContract {
+    padding: 20px 0;
+    box-sizing: border-box;
+  }
+
+  .naiteen {
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: #fff;
+    z-index: 100;
+    width: 100%;
+    min-height: 100%;
+  }
+
+</style>

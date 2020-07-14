@@ -1,0 +1,250 @@
+<template>
+  <div class="orderPayLog">
+    <div style="margin-top:-20px;margin-bottom: 20px;">
+      <el-input
+        style="width: 15%;margin-top: 20px;"
+        placeholder="请输入订单编号"
+        size="medium"
+        v-model="orderNo"
+        clearable
+      ></el-input>
+      <el-input
+        style="width: 15%;margin-top: 20px;"
+        placeholder="请输入业务员/客户公司"
+        size="medium"
+        v-model="keys"
+        clearable
+      ></el-input>
+      <el-select
+        v-model="status"
+        placeholder="请选择状态"
+        :clearable="true"
+        style="width:150px;margin-top: 10px;"
+        size="medium"
+      >
+        <el-option value="0" label="作废">作废</el-option>
+        <el-option value="1" label="有效">有效</el-option>
+      </el-select>
+      <el-date-picker
+        v-model="createTime"
+        value-format="yyyy-MM-dd HH:mm:ss"
+        type="datetimerange"
+        range-separator="至"
+        start-placeholder="支付开始日期"
+        end-placeholder="支付结束日期"
+        align="right"
+        size="medium"
+        style="margin-top: 10px;width:290px;margin-right: 15px;"
+      ></el-date-picker>
+      <el-button
+        type="primary"
+        size="medium"
+        style="margin-top: 15px;"
+        @click="queryOrderPayList"
+        icon="el-icon-search"
+      ></el-button>
+      <el-button
+        v-tip.top.dark="'重置'"
+        style="margin-top:10px;"
+        size="medium"
+        icon="el-icon-refresh"
+        @click="resetSearchCondition()"
+      ></el-button>
+    </div>
+    <el-table
+      :data="orderPayLog"
+      v-loading="loading"
+      ref="table"
+      :border="true"
+      :height="tableHeight"
+      width="100%;"
+      :header-cell-style="{'background-color':'#EFEDF0'}"
+      style="margin-top:20px;"
+    >
+      <el-table-column width="150" prop="orderNo" label="订单编号" align="center">
+        <template slot-scope="scope">
+          <span
+            style="color:#409EFF;cursor:default;"
+            @click="$router.push({path:'/admin/order',query:{orderNo:scope.row.orderNo}})"
+          >{{scope.row.orderNo}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="业务员" align="center" width="80">
+        <template slot-scope="scope">
+          <span>{{scope.row.saleName}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="客户公司" align="center" width="210">
+        <template slot-scope="scope">
+          <span>
+            <el-popover
+              placement="top-start"
+              title
+              width="210"
+              trigger="hover"
+              :content="scope.row.custCompanyName"
+            >
+              <span
+                slot="reference"
+                style="cursor:default;"
+                v-html="$root.OmissionText(scope.row.custCompanyName==null?null:scope.row.custCompanyName,12)"
+              ></span>
+            </el-popover>
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column width="100" label="客户属性" align="center">
+        <template slot-scope="scope">
+          <span v-if="scope.row.custBelong==1">必优</span>
+          <span v-if="scope.row.custBelong==2">耐特恩</span>
+          <span v-if="scope.row.custBelong==3">必优传媒</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="100" label="状态" align="center">
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.status==0" type="danger">作废</el-tag>
+          <el-tag v-if="scope.row.status==1" type="success">有效</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column width="100" label="支付类型" align="center">
+        <template slot-scope="scope">
+          <span v-if="scope.row.type==1">预付</span>
+          <span v-if="scope.row.type==2">尾款</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="100" prop="money" label="支付金额" align="center"></el-table-column>
+      <el-table-column prop="tradeNo" label="流水号" align="center" width="200"></el-table-column>
+      <el-table-column prop="remark" label="备注" align="center"></el-table-column>
+      <el-table-column prop="createName" label="创建人" align="center" width="120"></el-table-column>
+      <el-table-column width="160" prop="payTime" label="支付时间" align="center"></el-table-column>
+    </el-table>
+    <div class="clearPa edit">
+      <!-- 分页 -->
+      <div class="block" style="float: right;margin-top:10px;">
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page.sync="currentPage"
+          :page-sizes="[5, 10, 15, 30]"
+          :page-size="pageSize"
+          layout="sizes, prev, pager, next, total"
+          :total="pageCount"
+        ></el-pagination>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import { queryOrderPayList } from "@/util/req/payLog/index";
+export default {
+  name: "payLog",
+  data() {
+    return {
+      tableHeight: null,
+      loading: false,
+      currentPage: 1,
+      pageSize: 10,
+      pageCount: null,
+      orderPayLog: [],
+      createTimeStart: null,
+      createTimeEnd: null,
+      orderNo: null,
+      createTime: null,
+      status: null,
+      keys: null
+    };
+  },
+  watch: {
+    createTime(val) {
+      if (val != null) {
+        this.createTimeStart = val[0];
+        this.createTimeEnd = val[1];
+      } else {
+        this.createTimeStart = null;
+        this.createTimeEnd = null;
+      }
+    }
+  },
+  methods: {
+    handleSizeChange(pageSize) {
+      //数据条数改变时
+      this.loading = true;
+      this.pageSize = pageSize;
+      this.currentPage = 1;
+      this.queryOrderPayList();
+    },
+    handleCurrentChange(currentPage) {
+      //选取分页
+      this.loading = true;
+      this.queryOrderPayList();
+    },
+    resetSearchCondition() {
+      this.createTimeStart = null;
+      this.createTimeEnd = null;
+      this.orderNo = null;
+      this.createTime = null;
+      this.status = null;
+      this.keys = null;
+      this.queryOrderPayList();
+    },
+    queryOrderPayList() {
+      //查询列表
+      var parmas = {
+        pageSize: this.pageSize,
+        page: this.currentPage
+      };
+      if (this.status) {
+        parmas.status = this.status;
+      }
+      if (this.orderNo) {
+        parmas.orderNo = this.orderNo;
+      }
+      if (this.createTimeStart) {
+        parmas.createTimeStart = this.createTimeStart;
+        parmas.createTimeEnd = this.createTimeEnd;
+      }
+      if (this.keys) {
+        parmas.keys = this.keys;
+      }
+      this.loading = true;
+      queryOrderPayList(parmas, res => {
+        if (res.msgCode == 200) {
+          this.orderPayLog = res.data.list;
+          this.pageCount = res.data.pageCount;
+          this.$refs.table.bodyWrapper.scrollTop = 0;
+          setTimeout(() => {
+            this.loading = false;
+          }, 200);
+        } else {
+          setTimeout(() => {
+            this.loading = false;
+          }, 200);
+        }
+      });
+    }
+  },
+  mounted() {
+    this.tableHeight =
+      window.innerHeight - this.$refs.table.$el.offsetTop - 120;
+    if (this.$route.query.orderNo) {
+      this.orderNo = this.$route.query.orderNo;
+    }
+    //去掉又客户需求跳转进来的需求带公司名称
+    var currentUrl = window.location.href;
+    var targetUrl = currentUrl.split("?")[0];
+    window.location.href = targetUrl;
+    this.queryOrderPayList();
+  }
+};
+</script>
+<style lang="scss" scoped>
+.orderPayLog {
+  background: #fff;
+  border-radius: 4px;
+  padding: 20px;
+}
+.orderPayLog /deep/ ::-webkit-scrollbar {
+  height: 9px;
+  width: 7px;
+}
+</style>

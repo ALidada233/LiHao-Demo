@@ -1,0 +1,37 @@
+import axios from 'axios';
+import requestUrl from '@/util/http.js'
+//本地环境
+var api;
+if(process.env.NODE_ENV=="development"){
+    api="/nte-crm"
+}else{  //测试环境
+    api=requestUrl;
+}
+//获取公告列表 
+export const getPlacard=(callback)=>{
+  axios({
+      url:api+"/getPlacard",
+      method:'get'
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+//获取 记事本 
+export const getNotebook=(callback)=>{
+  axios({
+      url:api+"/getNotebook",
+      method:'get'
+  }).then(res=>{
+     callback(res.data)
+  })
+}
+// 新增/修改公告或记事本
+export const saveSystemMsg=(params,callback)=>{
+  axios({
+      url:api+"/saveSystemMsg",
+      method:'post',
+      data: params
+  }).then(res=>{
+     callback(res.data)
+  })
+}
